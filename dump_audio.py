@@ -6,6 +6,7 @@ from pathlib import Path
 pcRootPath = "d:\dump_audio"
 currentTime = time.strftime("%Y%m%d_%H-%M-%S", time.localtime())
 nowPullPath = pcRootPath + "\\" + currentTime
+print('Current date:' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ', directory is: ' + nowPullPath)
 DUMP_DEBUG = False
 
 if not Path(pcRootPath).exists():
@@ -16,6 +17,7 @@ os.makedirs(nowPullPath)
 os.system('adb root')
 os.system('adb remount')
 
+print('Please wait a moment, starting to dump debugging information...')
 dumpCmdOutFilePath = '/data/dump_audio.log'
 adbDumpCmdLists = [
     'cat /proc/asound/cards',
@@ -82,7 +84,7 @@ for adbDumpDataStart in adbDumpDataStartLists:
         print(exeCmdInfo)
     os.system(exeCmdInfo)
 
-print('begin fetching the audio data, wait for 3 seconds...')
+print('Start fetching the audio data, wait for 3 seconds...')
 time.sleep(3)
 for adbDumpDataStop in adbDumpDataStopLists:
     exeCmdInfo = 'adb shell "' + adbDumpDataStop + '"'
@@ -102,5 +104,11 @@ for dumpFile in dumpFileLists:
     if DUMP_DEBUG:
         print(exeCmdInfo)
     os.system(exeCmdInfo)
+
+print('###############################################################################################')
+print('##                                                                                           ##')
+print('##  Please send folder %-40s' % nowPullPath + ' to RD colleagues! Thank You! ##')
+print('##                                                                                           ##')
+print('###############################################################################################')
 
 os.system('pause')
