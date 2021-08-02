@@ -44,17 +44,20 @@ def clik_button_stop_capture():
 
 tabControl = ttk.Notebook(root)          # Create Tab Control
 
-tab1 = tkinter.Frame(tabControl)            # Create a tab 
-tabControl.add(tab1, text='Audio Debug')      # Add the tab
-tab2 = tkinter.Frame(tabControl)            # Add a second tab
-tabControl.add(tab2, text='Push')      # Make second tab visible
+
+
+Frame_captrueAudio = tkinter.Frame(tabControl)
+tabControl.add(Frame_captrueAudio, text='Audio Debug')
+
+Frame_transferFile = tkinter.Frame(tabControl)
+tabControl.add(Frame_transferFile, text='Transfer Files')
+
 tabControl.pack(expand=1, fill="both")  # Pack to make visible
 
-
-# LabelFrame using tab1 as the parent
-LabelFrame_DebugCaptureAudio = tkinter.LabelFrame(tab1, text=' 抓取音频数据 ')
+########################################################################################################
+# Table 1: "Audio Debug"
+LabelFrame_DebugCaptureAudio = tkinter.LabelFrame(Frame_captrueAudio, text=' 抓取音频数据 ')
 LabelFrame_DebugCaptureAudio.grid(row=0, column=0, rowspan=500, columnspan=800)
-
 
 LabelFrame_showInfo = tkinter.LabelFrame(LabelFrame_DebugCaptureAudio, text='cmd info:')
 LabelFrame_showInfo.grid(row=3, column=0, rowspan=700, columnspan=350, sticky='NW')
@@ -72,12 +75,14 @@ LabelFrame_printDebug.grid(row=1, column=3, sticky='NS')
 Checkbutton_printDebug = tkinter.Checkbutton(LabelFrame_printDebug, text='Enable', variable=printDebugEnable)
 Checkbutton_printDebug.grid(row=3, column=1)
 
-BuScrollbar_captureMode = tkinter.Scrollbar()
+'''
+BuScrollbar_captureMode = tkinter.Scrollbar(LabelFrame_DebugCaptureAudio)
 #BuScrollbar_captureMode.pack(side=tkinter.RIGHT,fill=tkinter.Y)
-BuScrollbar_captureMode.place(x=627, y=140, width=20, height=200)
+#BuScrollbar_captureMode.place(x=627, y=140, width=20, height=200)
+BuScrollbar_captureMode.grid(row=19, column=380, rowspan=400, columnspan=20)
 BuScrollbar_captureMode.config(command=Text_showInfo.yview)
+'''
 
-# LabelFrame using tab1 as the parent
 LabelFrame_DebugCaptureAudioMode = ttk.LabelFrame(LabelFrame_DebugCaptureAudio, text=' 抓取模式: ')
 LabelFrame_DebugCaptureAudioMode.grid(row=0, column=0, rowspan=3, sticky='NW')
 Radiobutton_captureAutoMode = tkinter.Radiobutton(LabelFrame_DebugCaptureAudioMode, text='自动抓取', variable=captureMode, \
@@ -92,7 +97,6 @@ Button_startCapture.grid(row=0, column=4, padx=6)
 Button_stopCapture = tkinter.Button(LabelFrame_DebugCaptureAudio, text='停止抓取', command=clik_button_stop_capture, width=10, height=2)
 Button_stopCapture.grid(row=1, column=4, padx=6, pady=9)
 
-
 LabelFrame_DebugCaptureAudioOption = ttk.LabelFrame(LabelFrame_DebugCaptureAudio, text=' Capture option: ')
 LabelFrame_DebugCaptureAudioOption.grid(row=0, column=1, rowspan=3, columnspan=1, sticky='NW')
 Checkbutton_debugInfo = tkinter.Checkbutton(LabelFrame_DebugCaptureAudioOption, text='Debug Info', variable=debugInfoEnable)
@@ -101,6 +105,111 @@ Checkbutton_Logcat = tkinter.Checkbutton(LabelFrame_DebugCaptureAudioOption, tex
 Checkbutton_debugInfo.grid(row=2, column=1)
 Checkbutton_dumpData.grid(row=3, column=1)
 Checkbutton_Logcat.grid(row=4, column=1)
+
+########################################################################################################
+# Table 2: "Transfer Files"
+LabelFrame_DebugPushFiles = tkinter.LabelFrame(Frame_transferFile, text='Push files')
+LabelFrame_DebugPushFiles.grid(row=0, column=0, rowspan=50, columnspan=1000)
+
+AudioSrcPath_Label = tkinter.Label(LabelFrame_DebugPushFiles, text="Source path:")
+AudioSrcPath_Label.grid(row=0, column=10, rowspan=1, columnspan=10)
+AudioDstPath_Label = tkinter.Label(LabelFrame_DebugPushFiles, text="Destination path:")
+AudioDstPath_Label.grid(row=0, column=43, rowspan=1, columnspan=10)
+
+
+
+
+DolbyDtsDstPath = tk.StringVar()
+DolbySrcPath = tk.StringVar()
+DtsSrcPath = tk.StringVar()
+dolbyMs2DstPath = tk.StringVar()
+dolbyMs2SrcPath = tk.StringVar()
+customPushDstPath = tk.StringVar()
+customPushSrcPath = tk.StringVar()
+DolbyDtsDstPath.set('/vendor/lib/')
+dolbyMs2DstPath.set('/odm/etc/ms12/')
+
+customPullDstPath = tk.StringVar()
+customPullSrcPath = tk.StringVar()
+subprocess.call('adb root', shell=True)
+subprocess.call('adb remount', shell=True)
+
+def pushFilesToSoc(src, dst):
+    subprocess.call('adb push ' + src + ' ' + dst, shell=True)
+
+def pullFilesToSoc(src, dst):
+    subprocess.call('adb pull ' + src + ' ' + dst, shell=True)
+
+def pushDstDolby():
+    pushFilesToSoc(DolbySrcPath.get() + '\\libHwAudio_dcvdec.so', DolbyDtsDstPath.get())
+    pushFilesToSoc(DtsSrcPath.get() + '\\libHwAudio_dtshd.so', DolbyDtsDstPath.get())
+def pushMs12():
+    pushFilesToSoc(dolbyMs2SrcPath.get() + '\\libdolbyms12.so', dolbyMs2DstPath.get())
+def pushCustom():
+    pushFilesToSoc(customPushSrcPath.get(), customPushDstPath.get())
+def pushAll():
+    pushDstDolby()
+    pushMs12()
+    pushCustom()
+
+def pullCustom():
+    pullFilesToSoc(customPullSrcPath.get(), customPullDstPath.get())
+
+Label_AudioDolbySo = tkinter.Label(LabelFrame_DebugPushFiles, text="Dolby so:")
+Label_AudioDolbySo.grid(row=1, column=0, rowspan=1, columnspan=10)
+Entry_pushDolbySoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=DolbySrcPath)
+Entry_pushDolbySoSrcPath.grid(row=1, column=10, rowspan=1, columnspan=10)
+
+Label_AudioDtsSo = tkinter.Label(LabelFrame_DebugPushFiles, text="Dts so:")
+Label_AudioDtsSo.grid(row=2, column=0, rowspan=1, columnspan=10)
+Entry_pushDtsSoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=DtsSrcPath)
+Entry_pushDtsSoSrcPath.grid(row=2, column=10, rowspan=1, columnspan=10)
+Label_arrow0 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
+Label_arrow0.grid(row=1, column=35, rowspan=2, columnspan=10)
+Entry_pushDtsSoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=DolbyDtsDstPath)
+Entry_pushDtsSoDstPath.grid(row=1, column=45, rowspan=2, columnspan=10)
+Button_startCapturedts = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushDstDolby, width=10, height=1)
+Button_startCapturedts.grid(row=1, column=75, padx=6, rowspan=2, columnspan=1)
+
+Label_AudioMs12So = tkinter.Label(LabelFrame_DebugPushFiles, text="Ms12 so:")
+Label_AudioMs12So.grid(row=3, column=0, rowspan=1, columnspan=10)
+Entry_pushMs12SoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=dolbyMs2SrcPath)
+Entry_pushMs12SoSrcPath.grid(row=3, column=10, rowspan=1, columnspan=10)
+Label_arrow1 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
+Label_arrow1.grid(row=3, column=35, rowspan=1, columnspan=10)
+Entry_pushMs12SoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=dolbyMs2DstPath)
+Entry_pushMs12SoDstPath.grid(row=3, column=45, rowspan=1, columnspan=10)
+Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushMs12, width=10, height=1)
+Button_startCaptureMs12.grid(row=3, column=75, padx=6)
+
+Label_AudioMs12So = tkinter.Label(LabelFrame_DebugPushFiles, text="custom:")
+Label_AudioMs12So.grid(row=4, column=0, rowspan=1, columnspan=10)
+Entry_pushMs12SoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=customPushSrcPath)
+Entry_pushMs12SoSrcPath.grid(row=4, column=10, rowspan=1, columnspan=10)
+Label_arrow2 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
+Label_arrow2.grid(row=4, column=35, rowspan=1, columnspan=10)
+Entry_pushMs12SoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=customPushDstPath)
+Entry_pushMs12SoDstPath.grid(row=4, column=45, rowspan=1, columnspan=10)
+Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushCustom, width=10, height=1)
+Button_startCaptureMs12.grid(row=4, column=75, padx=6)
+
+Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPushFiles, text='Push All', command=pushAll, width=10, height=8)
+Button_startCaptureMs12.grid(row=1, column=90, padx=6, rowspan=5, columnspan=10)
+
+
+
+LabelFrame_DebugPullFiles = tkinter.LabelFrame(Frame_transferFile, text='Pull files')
+LabelFrame_DebugPullFiles.grid(row=100, column=0)
+Label_pullCustom = tkinter.Label(LabelFrame_DebugPullFiles, text="custom:")
+Label_pullCustom.grid(row=0, column=0, rowspan=1, columnspan=10)
+Entry_pushCustomSrcPath = tkinter.Entry(LabelFrame_DebugPullFiles, textvariable=customPullSrcPath)
+Entry_pushCustomSrcPath.grid(row=0, column=10, rowspan=1, columnspan=10)
+Label_arrow3 = tkinter.Label(LabelFrame_DebugPullFiles, text=">")
+Label_arrow3.grid(row=0, column=35, rowspan=1, columnspan=10)
+Entry_pushCustomDstPath = tkinter.Entry(LabelFrame_DebugPullFiles, textvariable=customPullDstPath)
+Entry_pushCustomDstPath.grid(row=0, column=45, rowspan=1, columnspan=10)
+Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPullFiles, text='Pull', command=pullCustom, width=10, height=1)
+Button_startCaptureMs12.grid(row=0, column=75, padx=6)
 
 def change_capture_mode():
     audioDebug.set_capture_mode(captureMode.get())
@@ -179,6 +288,7 @@ def stopCaptureInfo():
 def callback_showCurstatusInfo(infoText):
     Text_showInfo.mark_set("here", "0.0")
     Text_showInfo.insert("here", infoText + ' \n')
+
 
 Button_stopCapture.config(state=DISABLED)
 
