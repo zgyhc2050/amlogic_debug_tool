@@ -130,7 +130,7 @@ dolbyMs2DstPath = tk.StringVar()
 dolbyMs2SrcPath = tk.StringVar()
 customPushDstPath = tk.StringVar()
 customPushSrcPath = tk.StringVar()
-DolbyDtsDstPath.set('/vendor/lib/')
+DolbyDtsDstPath.set('/odm/lib/')
 dolbyMs2DstPath.set('/odm/etc/ms12/')
 
 customPullDstPath = tk.StringVar()
