@@ -54,6 +54,7 @@ tabControl.add(Frame_transferFile, text='Transfer Files')
 
 tabControl.pack(expand=1, fill="both")  # Pack to make visible
 
+
 ########################################################################################################
 # Table 1: "Audio Debug"
 LabelFrame_DebugCaptureAudio = tkinter.LabelFrame(Frame_captrueAudio, text=' 抓取音频数据 ')
@@ -97,6 +98,9 @@ Button_startCapture.grid(row=0, column=4, padx=6)
 Button_stopCapture = tkinter.Button(LabelFrame_DebugCaptureAudio, text='停止抓取', command=clik_button_stop_capture, width=10, height=2)
 Button_stopCapture.grid(row=1, column=4, padx=6, pady=9)
 
+Button_startCapture = tkinter.Button(LabelFrame_DebugCaptureAudio, text='开始抓取', command=clik_button_start_capture, width=10, height=2)
+Button_startCapture.grid(row=0, column=4, padx=6)
+
 LabelFrame_DebugCaptureAudioOption = ttk.LabelFrame(LabelFrame_DebugCaptureAudio, text=' Capture option: ')
 LabelFrame_DebugCaptureAudioOption.grid(row=0, column=1, rowspan=3, columnspan=1, sticky='NW')
 Checkbutton_debugInfo = tkinter.Checkbutton(LabelFrame_DebugCaptureAudioOption, text='Debug Info', variable=debugInfoEnable)
@@ -109,7 +113,7 @@ Checkbutton_Logcat.grid(row=4, column=1)
 ########################################################################################################
 # Table 2: "Transfer Files"
 LabelFrame_DebugPushFiles = tkinter.LabelFrame(Frame_transferFile, text='Push files')
-LabelFrame_DebugPushFiles.grid(row=0, column=0, rowspan=50, columnspan=1000)
+LabelFrame_DebugPushFiles.grid(row=0, column=0)
 
 AudioSrcPath_Label = tkinter.Label(LabelFrame_DebugPushFiles, text="Source path:")
 AudioSrcPath_Label.grid(row=0, column=10, rowspan=1, columnspan=10)
@@ -131,8 +135,7 @@ dolbyMs2DstPath.set('/odm/etc/ms12/')
 
 customPullDstPath = tk.StringVar()
 customPullSrcPath = tk.StringVar()
-subprocess.call('adb root', shell=True)
-subprocess.call('adb remount', shell=True)
+
 
 def pushFilesToSoc(src, dst):
     subprocess.call('adb push ' + src + ' ' + dst, shell=True)
@@ -151,9 +154,13 @@ def pushAll():
     pushDstDolby()
     pushMs12()
     pushCustom()
-
 def pullCustom():
     pullFilesToSoc(customPullSrcPath.get(), customPullDstPath.get())
+def remount():
+    subprocess.call('adb root', shell=True)
+    subprocess.call('adb remount', shell=True)
+def reboot():
+    subprocess.call('adb reboot', shell=True)
 
 Label_AudioDolbySo = tkinter.Label(LabelFrame_DebugPushFiles, text="Dolby so:")
 Label_AudioDolbySo.grid(row=1, column=0, rowspan=1, columnspan=10)
@@ -179,8 +186,8 @@ Label_arrow1 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
 Label_arrow1.grid(row=3, column=35, rowspan=1, columnspan=10)
 Entry_pushMs12SoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=dolbyMs2DstPath)
 Entry_pushMs12SoDstPath.grid(row=3, column=45, rowspan=1, columnspan=10)
-Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushMs12, width=10, height=1)
-Button_startCaptureMs12.grid(row=3, column=75, padx=6)
+Button_pushMs12So = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushMs12, width=10, height=1)
+Button_pushMs12So.grid(row=3, column=75, padx=6)
 
 Label_AudioMs12So = tkinter.Label(LabelFrame_DebugPushFiles, text="custom:")
 Label_AudioMs12So.grid(row=4, column=0, rowspan=1, columnspan=10)
@@ -190,16 +197,16 @@ Label_arrow2 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
 Label_arrow2.grid(row=4, column=35, rowspan=1, columnspan=10)
 Entry_pushMs12SoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=customPushDstPath)
 Entry_pushMs12SoDstPath.grid(row=4, column=45, rowspan=1, columnspan=10)
-Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushCustom, width=10, height=1)
-Button_startCaptureMs12.grid(row=4, column=75, padx=6)
+Button_pushCustom = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushCustom, width=10, height=1)
+Button_pushCustom.grid(row=4, column=75, padx=6)
 
-Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPushFiles, text='Push All', command=pushAll, width=10, height=8)
-Button_startCaptureMs12.grid(row=1, column=90, padx=6, rowspan=5, columnspan=10)
+Button_pushAllSo = tkinter.Button(LabelFrame_DebugPushFiles, text='Push All', command=pushAll, width=10, height=8)
+Button_pushAllSo.grid(row=1, column=90, padx=6, pady=6, rowspan=5, columnspan=10, sticky='N')
 
 
 
 LabelFrame_DebugPullFiles = tkinter.LabelFrame(Frame_transferFile, text='Pull files')
-LabelFrame_DebugPullFiles.grid(row=100, column=0)
+LabelFrame_DebugPullFiles.grid(row=100, column=0, sticky='W')
 Label_pullCustom = tkinter.Label(LabelFrame_DebugPullFiles, text="custom:")
 Label_pullCustom.grid(row=0, column=0, rowspan=1, columnspan=10)
 Entry_pushCustomSrcPath = tkinter.Entry(LabelFrame_DebugPullFiles, textvariable=customPullSrcPath)
@@ -208,8 +215,16 @@ Label_arrow3 = tkinter.Label(LabelFrame_DebugPullFiles, text=">")
 Label_arrow3.grid(row=0, column=35, rowspan=1, columnspan=10)
 Entry_pushCustomDstPath = tkinter.Entry(LabelFrame_DebugPullFiles, textvariable=customPullDstPath)
 Entry_pushCustomDstPath.grid(row=0, column=45, rowspan=1, columnspan=10)
-Button_startCaptureMs12 = tkinter.Button(LabelFrame_DebugPullFiles, text='Pull', command=pullCustom, width=10, height=1)
-Button_startCaptureMs12.grid(row=0, column=75, padx=6)
+Button_pullCustom = tkinter.Button(LabelFrame_DebugPullFiles, text='Pull', command=pullCustom, width=10, height=1)
+Button_pullCustom.grid(row=0, column=75, padx=6, sticky='N')
+
+
+LabelFrame_systemOperation = tkinter.LabelFrame(Frame_transferFile, text='system operation')
+LabelFrame_systemOperation.grid(row=0, column=1, sticky='N')
+Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Remount', command=remount, width=10, height=1)
+Button_remount.grid(row=0, column=0, padx=6, pady=6, sticky='N')
+Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Reboot', command=reboot, width=10, height=1)
+Button_remount.grid(row=1, column=0, padx=6, pady=6, sticky='N')
 
 def change_capture_mode():
     audioDebug.set_capture_mode(captureMode.get())
