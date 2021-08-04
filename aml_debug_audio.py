@@ -201,7 +201,7 @@ class AmlAudioDebug:
         nowPullPath = self.__pcRootPath + "\\" + currentTime
         self.__callbackFunc('Current date:' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ', directory is: ' + nowPullPath)
         if not Path(self.__pcRootPath).exists():
-            self.__callbackFunc(self.__pcRootPath, " folder does not exist, create it.")
+            self.__callbackFunc(self.__pcRootPath + " folder does not exist, create it.")
             os.makedirs(self.__pcRootPath, 777)
         os.makedirs(nowPullPath, 777)
         return nowPullPath

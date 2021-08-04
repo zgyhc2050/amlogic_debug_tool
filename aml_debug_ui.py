@@ -16,7 +16,7 @@ root = tkinter.Tk()
 root.title('Amlogic Debug Tool')
 root.wm_attributes("-alpha", 0.95)  # 设置GUI透明度(0.0~1.0)
 root.wm_attributes("-topmost", True)  # 设置GUI置顶
-root.geometry('650x350') # 设定窗口的大小(长 * 宽)
+root.geometry('650x400') # 设定窗口的大小(长 * 宽)
 root.attributes('-topmost', False)  # 窗口置顶false
 
 captureMode = tkinter.IntVar()
@@ -200,8 +200,8 @@ Entry_pushMs12SoDstPath.grid(row=4, column=45, rowspan=1, columnspan=10)
 Button_pushCustom = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushCustom, width=10, height=1)
 Button_pushCustom.grid(row=4, column=75, padx=6)
 
-Button_pushAllSo = tkinter.Button(LabelFrame_DebugPushFiles, text='Push All', command=pushAll, width=10, height=8)
-Button_pushAllSo.grid(row=1, column=90, padx=6, pady=6, rowspan=5, columnspan=10, sticky='N')
+Button_pushAllSo = tkinter.Button(LabelFrame_DebugPushFiles, text='Push\n\nAll', command=pushAll, width=5, height=8)
+Button_pushAllSo.grid(row=1, column=90, padx=6, pady=6, rowspan=5, sticky='N')
 
 
 
@@ -220,7 +220,7 @@ Button_pullCustom.grid(row=0, column=75, padx=6, sticky='N')
 
 
 LabelFrame_systemOperation = tkinter.LabelFrame(Frame_transferFile, text='system operation')
-LabelFrame_systemOperation.grid(row=0, column=1, sticky='N')
+LabelFrame_systemOperation.grid(row=0, column=1, rowspan=2, columnspan=4, sticky='N')
 Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Remount', command=remount, width=10, height=1)
 Button_remount.grid(row=0, column=0, padx=6, pady=6, sticky='N')
 Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Reboot', command=reboot, width=10, height=1)
@@ -281,7 +281,7 @@ def startCaptureInfo():
     audioDebugConfig.m_debugInfoEnable = debugInfoEnable.get()
     audioDebugConfig.m_dumpDataEnable = dumpDataEnable.get()
     audioDebugConfig.m_logcatEnable = logcatEnable.get()
-    audioDebugConfig.m_printDebugEnable = printDebugEnable.get
+    audioDebugConfig.m_printDebugEnable = printDebugEnable.get()
     audioDebug.setAudioDebugCfg(audioDebugConfig)
     audioDebug.setShowStatusCallback(callback_showCurstatusInfo)
 
