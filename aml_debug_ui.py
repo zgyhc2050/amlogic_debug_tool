@@ -1,20 +1,22 @@
 import threading
 import tkinter
+import tkinter as tk
 import time
 import subprocess
-import tkinter as tk
+
 
 from tkinter import ttk
 from tkinter.constants import DISABLED, NORMAL
 from threading import Thread
 
 import aml_debug_audio
+import aml_common
 
 
 root = tkinter.Tk()
 #root.iconbitmap('tool.ico')
 root.title('Amlogic Debug Tool')
-root.wm_attributes("-alpha", 0.95)  # 设置GUI透明度(0.0~1.0)
+root.wm_attributes("-alpha", 1.0)  # 设置GUI透明度(0.0~1.0)
 root.wm_attributes("-topmost", True)  # 设置GUI置顶
 root.geometry('650x400') # 设定窗口的大小(长 * 宽)
 root.attributes('-topmost', False)  # 窗口置顶false
@@ -121,8 +123,6 @@ AudioDstPath_Label = tkinter.Label(LabelFrame_DebugPushFiles, text="Destination 
 AudioDstPath_Label.grid(row=0, column=43, rowspan=1, columnspan=10)
 
 
-
-
 DolbyDtsDstPath = tk.StringVar()
 DolbySrcPath = tk.StringVar()
 DtsSrcPath = tk.StringVar()
@@ -138,10 +138,9 @@ customPullSrcPath = tk.StringVar()
 
 
 def pushFilesToSoc(src, dst):
-    subprocess.call('adb push ' + src + ' ' + dst, shell=True)
-
+    aml_common.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True, callback_transferShowCurstatusInfo)
 def pullFilesToSoc(src, dst):
-    subprocess.call('adb pull ' + src + ' ' + dst, shell=True)
+    aml_common.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True, callback_transferShowCurstatusInfo)
 
 def pushDstDolby():
     pushFilesToSoc(DolbySrcPath.get() + '\\libHwAudio_dcvdec.so', DolbyDtsDstPath.get())
@@ -157,10 +156,10 @@ def pushAll():
 def pullCustom():
     pullFilesToSoc(customPullSrcPath.get(), customPullDstPath.get())
 def remount():
-    subprocess.call('adb root', shell=True)
-    subprocess.call('adb remount', shell=True)
+    aml_common.exe_adb_cmd('adb root', True, callback_transferShowCurstatusInfo)
+    aml_common.exe_adb_cmd('adb remount', True, callback_transferShowCurstatusInfo)
 def reboot():
-    subprocess.call('adb reboot', shell=True)
+    aml_common.exe_adb_cmd('adb reboot', True, callback_transferShowCurstatusInfo)
 
 Label_AudioDolbySo = tkinter.Label(LabelFrame_DebugPushFiles, text="Dolby so:")
 Label_AudioDolbySo.grid(row=1, column=0, rowspan=1, columnspan=10)
@@ -203,8 +202,6 @@ Button_pushCustom.grid(row=4, column=75, padx=6)
 Button_pushAllSo = tkinter.Button(LabelFrame_DebugPushFiles, text='Push\n\nAll', command=pushAll, width=5, height=8)
 Button_pushAllSo.grid(row=1, column=90, padx=6, pady=6, rowspan=5, sticky='N')
 
-
-
 LabelFrame_DebugPullFiles = tkinter.LabelFrame(Frame_transferFile, text='Pull files')
 LabelFrame_DebugPullFiles.grid(row=100, column=0, sticky='W')
 Label_pullCustom = tkinter.Label(LabelFrame_DebugPullFiles, text="custom:")
@@ -218,13 +215,18 @@ Entry_pushCustomDstPath.grid(row=0, column=45, rowspan=1, columnspan=10)
 Button_pullCustom = tkinter.Button(LabelFrame_DebugPullFiles, text='Pull', command=pullCustom, width=10, height=1)
 Button_pullCustom.grid(row=0, column=75, padx=6, sticky='N')
 
-
 LabelFrame_systemOperation = tkinter.LabelFrame(Frame_transferFile, text='system operation')
-LabelFrame_systemOperation.grid(row=0, column=1, rowspan=2, columnspan=4, sticky='N')
+LabelFrame_systemOperation.grid(row=0, column=1, sticky='N')
 Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Remount', command=remount, width=10, height=1)
 Button_remount.grid(row=0, column=0, padx=6, pady=6, sticky='N')
 Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Reboot', command=reboot, width=10, height=1)
 Button_remount.grid(row=1, column=0, padx=6, pady=6, sticky='N')
+
+LabelFrame_TransferFileCmdInfo = tkinter.LabelFrame(Frame_transferFile, text='cmd info:')
+LabelFrame_TransferFileCmdInfo.grid(row=3, column=0, rowspan=700, columnspan=350, sticky='NW')
+Text_transferFileShowInfo = tkinter.Text(LabelFrame_TransferFileCmdInfo, height=13, width=88)
+Text_transferFileShowInfo.grid(row=20, column=30, rowspan=300, columnspan=100)
+
 
 def change_capture_mode():
     audioDebug.set_capture_mode(captureMode.get())
@@ -304,6 +306,9 @@ def callback_showCurstatusInfo(infoText):
     Text_showInfo.mark_set("here", "0.0")
     Text_showInfo.insert("here", infoText + ' \n')
 
+def callback_transferShowCurstatusInfo(infoText):
+    Text_transferFileShowInfo.mark_set("here", "0.0")
+    Text_transferFileShowInfo.insert("here", infoText + ' \n')
 
 Button_stopCapture.config(state=DISABLED)
 

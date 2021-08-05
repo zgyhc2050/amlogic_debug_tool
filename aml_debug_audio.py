@@ -1,10 +1,11 @@
 import os
+import signal
 import time
 import threading
 from pathlib import Path
 import subprocess
 from tkinter.constants import TRUE
-
+import aml_common
 
 DEBUG_CAPTURE_MODE_AUTO         = 0
 DEBUG_CAPTURE_MODE_MUNUAL       = 1
@@ -25,7 +26,7 @@ class AmlAudioDebug:
         self.RUN_STATE_STOPED = 2
         self.__curState = -1
         self.__dumpCmdOutFilePath = '/data/dump_audio.log'
-        self.__logcatFileName = 'logcat.txt'
+        self.__logcatFilePath = '/data/logcat.txt'
         self.__pcRootPath = "d:\dump_audio"
         self.__adbDumpCmdLists = [
             'cat /proc/asound/cards',
@@ -49,6 +50,7 @@ class AmlAudioDebug:
             'chmod 777 /data/audio /data/vendor/audiohal/',
             'rm /data/audio/* /data/vendor/audiohal/* -rf',
             'rm ' + self.__dumpCmdOutFilePath + ' -rf',
+            'rm ' + self.__logcatFilePath + ' -rf',
         ]
 
         self.__adbDumpDataStartLists = [
@@ -93,6 +95,7 @@ class AmlAudioDebug:
             '/data/audio',
             '/data/vendor/audiohal/',
             self.__dumpCmdOutFilePath,
+            self.__logcatFilePath,
         ]
         self.__captureLogcatProcThread = 0
         self.__captureMode = DEFAULT_CAPTURE_MODE
@@ -111,26 +114,20 @@ class AmlAudioDebug:
         self.__curState = self.RUN_STATE_STARTED
         subprocess.call('adb root', shell=True)
         subprocess.call('adb remount', shell=True)
-
         # 1. Create the audio dump directory on PC, and prepare env to debug.
         self.__nowPullPcPath = self.__capture_debug_create_directory()
         self.__prepare_debug_env()
-
         if self.__debugCfg.m_logcatEnable == 1:
             # open the audio hal debug level for capture logcat
             self.__capture_logcat_start()
-
         if self.__captureMode == DEBUG_CAPTURE_MODE_AUTO:
             # 2. Capture the debug info and write it to txt file.
             self.__capture_debug_text()
 
         if self.__debugCfg.m_logcatEnable == 1:
-            self.__callbackFunc('3.1 Start to capture logcat')
-            # 3. Create thread to capturing logcat
-            logcat_file = open(self.__nowPullPcPath + '\\' + self.__logcatFileName, 'w')
-            subprocess.call('adb logcat -G 40M; adb logcat -c', shell=True)
-            logcmd = "adb logcat"
-            self.__captureLogcatProcThread = subprocess.Popen(logcmd,stdout=logcat_file,stderr=subprocess.PIPE)
+            self.__captureLogcatProcThread = threading.Thread(target=self.__catpture_logcat)
+            self.__captureLogcatProcThread.setDaemon(True)
+            self.__captureLogcatProcThread.start()
 
         # 4. Capture the audio data.
         self.__capture_audio_data_start()
@@ -140,10 +137,9 @@ class AmlAudioDebug:
                 if self.__debugCfg.m_dumpDataEnable != 1:
                     self.__callbackFunc('3.1 Please wait ' + str(self.DEFAULT_AUTO_MODE_DUMP_TIME_S) + 's for logcat...')
                     time.sleep(self.__autoDebugTimeS)
-                self.__capture_logcat_stop()
-                self.__callbackFunc('3.2 Stop capture logcat...')
                 # 5. Kill the logcat thread, stop logcat.
-                self.__captureLogcatProcThread.terminate()
+                self.__callbackFunc('3.2 Stop auto capture logcat...')
+                self.__capture_logcat_stop()
 
             # 6. Pull the all debug files to PC
             self.__pull_capture_debug_info_to_pc(self.__nowPullPcPath)
@@ -167,16 +163,18 @@ class AmlAudioDebug:
         if self.__debugCfg.m_dumpDataEnable == 1:
             self.__capture_audio_data_prop_disable()
         if self.__debugCfg.m_logcatEnable == 1:
-            self.__callbackFunc('3.2 Stop capture logcat...')
+            self.__callbackFunc('3.2 Stop manual capture logcat...')
             self.__capture_logcat_stop()
-            if self.__captureLogcatProcThread != 0:
-                self.__captureLogcatProcThread.terminate()
 
         if self.__debugCfg.m_debugInfoEnable == 1:
             self.__capture_debug_text()
         self.__pull_capture_debug_info_to_pc(self.__nowPullPcPath)
         self.__print_help_info()
         self.__curState = self.RUN_STATE_STOPED
+    def __catpture_logcat(self):
+        self.__callbackFunc('__catpture_logcat: Start logcat+++++')
+        aml_common.exe_adb_cmd('adb shell "logcat -G 40M;logcat -c;logcat > ' + self.__logcatFilePath + '"')
+        self.__callbackFunc('__catpture_logcat: Exit logcat------')
  
     def set_capture_mode(self, mode):
         self.__captureMode = mode
@@ -192,7 +190,8 @@ class AmlAudioDebug:
 
     def setAutoDebugTimeS(self, timeS):
         if timeS > 999 or timeS < 0:
-            self.__callbackFunc('setAutoDebugTimeS: invalid timeS: ' + str(timeS) + ' param， use the default:' + str(self.DEFAULT_AUTO_MODE_DUMP_TIME_S) + 's')
+            self.__callbackFunc('setAutoDebugTimeS: invalid timeS: ' + str(timeS) + ' param， use the default:' 
+                + str(self.DEFAULT_AUTO_MODE_DUMP_TIME_S) + 's')
             timeS = self.DEFAULT_AUTO_MODE_DUMP_TIME_S
         self.__autoDebugTimeS = timeS
 
@@ -212,10 +211,10 @@ class AmlAudioDebug:
         self.__callbackFunc('1.1 Please wait a moment, starting to dump debugging information...')
         self.__callbackFunc('1.2 Cat the some info to ' + self.__dumpCmdOutFilePath + ' file')
         for i, adbDumpCmdList in enumerate(self.__adbDumpCmdLists):
-            echoCmdInfo = 'adb shell "echo cmd_' + str(i) + ' ' + adbDumpCmdList + ' >> ' + self.__dumpCmdOutFilePath + '"'
-            exeCmdInfo = 'adb shell "' + adbDumpCmdList + ' >> ' + self.__dumpCmdOutFilePath + '"'
-            self.__exe_adb_cmd(echoCmdInfo)
-            self.__exe_adb_cmd(exeCmdInfo)
+            echoCmdStr = 'adb shell "echo cmd_' + str(i) + ' ' + adbDumpCmdList + ' >> ' + self.__dumpCmdOutFilePath + '"'
+            exeCmdStr = 'adb shell "' + adbDumpCmdList + ' >> ' + self.__dumpCmdOutFilePath + '"'
+            aml_common.exe_adb_cmd(echoCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
+            aml_common.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
 
     def __capture_audio_data_start(self):
         if self.__debugCfg.m_dumpDataEnable != 1:
@@ -235,8 +234,8 @@ class AmlAudioDebug:
     def __pull_capture_debug_info_to_pc(self, pullPath):
         self.__callbackFunc('Pull all file to PC ...')
         for dumpFile in self.__dumpFileLists:
-            exeCmdInfo = 'adb pull ' + dumpFile + ' ' + pullPath
-            self.__exe_adb_cmd(exeCmdInfo)
+            exeCmdStr = 'adb pull ' + dumpFile + ' ' + pullPath
+            aml_common.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
 
     def __capture_audio_data_prop_enable(self):
         self.__exe_adb_shell_cmd(self.__adbDumpDataStartLists)
@@ -252,16 +251,13 @@ class AmlAudioDebug:
 
     def __capture_logcat_stop(self):
         self.__exe_adb_shell_cmd(self.__adbLogcatStopLists)
+        aml_common.exe_adb_cmd('adb shell "ps -ef |grep -v grep|grep logcat| awk \'{print $2}\'|xargs kill -9"',
+            self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
 
     def __exe_adb_shell_cmd(self, cmdLists):
         for cmd in cmdLists:
-            exeCmdInfo = 'adb shell "' + cmd + '"'
-            self.__exe_adb_cmd(exeCmdInfo)
-
-    def __exe_adb_cmd(self, cmd):
-        if self.__debugCfg.m_printDebugEnable != 0:
-            self.__callbackFunc(cmd)
-        subprocess.call(cmd, shell=True)
+            exeCmdStr = 'adb shell "' + cmd + '"'
+            aml_common.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
 
     def __print_help_info(self):
             print('###############################################################################################')
