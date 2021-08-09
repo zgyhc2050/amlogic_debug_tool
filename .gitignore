@@ -1,0 +1,5 @@
+
+.vscode/launch.json
+__pycache__/
+aml_debug_ui.spec
+build/aml_debug_ui/

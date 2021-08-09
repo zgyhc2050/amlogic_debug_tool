@@ -1,315 +1,201 @@
-import threading
-import tkinter
-import tkinter as tk
-import time
-import subprocess
-
-
-from tkinter import ttk
-from tkinter.constants import DISABLED, NORMAL
+from pathlib import Path
+import os
+import sys
 from threading import Thread
 
+from PyQt5.QtGui import QTextCursor, QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
+import resource
+import Ui_aml_debug
 import aml_debug_audio
 import aml_common
 
+class AmlDebugUi(Ui_aml_debug.Ui_MainWindow):
+    def __init__(self, Dialog):
+        super().setupUi(Dialog)
+        self.__m_amlDebugAudioDebugUi = AmlDebugAudioDebugUi(self)
+        self.__m_amlDebugSystemOperationUi = AmlDebugSystemOperationUi(self)
 
-root = tkinter.Tk()
-#root.iconbitmap('tool.ico')
-root.title('Amlogic Debug Tool')
-root.wm_attributes("-alpha", 1.0)  # 设置GUI透明度(0.0~1.0)
-root.wm_attributes("-topmost", True)  # 设置GUI置顶
-root.geometry('650x400') # 设定窗口的大小(长 * 宽)
-root.attributes('-topmost', False)  # 窗口置顶false
+    def terminalLog(self, someInfo):
+        self.AmlAudioTerminalLog_textBrowser.append(someInfo)
+        self.AmlAudioTerminalLog_textBrowser.moveCursor(QTextCursor.End)
 
-captureMode = tkinter.IntVar()
-debugInfoEnable = tkinter.IntVar()
-dumpDataEnable = tkinter.IntVar()
-logcatEnable = tkinter.IntVar()
-printDebugEnable = tkinter.IntVar()
+    def remount(self):
+        aml_common.exe_adb_cmd('adb root', True, self.terminalLog)
+        return aml_common.exe_adb_cmd('adb remount', True, self.terminalLog)
 
-captureMode.set(aml_debug_audio.DEFAULT_CAPTURE_MODE)
-debugInfoEnable.set(1)
-dumpDataEnable.set(1)
-logcatEnable.set(1)
-printDebugEnable.set(0)
-
-audioDebug = aml_debug_audio.AmlAudioDebug()
-
-def selection_capture_mode():
-    change_capture_mode()
-
-def clik_button_start_capture():
-    start_capture()
-
-def clik_button_stop_capture():
-    stop_capture()
-
-tabControl = ttk.Notebook(root)          # Create Tab Control
-
-
-
-Frame_captrueAudio = tkinter.Frame(tabControl)
-tabControl.add(Frame_captrueAudio, text='Audio Debug')
-
-Frame_transferFile = tkinter.Frame(tabControl)
-tabControl.add(Frame_transferFile, text='Transfer Files')
-
-tabControl.pack(expand=1, fill="both")  # Pack to make visible
-
+    def reboot(self):
+        aml_common.exe_adb_cmd('adb reboot', True, self.terminalLog)
 
 ########################################################################################################
 # Table 1: "Audio Debug"
-LabelFrame_DebugCaptureAudio = tkinter.LabelFrame(Frame_captrueAudio, text=' 抓取音频数据 ')
-LabelFrame_DebugCaptureAudio.grid(row=0, column=0, rowspan=500, columnspan=800)
+class AmlDebugAudioDebugUi():
+    def __init__(self, aml_ui):
+        self.__m_amlUi = aml_ui
+        self.audioDebug = aml_debug_audio.AmlAudioDebug()
+        self.audioDebugcfg = aml_debug_audio.AudioDebugCfg()
 
-LabelFrame_showInfo = tkinter.LabelFrame(LabelFrame_DebugCaptureAudio, text='cmd info:')
-LabelFrame_showInfo.grid(row=3, column=0, rowspan=700, columnspan=350, sticky='NW')
-Text_showInfo = tkinter.Text(LabelFrame_showInfo, height=13, width=88)
-Text_showInfo.grid(row=20, column=30, rowspan=300, columnspan=100)
+        self.__m_amlUi.AmlAudioDebugModeAuto_radioButton.clicked.connect(self.__click_auto_mode)
+        self.__m_amlUi.AmlAudioDebugModeManual_radioButton.clicked.connect(self.__click_manual_mode)
+        self.__m_amlUi.AmlAudioDebugStart_pushButton.clicked.connect(self.__click_start_capture)
+        self.__m_amlUi.AmlAudioDebugStop_pushButton.clicked.connect(self.__click_stop_capture)
+        self.__init_audio_debug_default_config()
+        if self.audioDebugcfg.m_captureMode == aml_debug_audio.DEBUG_CAPTURE_MODE_AUTO:
+            self.__m_amlUi.AmlAudioDebugModeAuto_radioButton.setChecked(True)
+        elif self.audioDebugcfg.m_captureMode == aml_debug_audio.DEBUG_CAPTURE_MODE_MUNUAL:
+            self.__m_amlUi.AmlAudioDebugModeManual_radioButton.setChecked(True)
+        else:
+            self.__m_amlUi.terminalLog('E refresh_capture_mode_ui: Not supported capture mode!!!')
+        self.__m_amlUi.AmlAudioDebugOptionsDebug_checkBox.setChecked(self.audioDebugcfg.m_debugInfoEnable)
+        self.__m_amlUi.AmlAudioDebugOptionsDump_checkBox.setChecked(self.audioDebugcfg.m_dumpDataEnable)
+        self.__m_amlUi.AmlAudioDebugOptionsLogcat_checkBox.setChecked(self.audioDebugcfg.m_logcatEnable)
+        self.__m_amlUi.AmlAudioPrintDebugEnable_checkBox.setChecked(self.audioDebugcfg.m_printDebugEnable)
+        self.__m_amlUi.AmlAudioCaptureTime_spinBox.setValue(self.audioDebugcfg.m_autoDebugTimeS)
+        self.__m_amlUi.AmlAudioCreateZipEnable_checkBox.setChecked(self.audioDebugcfg.m_createZipFile)
 
-LabelFrame_captureTimeS = tkinter.LabelFrame(LabelFrame_DebugCaptureAudio, text='Auto times(s):')
-LabelFrame_captureTimeS.grid(row=0, column=3, sticky='NS')
-Text_captureTimeS = tkinter.Text(LabelFrame_captureTimeS, height=1, width=8)
-Text_captureTimeS.grid(row=1, column=3, padx=5, sticky='NS')
-Text_captureTimeS.insert("end", str(audioDebug.DEFAULT_AUTO_MODE_DUMP_TIME_S))
+    def __init_audio_debug_default_config(self):
+        self.audioDebugcfg.m_captureMode = aml_debug_audio.DEFAULT_CAPTURE_MODE
+        self.audioDebugcfg.m_debugInfoEnable = True
+        self.audioDebugcfg.m_dumpDataEnable = True
+        self.audioDebugcfg.m_logcatEnable = True
+        self.audioDebugcfg.m_printDebugEnable = False
+        self.audioDebugcfg.m_autoDebugTimeS = aml_debug_audio.DEFAULT_AUTO_MODE_DUMP_TIME_S
+        self.audioDebugcfg.m_createZipFile = False
 
-LabelFrame_printDebug = tkinter.LabelFrame(LabelFrame_DebugCaptureAudio, text='Print Debug:')
-LabelFrame_printDebug.grid(row=1, column=3, sticky='NS')
-Checkbutton_printDebug = tkinter.Checkbutton(LabelFrame_printDebug, text='Enable', variable=printDebugEnable)
-Checkbutton_printDebug.grid(row=3, column=1)
+    def __click_auto_mode(self):
+        self.__m_amlUi.AmlAudioDebugCaptureTime_groupBox.setEnabled(True)
 
-'''
-BuScrollbar_captureMode = tkinter.Scrollbar(LabelFrame_DebugCaptureAudio)
-#BuScrollbar_captureMode.pack(side=tkinter.RIGHT,fill=tkinter.Y)
-#BuScrollbar_captureMode.place(x=627, y=140, width=20, height=200)
-BuScrollbar_captureMode.grid(row=19, column=380, rowspan=400, columnspan=20)
-BuScrollbar_captureMode.config(command=Text_showInfo.yview)
-'''
+    def __click_manual_mode(self):
+        self.__m_amlUi.AmlAudioDebugCaptureTime_groupBox.setEnabled(False)
 
-LabelFrame_DebugCaptureAudioMode = ttk.LabelFrame(LabelFrame_DebugCaptureAudio, text=' 抓取模式: ')
-LabelFrame_DebugCaptureAudioMode.grid(row=0, column=0, rowspan=3, sticky='NW')
-Radiobutton_captureAutoMode = tkinter.Radiobutton(LabelFrame_DebugCaptureAudioMode, text='自动抓取', variable=captureMode, \
-    value=aml_debug_audio.DEBUG_CAPTURE_MODE_AUTO, command=selection_capture_mode)
-Radiobutton_captureAutoMode.grid(row=0, column=1, padx=10, pady=10)
-Radiobutton_captureManualMode = tkinter.Radiobutton(LabelFrame_DebugCaptureAudioMode, text='手动抓取', variable=captureMode, \
-    value=aml_debug_audio.DEBUG_CAPTURE_MODE_MUNUAL, command=selection_capture_mode)
-Radiobutton_captureManualMode.grid(row=1, column=1, padx=3, pady=3)
+    def __click_start_capture(self):
+        self.__m_amlUi.AmlAudioDebugMode_groupBox.setEnabled(False)
+        self.__m_amlUi.AmlAudioDebugOptions_groupBox.setEnabled(False)
+        self.__m_amlUi.AmlAudioDebugCaptureTime_groupBox.setEnabled(False)
+        self.__m_amlUi.AmlAudioDebugPrintDebug_groupBox.setEnabled(False)
+        self.__m_amlUi.AmlAudioCreateZipEnable_checkBox.setEnabled(False)
+        self.__m_amlUi.AmlAudioDebugStart_pushButton.setEnabled(False)
+  
+        self.__pre_audio_debug_config()
+        self.__m_amlUi.terminalLog('')
+        self.audioDebug.setAudioDebugCfg(self.audioDebugcfg)
+        self.audioDebug.setShowStatusCallback(self.__m_amlUi.terminalLog)
+        thr = Thread(target = self.__startCaptureInfo)
+        thr.start()
 
-Button_startCapture = tkinter.Button(LabelFrame_DebugCaptureAudio, text='开始抓取', command=clik_button_start_capture, width=10, height=2)
-Button_startCapture.grid(row=0, column=4, padx=6)
-Button_stopCapture = tkinter.Button(LabelFrame_DebugCaptureAudio, text='停止抓取', command=clik_button_stop_capture, width=10, height=2)
-Button_stopCapture.grid(row=1, column=4, padx=6, pady=9)
+    def __click_stop_capture(self):
+        self.__m_amlUi.AmlAudioDebugStop_pushButton.setEnabled(False)
+        thr = Thread(target = self.__stopCaptureInfo)
+        thr.start()
 
-Button_startCapture = tkinter.Button(LabelFrame_DebugCaptureAudio, text='开始抓取', command=clik_button_start_capture, width=10, height=2)
-Button_startCapture.grid(row=0, column=4, padx=6)
+    def __pre_audio_debug_config(self):
+        if self.__m_amlUi.AmlAudioDebugModeAuto_radioButton.isChecked() == True:
+            self.audioDebugcfg.m_captureMode = aml_debug_audio.DEBUG_CAPTURE_MODE_AUTO
+        elif self.__m_amlUi.AmlAudioDebugModeManual_radioButton.isChecked() == True:
+            self.audioDebugcfg.m_captureMode = aml_debug_audio.DEBUG_CAPTURE_MODE_MUNUAL
+        else:
+            self.__m_amlUi.terminalLog('E __pre_audio_debug_config: Not supported capture mode!!!')
+        self.audioDebugcfg.m_debugInfoEnable = self.__m_amlUi.AmlAudioDebugOptionsDebug_checkBox.isChecked()
+        self.audioDebugcfg.m_dumpDataEnable = self.__m_amlUi.AmlAudioDebugOptionsDump_checkBox.isChecked()
+        self.audioDebugcfg.m_logcatEnable = self.__m_amlUi.AmlAudioDebugOptionsLogcat_checkBox.isChecked()
+        self.audioDebugcfg.m_printDebugEnable = self.__m_amlUi.AmlAudioPrintDebugEnable_checkBox.isChecked()
+        self.audioDebugcfg.m_autoDebugTimeS = self.__m_amlUi.AmlAudioCaptureTime_spinBox.value()
+        self.audioDebugcfg.m_createZipFile = self.__m_amlUi.AmlAudioCreateZipEnable_checkBox.isChecked()
+        if self.audioDebugcfg.m_printDebugEnable:
+            self.__m_amlUi.terminalLog('m_captureMode:' + str(self.audioDebugcfg.m_captureMode))
+            self.__m_amlUi.terminalLog('m_debugInfoEnable:' + str(self.audioDebugcfg.m_debugInfoEnable))
+            self.__m_amlUi.terminalLog('m_dumpDataEnable:' + str(self.audioDebugcfg.m_dumpDataEnable))
+            self.__m_amlUi.terminalLog('m_logcatEnable:' + str(self.audioDebugcfg.m_logcatEnable))
+            self.__m_amlUi.terminalLog('m_printDebugEnable:' + str(self.audioDebugcfg.m_printDebugEnable))
+            self.__m_amlUi.terminalLog('m_autoDebugTimeS:' + str(self.audioDebugcfg.m_autoDebugTimeS))
+            self.__m_amlUi.terminalLog('m_createZipFile:' + str(self.audioDebugcfg.m_createZipFile))
 
-LabelFrame_DebugCaptureAudioOption = ttk.LabelFrame(LabelFrame_DebugCaptureAudio, text=' Capture option: ')
-LabelFrame_DebugCaptureAudioOption.grid(row=0, column=1, rowspan=3, columnspan=1, sticky='NW')
-Checkbutton_debugInfo = tkinter.Checkbutton(LabelFrame_DebugCaptureAudioOption, text='Debug Info', variable=debugInfoEnable)
-Checkbutton_dumpData = tkinter.Checkbutton(LabelFrame_DebugCaptureAudioOption, text='Dump data', variable=dumpDataEnable)
-Checkbutton_Logcat = tkinter.Checkbutton(LabelFrame_DebugCaptureAudioOption, text='Logcat Info', variable=logcatEnable)
-Checkbutton_debugInfo.grid(row=2, column=1)
-Checkbutton_dumpData.grid(row=3, column=1)
-Checkbutton_Logcat.grid(row=4, column=1)
+    def __callback_startCaptureFinish(self):       
+        if self.audioDebugcfg.m_captureMode == aml_debug_audio.DEBUG_CAPTURE_MODE_AUTO:
+            self.__m_amlUi.AmlAudioDebugMode_groupBox.setEnabled(True)
+            self.__m_amlUi.AmlAudioDebugOptions_groupBox.setEnabled(True)
+            self.__m_amlUi.AmlAudioDebugCaptureTime_groupBox.setEnabled(True)
+            self.__m_amlUi.AmlAudioDebugPrintDebug_groupBox.setEnabled(True)
+            self.__m_amlUi.AmlAudioCreateZipEnable_checkBox.setEnabled(True)
+            self.__m_amlUi.AmlAudioDebugStart_pushButton.setEnabled(True)
+            self.__m_amlUi.terminalLog('######## Auto mode capture Finish !!! ############')
+        elif self.audioDebugcfg.m_captureMode == aml_debug_audio.DEBUG_CAPTURE_MODE_MUNUAL:
+            self.__m_amlUi.AmlAudioDebugStop_pushButton.setEnabled(True)
+            self.__m_amlUi.terminalLog('Manual mode Start capture finish')
+
+    def __startCaptureInfo(self):
+        self.__m_amlUi.remount()
+        self.audioDebug.start_capture(self.__callback_startCaptureFinish)
+
+    def __callback_stopCaptureFinish(self):
+        self.__m_amlUi.terminalLog('######## Manual mode capture Finish !!! ############')
+        self.__m_amlUi.AmlAudioDebugMode_groupBox.setEnabled(True)
+        self.__m_amlUi.AmlAudioDebugOptions_groupBox.setEnabled(True)
+        self.__m_amlUi.AmlAudioDebugPrintDebug_groupBox.setEnabled(True)
+        self.__m_amlUi.AmlAudioCreateZipEnable_checkBox.setEnabled(True)
+        self.__m_amlUi.AmlAudioDebugStart_pushButton.setEnabled(True)
+
+    def __stopCaptureInfo(self):
+        self.audioDebug.stop_capture(self.__callback_stopCaptureFinish)
 
 ########################################################################################################
-# Table 2: "Transfer Files"
-LabelFrame_DebugPushFiles = tkinter.LabelFrame(Frame_transferFile, text='Push files')
-LabelFrame_DebugPushFiles.grid(row=0, column=0)
+# Table 2: "System Operation"
+class AmlDebugSystemOperationUi():
+    def __init__(self, aml_ui):
+        self.__m_amlUi = aml_ui
 
-AudioSrcPath_Label = tkinter.Label(LabelFrame_DebugPushFiles, text="Source path:")
-AudioSrcPath_Label.grid(row=0, column=10, rowspan=1, columnspan=10)
-AudioDstPath_Label = tkinter.Label(LabelFrame_DebugPushFiles, text="Destination path:")
-AudioDstPath_Label.grid(row=0, column=43, rowspan=1, columnspan=10)
+        self.__m_amlUi.AmlSystemPushDolbyDtsPush_pushButton.clicked.connect(self.__pushDstDolby)
+        self.__m_amlUi.AmlSystemPushMs12Push_pushButton.clicked.connect(self.__pushMs12)
+        self.__m_amlUi.AmlSystemPushCustomPush_pushButton.clicked.connect(self.__pushCustom)
+        self.__m_amlUi.AmlSystemPushAllPush_pushButton.clicked.connect(self.__pushAll)
+        self.__m_amlUi.AmlSystemRemount_pushButton.clicked.connect(self.__m_amlUi.remount)
+        self.__m_amlUi.AmlSystemReboot_pushButton.clicked.connect(self.__m_amlUi.reboot)
+        self.__m_amlUi.AmlSystemPullCustom1Pull__pushButton.clicked.connect(self.____pullCustom1)
+        self.__m_amlUi.AmlSystemPullCustom2Pull2__pushButton.clicked.connect(self.__pullCustom2)
 
+        self.__m_amlUi.AmlSystemPushDolbySrc_lineEdit.setText('')
+        self.__m_amlUi.AmlSystemPushDtsSrc_lineEdit.setText('')
+        self.__m_amlUi.AmlSystemPushMs12Src_lineEdit.setText('')
+        self.__m_amlUi.AmlSystemPushDolbyDtsDst_lineEdit.setText('/odm/lib/')
+        self.__m_amlUi.AmlSystemPushMs12Dst_lineEdit.setText('/odm/etc/ms12/')
 
-DolbyDtsDstPath = tk.StringVar()
-DolbySrcPath = tk.StringVar()
-DtsSrcPath = tk.StringVar()
-dolbyMs2DstPath = tk.StringVar()
-dolbyMs2SrcPath = tk.StringVar()
-customPushDstPath = tk.StringVar()
-customPushSrcPath = tk.StringVar()
-DolbyDtsDstPath.set('/odm/lib/')
-dolbyMs2DstPath.set('/odm/etc/ms12/')
+    def __pushFilesToSoc(self, src, dst):
+        aml_common.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True, self.__m_amlUi.terminalLog)
+    def __pullFilesToSoc(self, src, dst):
+        aml_common.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True, self.__m_amlUi.terminalLog)
+        self.__m_amlUi.AmlSystemPushDolbySrc_lineEdit.text()
+    
+    def __pushDstDolby(self):
+        self.__pushFilesToSoc(self.__m_amlUi.AmlSystemPushDolbySrc_lineEdit.text() + '\\libHwAudio_dcvdec.so', self.__m_amlUi.AmlSystemPushDolbyDtsDst_lineEdit.text())
+        self.__pushFilesToSoc(self.__m_amlUi.AmlSystemPushDtsSrc_lineEdit.text() + '\\libHwAudio_dtshd.so', self.__m_amlUi.AmlSystemPushDolbyDtsDst_lineEdit.text())
+    def __pushMs12(self):
+        self.__pushFilesToSoc(self.__m_amlUi.AmlSystemPushMs12Src_lineEdit.text() + '\\libdolbyms12.so', self.__m_amlUi.AmlSystemPushMs12Dst_lineEdit.text())
+    def __pushCustom(self):
+        self.__pushFilesToSoc(self.__m_amlUi.AmlSystemPushCustomSrc_lineEdit.text(), self.__m_amlUi.AmlSystemPushCustomDst_lineEdit.text())
+    def __pushAll(self):
+        self.__pushDstDolby()
+        self.__pushMs12()
+        self.__pushCustom()
+    def ____pullCustom1(self):
+        self.__pullFilesToSoc(self.__m_amlUi.AmlSystemPullCustom1Src_lineEdit.text(), self.__m_amlUi.AmlSystemPullCustom1Dst_lineEdit.text())
+    def __pullCustom2(self):
+        self.__pullFilesToSoc(self.__m_amlUi.AmlSystemPullCustom2Src_lineEdit.text(), self.__m_amlUi.AmlSystemPullCustom2Dst_lineEdit.text())
 
-customPullDstPath = tk.StringVar()
-customPullSrcPath = tk.StringVar()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    MainWindow = QMainWindow()
+    MainWindow.setWindowIcon(QIcon(':/debug.ico'))
+    ui = AmlDebugUi(MainWindow)
+    MainWindow.setWindowTitle("Amlogic Debug Tool")
 
+    if not Path(aml_common.AML_DEBUG_DIRECOTRY_CONFIG).exists():
+        if not Path(aml_common.AML_DEBUG_DIRECOTRY_ROOT).exists():
+            ui.terminalLog(aml_common.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
+            os.makedirs(aml_common.AML_DEBUG_DIRECOTRY_ROOT, 777)
+        ui.terminalLog('First start, ' + aml_common.AML_DEBUG_DIRECOTRY_CONFIG + " file does not exist, create it.")
+        file = open(aml_common.AML_DEBUG_DIRECOTRY_CONFIG, 'w')
+        file.close()
 
-def pushFilesToSoc(src, dst):
-    aml_common.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True, callback_transferShowCurstatusInfo)
-def pullFilesToSoc(src, dst):
-    aml_common.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True, callback_transferShowCurstatusInfo)
-
-def pushDstDolby():
-    pushFilesToSoc(DolbySrcPath.get() + '\\libHwAudio_dcvdec.so', DolbyDtsDstPath.get())
-    pushFilesToSoc(DtsSrcPath.get() + '\\libHwAudio_dtshd.so', DolbyDtsDstPath.get())
-def pushMs12():
-    pushFilesToSoc(dolbyMs2SrcPath.get() + '\\libdolbyms12.so', dolbyMs2DstPath.get())
-def pushCustom():
-    pushFilesToSoc(customPushSrcPath.get(), customPushDstPath.get())
-def pushAll():
-    pushDstDolby()
-    pushMs12()
-    pushCustom()
-def pullCustom():
-    pullFilesToSoc(customPullSrcPath.get(), customPullDstPath.get())
-def remount():
-    aml_common.exe_adb_cmd('adb root', True, callback_transferShowCurstatusInfo)
-    aml_common.exe_adb_cmd('adb remount', True, callback_transferShowCurstatusInfo)
-def reboot():
-    aml_common.exe_adb_cmd('adb reboot', True, callback_transferShowCurstatusInfo)
-
-Label_AudioDolbySo = tkinter.Label(LabelFrame_DebugPushFiles, text="Dolby so:")
-Label_AudioDolbySo.grid(row=1, column=0, rowspan=1, columnspan=10)
-Entry_pushDolbySoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=DolbySrcPath)
-Entry_pushDolbySoSrcPath.grid(row=1, column=10, rowspan=1, columnspan=10)
-
-Label_AudioDtsSo = tkinter.Label(LabelFrame_DebugPushFiles, text="Dts so:")
-Label_AudioDtsSo.grid(row=2, column=0, rowspan=1, columnspan=10)
-Entry_pushDtsSoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=DtsSrcPath)
-Entry_pushDtsSoSrcPath.grid(row=2, column=10, rowspan=1, columnspan=10)
-Label_arrow0 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
-Label_arrow0.grid(row=1, column=35, rowspan=2, columnspan=10)
-Entry_pushDtsSoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=DolbyDtsDstPath)
-Entry_pushDtsSoDstPath.grid(row=1, column=45, rowspan=2, columnspan=10)
-Button_startCapturedts = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushDstDolby, width=10, height=1)
-Button_startCapturedts.grid(row=1, column=75, padx=6, rowspan=2, columnspan=1)
-
-Label_AudioMs12So = tkinter.Label(LabelFrame_DebugPushFiles, text="Ms12 so:")
-Label_AudioMs12So.grid(row=3, column=0, rowspan=1, columnspan=10)
-Entry_pushMs12SoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=dolbyMs2SrcPath)
-Entry_pushMs12SoSrcPath.grid(row=3, column=10, rowspan=1, columnspan=10)
-Label_arrow1 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
-Label_arrow1.grid(row=3, column=35, rowspan=1, columnspan=10)
-Entry_pushMs12SoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=dolbyMs2DstPath)
-Entry_pushMs12SoDstPath.grid(row=3, column=45, rowspan=1, columnspan=10)
-Button_pushMs12So = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushMs12, width=10, height=1)
-Button_pushMs12So.grid(row=3, column=75, padx=6)
-
-Label_AudioMs12So = tkinter.Label(LabelFrame_DebugPushFiles, text="custom:")
-Label_AudioMs12So.grid(row=4, column=0, rowspan=1, columnspan=10)
-Entry_pushMs12SoSrcPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=customPushSrcPath)
-Entry_pushMs12SoSrcPath.grid(row=4, column=10, rowspan=1, columnspan=10)
-Label_arrow2 = tkinter.Label(LabelFrame_DebugPushFiles, text=">")
-Label_arrow2.grid(row=4, column=35, rowspan=1, columnspan=10)
-Entry_pushMs12SoDstPath = tkinter.Entry(LabelFrame_DebugPushFiles, textvariable=customPushDstPath)
-Entry_pushMs12SoDstPath.grid(row=4, column=45, rowspan=1, columnspan=10)
-Button_pushCustom = tkinter.Button(LabelFrame_DebugPushFiles, text='Push', command=pushCustom, width=10, height=1)
-Button_pushCustom.grid(row=4, column=75, padx=6)
-
-Button_pushAllSo = tkinter.Button(LabelFrame_DebugPushFiles, text='Push\n\nAll', command=pushAll, width=5, height=8)
-Button_pushAllSo.grid(row=1, column=90, padx=6, pady=6, rowspan=5, sticky='N')
-
-LabelFrame_DebugPullFiles = tkinter.LabelFrame(Frame_transferFile, text='Pull files')
-LabelFrame_DebugPullFiles.grid(row=100, column=0, sticky='W')
-Label_pullCustom = tkinter.Label(LabelFrame_DebugPullFiles, text="custom:")
-Label_pullCustom.grid(row=0, column=0, rowspan=1, columnspan=10)
-Entry_pushCustomSrcPath = tkinter.Entry(LabelFrame_DebugPullFiles, textvariable=customPullSrcPath)
-Entry_pushCustomSrcPath.grid(row=0, column=10, rowspan=1, columnspan=10)
-Label_arrow3 = tkinter.Label(LabelFrame_DebugPullFiles, text=">")
-Label_arrow3.grid(row=0, column=35, rowspan=1, columnspan=10)
-Entry_pushCustomDstPath = tkinter.Entry(LabelFrame_DebugPullFiles, textvariable=customPullDstPath)
-Entry_pushCustomDstPath.grid(row=0, column=45, rowspan=1, columnspan=10)
-Button_pullCustom = tkinter.Button(LabelFrame_DebugPullFiles, text='Pull', command=pullCustom, width=10, height=1)
-Button_pullCustom.grid(row=0, column=75, padx=6, sticky='N')
-
-LabelFrame_systemOperation = tkinter.LabelFrame(Frame_transferFile, text='system operation')
-LabelFrame_systemOperation.grid(row=0, column=1, sticky='N')
-Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Remount', command=remount, width=10, height=1)
-Button_remount.grid(row=0, column=0, padx=6, pady=6, sticky='N')
-Button_remount = tkinter.Button(LabelFrame_systemOperation, text='Reboot', command=reboot, width=10, height=1)
-Button_remount.grid(row=1, column=0, padx=6, pady=6, sticky='N')
-
-LabelFrame_TransferFileCmdInfo = tkinter.LabelFrame(Frame_transferFile, text='cmd info:')
-LabelFrame_TransferFileCmdInfo.grid(row=3, column=0, rowspan=700, columnspan=350, sticky='NW')
-Text_transferFileShowInfo = tkinter.Text(LabelFrame_TransferFileCmdInfo, height=13, width=88)
-Text_transferFileShowInfo.grid(row=20, column=30, rowspan=300, columnspan=100)
-
-
-def change_capture_mode():
-    audioDebug.set_capture_mode(captureMode.get())
-    if captureMode.get() == aml_debug_audio.DEBUG_CAPTURE_MODE_AUTO:
-        Text_captureTimeS.config(state=NORMAL)
-    elif captureMode.get() == aml_debug_audio.DEBUG_CAPTURE_MODE_MUNUAL:
-        Text_captureTimeS.config(state=DISABLED)
-
-def start_capture():
-    #Text_showInfo.delete("1.0", tkinter.END)
-    Button_startCapture.config(state=DISABLED)
-    Radiobutton_captureAutoMode.config(state=DISABLED)
-    Radiobutton_captureManualMode.config(state=DISABLED)
-    Checkbutton_debugInfo.config(state=DISABLED)
-    Checkbutton_dumpData.config(state=DISABLED)
-    Checkbutton_Logcat.config(state=DISABLED)
-    startCaptureInfo()
-        
-def stop_capture():
-    Button_stopCapture.config(state=DISABLED)
-    stopCaptureInfo()
-
-def __async_call(func):
-    def wrapper(*args, **kwargs):
-        thr = Thread(target = func, args = args, kwargs = kwargs)
-        thr.start()
-    return wrapper
-
-def callback_startCaptureFinish():
-    if audioDebug.get_capture_mode() == aml_debug_audio.DEBUG_CAPTURE_MODE_AUTO:
-        Button_startCapture.config(state=NORMAL)
-        Radiobutton_captureAutoMode.config(state=NORMAL)
-        Radiobutton_captureManualMode.config(state=NORMAL)
-        Checkbutton_debugInfo.config(state=NORMAL)
-        Checkbutton_dumpData.config(state=NORMAL)
-        Checkbutton_Logcat.config(state=NORMAL)
-        callback_showCurstatusInfo('\n######## Auto mode capture Finish !!! ############')
-    elif audioDebug.get_capture_mode() == aml_debug_audio.DEBUG_CAPTURE_MODE_MUNUAL:
-        Button_stopCapture.config(state=NORMAL)
-        callback_showCurstatusInfo('Manual mode Start capture finish')
-
-def callback_stopCaptureFinish():
-    callback_showCurstatusInfo('\n######## Manual mode capture Finish !!! ############')
-    Button_startCapture.config(state=NORMAL)
-    Radiobutton_captureAutoMode.config(state=NORMAL)
-    Radiobutton_captureManualMode.config(state=NORMAL)
-    Checkbutton_debugInfo.config(state=NORMAL)
-    Checkbutton_dumpData.config(state=NORMAL)
-    Checkbutton_Logcat.config(state=NORMAL)
-
-@__async_call
-def startCaptureInfo():
-    audioDebugConfig = aml_debug_audio.AudioDebugCfg()
-    audioDebugConfig.m_debugInfoEnable = debugInfoEnable.get()
-    audioDebugConfig.m_dumpDataEnable = dumpDataEnable.get()
-    audioDebugConfig.m_logcatEnable = logcatEnable.get()
-    audioDebugConfig.m_printDebugEnable = printDebugEnable.get()
-    audioDebug.setAudioDebugCfg(audioDebugConfig)
-    audioDebug.setShowStatusCallback(callback_showCurstatusInfo)
-
-    Text_captureTimeS_value = str(Text_captureTimeS.get(1.0, tkinter.END))
-    try:
-        captureTimeS = int(Text_captureTimeS_value)
-    except ValueError:
-        captureTimeS = audioDebug.DEFAULT_AUTO_MODE_DUMP_TIME_S
-        callback_showCurstatusInfo('startCaptureInfo: invalid captureTimeS!!!')
-    audioDebug.setAutoDebugTimeS(captureTimeS)
-
-    audioDebug.start_capture(callback_startCaptureFinish)
-
-
-@__async_call
-def stopCaptureInfo():
-    audioDebug.stop_capture(callback_stopCaptureFinish)
-
-def callback_showCurstatusInfo(infoText):
-    Text_showInfo.mark_set("here", "0.0")
-    Text_showInfo.insert("here", infoText + ' \n')
-
-def callback_transferShowCurstatusInfo(infoText):
-    Text_transferFileShowInfo.mark_set("here", "0.0")
-    Text_transferFileShowInfo.insert("here", infoText + ' \n')
-
-Button_stopCapture.config(state=DISABLED)
-
-root.mainloop()
+    MainWindow.show()
+    sys.exit(app.exec_())
