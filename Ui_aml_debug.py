@@ -171,7 +171,7 @@ class Ui_MainWindow(object):
         self.label_13.setGeometry(QtCore.QRect(350, 20, 21, 21))
         self.label_13.setObjectName("label_13")
         self.label_14 = QtWidgets.QLabel(self.AmlSystemFilePullh_tab)
-        self.label_14.setGeometry(QtCore.QRect(0, 20, 41, 16))
+        self.label_14.setGeometry(QtCore.QRect(0, 20, 51, 16))
         self.label_14.setObjectName("label_14")
         self.AmlSystemPullCustom1Dst_lineEdit = QtWidgets.QLineEdit(self.AmlSystemFilePullh_tab)
         self.AmlSystemPullCustom1Dst_lineEdit.setGeometry(QtCore.QRect(370, 20, 131, 21))
@@ -184,7 +184,7 @@ class Ui_MainWindow(object):
         self.AmlSystemPullCustom1Pull__pushButton.setGeometry(QtCore.QRect(510, 20, 61, 23))
         self.AmlSystemPullCustom1Pull__pushButton.setObjectName("AmlSystemPullCustom1Pull__pushButton")
         self.label_28 = QtWidgets.QLabel(self.AmlSystemFilePullh_tab)
-        self.label_28.setGeometry(QtCore.QRect(0, 50, 41, 16))
+        self.label_28.setGeometry(QtCore.QRect(0, 50, 51, 16))
         self.label_28.setObjectName("label_28")
         self.label_29 = QtWidgets.QLabel(self.AmlSystemFilePullh_tab)
         self.label_29.setGeometry(QtCore.QRect(350, 50, 21, 21))
@@ -229,8 +229,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.AmlDebug_tabWidget.setCurrentIndex(0)
-        self.AmlSystemFile_tabWidget.setCurrentIndex(1)
-        self.AmlAudioDebugModeAuto_radioButton.clicked['bool'].connect(self.AmlAudioDebugCaptureTime_groupBox.setChecked)
+        self.AmlSystemFile_tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
