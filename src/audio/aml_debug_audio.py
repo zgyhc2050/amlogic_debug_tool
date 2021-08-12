@@ -6,6 +6,7 @@ import threading
 from pathlib import Path
 
 import src.common.aml_common
+from src.common.aml_common import AmlCommon
 
 DEBUG_CAPTURE_MODE_AUTO         = 0
 DEBUG_CAPTURE_MODE_MUNUAL       = 1
