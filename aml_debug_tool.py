@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from threading import Thread
 
-import resource
+import res.ico_debug
 import Ui_aml_debug
 
 from PyQt5.QtGui import QTextCursor, QIcon
