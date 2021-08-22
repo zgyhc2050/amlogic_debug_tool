@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>748</width>
-    <height>574</height>
+    <height>575</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -715,7 +715,7 @@ All</string>
         <x>640</x>
         <y>0</y>
         <width>91</width>
-        <height>101</height>
+        <height>121</height>
        </rect>
       </property>
       <property name="title">
@@ -738,13 +738,26 @@ All</string>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>50</y>
          <width>75</width>
          <height>23</height>
         </rect>
        </property>
        <property name="text">
         <string>Reboot</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="AmlSystemCloseAvb_pushButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Close AVB</string>
        </property>
       </widget>
      </widget>

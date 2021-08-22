@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'e:\code\Python\amlogic_dump\aml_debug.ui'
+# Form implementation generated from reading ui file 'e:\code\Python\amlogic_debug_tool\aml_debug.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(748, 574)
+        MainWindow.resize(748, 575)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.AmlDebug_tabWidget = QtWidgets.QTabWidget(self.centralwidget)
@@ -201,14 +201,17 @@ class Ui_MainWindow(object):
         self.AmlSystemPullCustom2Src_lineEdit.setObjectName("AmlSystemPullCustom2Src_lineEdit")
         self.AmlSystemFile_tabWidget.addTab(self.AmlSystemFilePullh_tab, "")
         self.AmlSystemOperationSystem_groupBox = QtWidgets.QGroupBox(self.AmlSystemOperation_tab)
-        self.AmlSystemOperationSystem_groupBox.setGeometry(QtCore.QRect(640, 0, 91, 101))
+        self.AmlSystemOperationSystem_groupBox.setGeometry(QtCore.QRect(640, 0, 91, 121))
         self.AmlSystemOperationSystem_groupBox.setObjectName("AmlSystemOperationSystem_groupBox")
         self.AmlSystemRemount_pushButton = QtWidgets.QPushButton(self.AmlSystemOperationSystem_groupBox)
         self.AmlSystemRemount_pushButton.setGeometry(QtCore.QRect(10, 20, 75, 23))
         self.AmlSystemRemount_pushButton.setObjectName("AmlSystemRemount_pushButton")
         self.AmlSystemReboot_pushButton = QtWidgets.QPushButton(self.AmlSystemOperationSystem_groupBox)
-        self.AmlSystemReboot_pushButton.setGeometry(QtCore.QRect(10, 60, 75, 23))
+        self.AmlSystemReboot_pushButton.setGeometry(QtCore.QRect(10, 50, 75, 23))
         self.AmlSystemReboot_pushButton.setObjectName("AmlSystemReboot_pushButton")
+        self.AmlSystemCloseAvb_pushButton = QtWidgets.QPushButton(self.AmlSystemOperationSystem_groupBox)
+        self.AmlSystemCloseAvb_pushButton.setGeometry(QtCore.QRect(10, 80, 75, 23))
+        self.AmlSystemCloseAvb_pushButton.setObjectName("AmlSystemCloseAvb_pushButton")
         self.AmlDebug_tabWidget.addTab(self.AmlSystemOperation_tab, "")
         self.AmlDebugTerminalLog_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.AmlDebugTerminalLog_groupBox.setGeometry(QtCore.QRect(0, 200, 741, 341))
@@ -277,6 +280,7 @@ class Ui_MainWindow(object):
         self.AmlSystemOperationSystem_groupBox.setTitle(_translate("MainWindow", "system"))
         self.AmlSystemRemount_pushButton.setText(_translate("MainWindow", "Remount"))
         self.AmlSystemReboot_pushButton.setText(_translate("MainWindow", "Reboot"))
+        self.AmlSystemCloseAvb_pushButton.setText(_translate("MainWindow", "Close AVB"))
         self.AmlDebug_tabWidget.setTabText(self.AmlDebug_tabWidget.indexOf(self.AmlSystemOperation_tab), _translate("MainWindow", "System Operation"))
         self.AmlDebugTerminalLog_groupBox.setTitle(_translate("MainWindow", "Terminal log"))
         self.AmlAudioTerminalLog_textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"

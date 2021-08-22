@@ -7,18 +7,18 @@ import res.ico_debug
 import Ui_aml_debug
 
 from PyQt5.QtGui import QTextCursor, QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
-from src.audio.aml_debug_audio_ui import AmlDebugAudioDebugUi
-from src.system_operation.aml_debug_sys_operation_ui import AmlDebugSystemOperationUi
 from src.common.aml_ini_parser import amlParserIniContainer
 from src.common.aml_common import AmlCommon
+from src.common.aml_debug_base_ui import AmlDebugModule
 
-class AmlDebugUi(Ui_aml_debug.Ui_MainWindow):
-    def __init__(self, mainWindow):
-        super().setupUi(mainWindow)
-        self.__m_amlDebugAudioDebugUi = AmlDebugAudioDebugUi(self)
-        self.__m_amlDebugSystemOperationUi = AmlDebugSystemOperationUi(self)
+
+class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
+    def __init__(self):
+        super(AmlDebugUi, self).__init__()
+        super().setupUi(self)
+        AmlDebugModule.initModule(self)
 
     def terminalLog(self, someInfo):
         self.AmlAudioTerminalLog_textBrowser.append(someInfo)
@@ -31,17 +31,23 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow):
     def reboot(self):
         AmlCommon.exe_adb_cmd('adb reboot', True, self.terminalLog)
 
+    def closeEvent(self,event):
+        reply = QMessageBox.question(self, 'Amlogic Tips',"Confirm exit?", QMessageBox.Yes |QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+            AmlDebugModule.closeEvent()
+        else:
+            event.ignore()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
-    MainWindow.setWindowIcon(QIcon(':/debug.ico'))
     if not Path(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT).exists():
         print(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
         os.makedirs(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT, 777)
     amlParserIniContainer.initParser()
 
-    ui = AmlDebugUi(MainWindow)
-    MainWindow.setWindowTitle("Amlogic Debug Tool")
-
-    MainWindow.show()
+    ui = AmlDebugUi()
+    ui.setWindowIcon(QIcon(':/debug.ico'))
+    ui.setWindowTitle("Amlogic Debug Tool")
+    ui.show()
     sys.exit(app.exec_())

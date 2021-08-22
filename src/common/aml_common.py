@@ -44,6 +44,10 @@ class AmlCommon:
     AML_DEBUG_DIRECOTRY_CONFIG = AML_DEBUG_DIRECOTRY_ROOT + '\\config.ini'
     @staticmethod
     def exe_adb_cmd(cmd, bprint=False, callback_print=exe_adb_cmd_default_print):
+        return AmlCommon.exe_sys_cmd(cmd, bprint, callback_print)
+
+    @staticmethod
+    def exe_sys_cmd(cmd, bprint=False, callback_print=exe_adb_cmd_default_print):
         try:
             ret = subprocess.Popen(cmd, shell=True)
             ret.wait()

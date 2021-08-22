@@ -1,18 +1,11 @@
 import os
-import sys
 import shutil
 import time
 import threading
 from pathlib import Path
 
-import src.common.aml_common
 from src.common.aml_common import AmlCommon
 
-DEBUG_CAPTURE_MODE_AUTO         = 0
-DEBUG_CAPTURE_MODE_MUNUAL       = 1
-
-DEFAULT_CAPTURE_MODE            = DEBUG_CAPTURE_MODE_AUTO
-DEFAULT_AUTO_MODE_DUMP_TIME_S   = 3
 class AudioDebugCfg:
     def __init__(self):
         self.m_captureMode = 0
@@ -24,6 +17,10 @@ class AudioDebugCfg:
         self.m_createZipFile = 0
 
 class AmlAudioDebug:
+    DEBUG_CAPTURE_MODE_AUTO         = 0
+    DEBUG_CAPTURE_MODE_MUNUAL       = 1
+    DEFAULT_CAPTURE_MODE            = DEBUG_CAPTURE_MODE_AUTO
+    DEFAULT_AUTO_MODE_DUMP_TIME_S   = 3
     def __init__(self):
         self.RUN_STATE_STARTED = 1
         self.RUN_STATE_STOPED = 2
@@ -104,9 +101,9 @@ class AmlAudioDebug:
         self.__callbackFunc = 0
 
     def start_capture(self, startCaptureFinish):
-        if self.__debugCfg.m_captureMode == DEBUG_CAPTURE_MODE_AUTO:
+        if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             self.__callbackFunc('Auto mode: Start to capture the info...')
-        elif self.__debugCfg.m_captureMode == DEBUG_CAPTURE_MODE_MUNUAL:
+        elif self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL:
             self.__callbackFunc('Manual mode: Start to capture the info...')
         if self.__curState == self.RUN_STATE_STARTED:
             self.__callbackFunc('current already started, do nothing')
@@ -118,7 +115,7 @@ class AmlAudioDebug:
         if self.__debugCfg.m_logcatEnable:
             # open the audio hal debug level for capture logcat
             self.__capture_logcat_start()
-        if self.__debugCfg.m_captureMode == DEBUG_CAPTURE_MODE_AUTO:
+        if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             # 2. Capture the debug info and write it to txt file.
             self.__capture_debug_text()
 
@@ -130,11 +127,13 @@ class AmlAudioDebug:
         # 4. Capture the audio data.
         self.__capture_audio_data_start()
 
-        if self.__debugCfg.m_captureMode == DEBUG_CAPTURE_MODE_AUTO:
+        if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             if self.__debugCfg.m_logcatEnable:
                 if not self.__debugCfg.m_dumpDataEnable:
                     self.__callbackFunc('3.1 Please wait ' + str(self.__debugCfg.m_autoDebugTimeS) + 's for logcat...')
                     time.sleep(self.__debugCfg.m_autoDebugTimeS)
+                else:
+                    self.__callbackFunc('3.1 Start auto capture logcat...')
                 # 5. Kill the logcat thread, stop logcat.
                 self.__callbackFunc('3.2 Stop auto capture logcat...')
                 self.__capture_logcat_stop()
@@ -149,7 +148,7 @@ class AmlAudioDebug:
         if self.__curState != self.RUN_STATE_STARTED:
             self.__callbackFunc('stop_capture: current no start, do nothing')
             return
-        if self.__debugCfg.m_captureMode != DEBUG_CAPTURE_MODE_MUNUAL:
+        if self.__debugCfg.m_captureMode != AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL:
             self.__callbackFunc('stop_capture: current not MUNAUL mode, not support stop!!!')
             return
         self.__manual_capture_stop()
@@ -194,18 +193,18 @@ class AmlAudioDebug:
             return
         self.__callbackFunc('1.1 Please wait a moment, starting to dump debugging information...')
         self.__callbackFunc('1.2 Cat the some info to ' + self.__dumpCmdOutFilePath + ' file')
-        for i, adbDumpCmd in enumerate(self.__adbDumpCmdLists):
-            echoCmdStr = 'adb shell "echo ' + adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath + '"'
-            exeCmdStr = 'adb shell "' + adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath + '"'
-            AmlCommon.exe_adb_cmd(echoCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
-            AmlCommon.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
+        dumpCmdListTemp = []
+        for adbDumpCmd in self.__adbDumpCmdLists:
+            dumpCmdListTemp.append('echo ' + adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath)
+            dumpCmdListTemp.append(adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath)
+        self.__exe_adb_shell_cmd(dumpCmdListTemp)
 
     def __capture_audio_data_start(self):
         if not self.__debugCfg.m_dumpDataEnable:
             return
         self.__capture_audio_data_prop_enable()
         self.__callbackFunc('2.1 AUTO mode: Start fetching the audio data, wait for ' + str(self.__debugCfg.m_autoDebugTimeS) + ' seconds...')
-        if self.__debugCfg.m_captureMode == DEBUG_CAPTURE_MODE_AUTO:
+        if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             time.sleep(self.__debugCfg.m_autoDebugTimeS)
             self.__capture_audio_data_prop_disable()
             self.__callbackFunc('2.2 AUTO mode: fetching the audio data end.')
@@ -247,9 +246,15 @@ class AmlAudioDebug:
             self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
 
     def __exe_adb_shell_cmd(self, cmdLists):
-        for cmd in cmdLists:
-            exeCmdStr = 'adb shell "' + cmd + '"'
-            AmlCommon.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable, self.__callbackFunc)
+        exeCmdStr = ''
+        for i, cmd in enumerate(cmdLists):
+            print(cmd)
+            exeCmdStr += cmd + ';'
+            if self.__debugCfg.m_printDebugEnable == True:
+                if 'echo' not in cmd:
+                    self.__callbackFunc(cmd)
+        exeCmdStr = 'adb shell "' + exeCmdStr + '"' 
+        AmlCommon.exe_adb_cmd(exeCmdStr, False, self.__callbackFunc)
 
     def __print_help_info(self):
             print('###############################################################################################')
