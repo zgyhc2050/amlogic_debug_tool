@@ -47,7 +47,7 @@ if __name__ == '__main__':
     amlParserIniContainer.initParser()
 
     ui = AmlDebugUi()
-    ui.setWindowIcon(QIcon(':/debug.ico'))
+    ui.setWindowIcon(QIcon(AmlCommon.AML_DEBUG_TOOL_ICO_PATH))
     ui.setWindowTitle("Amlogic Debug Tool")
     ui.show()
     sys.exit(app.exec_())

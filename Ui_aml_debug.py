@@ -19,7 +19,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.AmlDebug_tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.AmlDebug_tabWidget.setEnabled(True)
-        self.AmlDebug_tabWidget.setGeometry(QtCore.QRect(0, 0, 741, 191))
+        self.AmlDebug_tabWidget.setGeometry(QtCore.QRect(10, 0, 741, 191))
         self.AmlDebug_tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.AmlDebug_tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.AmlDebug_tabWidget.setDocumentMode(False)
@@ -225,10 +225,16 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 748, 26))
         self.menubar.setObjectName("menubar")
+        self.menuAbout = QtWidgets.QMenu(self.menubar)
+        self.menuAbout.setObjectName("menuAbout")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.AmlDebug_actionAbout = QtWidgets.QAction(MainWindow)
+        self.AmlDebug_actionAbout.setObjectName("AmlDebug_actionAbout")
+        self.menuAbout.addAction(self.AmlDebug_actionAbout)
+        self.menubar.addAction(self.menuAbout.menuAction())
 
         self.retranslateUi(MainWindow)
         self.AmlDebug_tabWidget.setCurrentIndex(0)
@@ -288,3 +294,5 @@ class Ui_MainWindow(object):
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'SimSun\'; font-size:9pt;\"><br /></p></body></html>"))
+        self.menuAbout.setTitle(_translate("MainWindow", "Help"))
+        self.AmlDebug_actionAbout.setText(_translate("MainWindow", "About"))

@@ -1,5 +1,5 @@
 from src.common.aml_ini_parser import AmlParserIniBase, AmlParserIniManager
-import src.audio.aml_debug_audio
+from src.audio.aml_debug_audio import AmlAudioDebug
 
 def instance(parser):
     return AmlParserIniAudio(parser)
@@ -18,11 +18,11 @@ class AmlParserIniAudio(AmlParserIniBase):
 
     def init_default_value(self):
         self.__dictionary_default_value = {
-            AmlParserIniAudio.AML_PARSER_AUDIO_CAPTRUE_MODE      : str(src.audio.aml_debug_audio.DEFAULT_CAPTURE_MODE),
+            AmlParserIniAudio.AML_PARSER_AUDIO_CAPTRUE_MODE      : str(AmlAudioDebug.DEFAULT_CAPTURE_MODE),
             AmlParserIniAudio.AML_PARSER_AUDIO_DEBUG_INFO        : 'True',
             AmlParserIniAudio.AML_PARSER_AUDIO_DUMP_DATA         : 'True',
             AmlParserIniAudio.AML_PARSER_AUDIO_LOGCAT            : 'True',
-            AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME      : str(src.audio.aml_debug_audio.DEFAULT_AUTO_MODE_DUMP_TIME_S),
+            AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME      : str(AmlAudioDebug.DEFAULT_AUTO_MODE_DUMP_TIME_S),
             AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG       : 'Flase',
             AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP        : 'Flase',
         }
