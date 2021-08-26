@@ -9,8 +9,15 @@ convert ico picture file to *.py:
 
 Compile to an executable EXE package:
 
-    pyinstaller.exe -Fw .\aml_debug_tool.py -i .\res\debug.ico
+	python.exe .\res\script\compile.py -t F
 
-Compile to multiple files:
+Compile installation exe:
 
-    pyinstaller.exe -Dw .\aml_debug_tool.py -i .\res\debug.ico
+	python.exe .\res\script\compile.py -t A
+
+Compile help information:
+
+	python.exe .\res\script\compile.py -h
+	python.exe .\res\script\compile.py -H [param type]
+
+

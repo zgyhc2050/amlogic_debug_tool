@@ -42,9 +42,6 @@ def exe_adb_cmd_default_print(str):
 class AmlCommon:
     AML_DEBUG_DIRECOTRY_ROOT                = "d:\\aml_debug"
     AML_DEBUG_TOOL_ICO_PATH                 = ':/debug.ico'
-    AML_DEBUG_TOOL_ABOUT_VERSION            = '1.0.3'
-    AML_DEBUG_TOOL_ABOUT_DATE               = '2021-08-23T 11:56:46.957'
-    AML_DEBUG_TOOL_ABOUT_COMMIT             = 'xxxxxxx'
     AML_DEBUG_DIRECOTRY_CONFIG = AML_DEBUG_DIRECOTRY_ROOT + '\\config.ini'
     @staticmethod
     def exe_adb_cmd(cmd, bprint=False, callback_print=exe_adb_cmd_default_print):

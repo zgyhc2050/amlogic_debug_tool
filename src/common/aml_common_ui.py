@@ -1,12 +1,9 @@
-# from window import Ui_MainWindow
-# from child import Ui_Child
-
-# from show import Ui_Show
 from PyQt5.QtGui import QIcon
 from Ui_aml_debug_help_info import Ui_AmlDebugHelpAboutInfo_Dialog
 from src.common.aml_debug_base_ui import AmlDebugBaseUi
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from res.script.constant import AmlDebugConstant
 from src.common.aml_common import AmlCommon
 def instance(aml_ui):
     return AmlCommonUi(aml_ui)
@@ -36,9 +33,10 @@ class AmlCommonUi(AmlDebugBaseUi):
         dialog.setWindowFlags(Qt.WindowStaysOnTopHint)
         dialog.setWindowIcon(QIcon(AmlCommon.AML_DEBUG_TOOL_ICO_PATH))
         dialog.AmlDebugHelpAboutInfo_Label.setText(
-            'Version: ' + AmlCommon.AML_DEBUG_TOOL_ABOUT_VERSION + 
-            '\nDate: ' + AmlCommon.AML_DEBUG_TOOL_ABOUT_DATE + 
-            '\nCommit: ' + AmlCommon.AML_DEBUG_TOOL_ABOUT_COMMIT)
+            'Version: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION +
+            '\nCompile user: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE + 
+            '\nDate: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE + 
+            '\nCommit: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT)
         dialog.exec_()
 
 class AmlDebugHelpAboutInfo_Dialog(Ui_AmlDebugHelpAboutInfo_Dialog, QDialog):

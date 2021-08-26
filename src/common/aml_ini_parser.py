@@ -33,7 +33,7 @@ class AmlParserIniManager:
             self.__parser.add_section(section)
             for key in default_value_dic.keys():
                 self.__parser.set(section, key, default_value_dic[key])
-                #print('key:' + key + ', value:' + default_value_dic[key]  )
+                #print('key:' + key + ', value:' + default_value_dic[key])
 
     def getParserById(self, id):
         return self.__m_dictionary_aml_parser[id]

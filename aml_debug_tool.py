@@ -35,7 +35,7 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
         reply = QMessageBox.question(self, 'Amlogic Tips',"Confirm exit?", QMessageBox.Yes |QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()
-            AmlDebugModule.closeEvent()
+            AmlDebugModule.closeEvent() 
         else:
             event.ignore()
 
