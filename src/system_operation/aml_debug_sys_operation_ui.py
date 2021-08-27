@@ -87,7 +87,6 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
 
     def __click_pull_custom(self, i):
         self.__pullFilesToSoc(eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').text(), eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Dst_lineEdit').text())
-        self.__pullFilesToSoc(self.m_amlUi.AmlSystemPullCustom1Src_lineEdit.text(), self.m_amlUi.AmlSystemPullCustom1Dst_lineEdit.text())
     def click_pull_custom1(self):
         self.__click_pull_custom(1)
     def click_pull_custom2(self):

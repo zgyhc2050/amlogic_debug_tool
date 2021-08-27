@@ -2,5 +2,5 @@
 class AmlDebugConstant():
     AML_DEBUG_TOOL_ABOUT_VERSION            = '1.0.4'
     AML_DEBUG_TOOL_ABOUT_USERE              = 'hongchao.yin'
-    AML_DEBUG_TOOL_ABOUT_DATE               = '2021-08-27 10:12:29'
+    AML_DEBUG_TOOL_ABOUT_DATE               = '2021-08-27 10:38:40'
     AML_DEBUG_TOOL_ABOUT_COMMIT             = '***'
