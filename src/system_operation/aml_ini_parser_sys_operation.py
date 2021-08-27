@@ -66,5 +66,5 @@ class AmlParserIniSysOperation(AmlParserIniBase):
         return self.getStrValueByKey(key)
 
     def setValueByKey(self, key, value):
-        print('key:' + key + ', value:' + value)
+        #print('key:' + key + ', value:' + value)
         self.setStrValueByKey(key, value)

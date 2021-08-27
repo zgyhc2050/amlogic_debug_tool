@@ -53,9 +53,9 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
             setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_DST_PATH')))
         for i in range(1, 5):
             eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').\
-            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_SRC_PATH')))
+            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PULL_CUSTOM' + str(i) + '_SRC_PATH')))
             eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Dst_lineEdit').\
-            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_DST_PATH')))
+            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PULL_CUSTOM' + str(i) + '_DST_PATH')))
 
     def closeEvent(self):
         self.__m_stop_thread = True
