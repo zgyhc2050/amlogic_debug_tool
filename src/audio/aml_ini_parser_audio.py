@@ -1,5 +1,6 @@
 from src.common.aml_ini_parser import AmlParserIniBase, AmlParserIniManager
 from src.audio.aml_debug_audio import AmlAudioDebug
+from src.common.aml_common import AmlCommon
 
 def instance(parser):
     return AmlParserIniAudio(parser)
@@ -12,6 +13,11 @@ class AmlParserIniAudio(AmlParserIniBase):
     AML_PARSER_AUDIO_CAPTURE_TIME                   = "captrue_time"
     AML_PARSER_AUDIO_PRINT_DEBUG                    = "print_debug"
     AML_PARSER_AUDIO_CREATE_ZIP                     = "create_zip"
+    # play audio param
+    AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL             = "play_audio_channel"
+    AML_PARSER_AUDIO_PLAY_AUDIO_BYTE                = "play_audio_byte"
+    AML_PARSER_AUDIO_PLAY_AUDIO_RATE                = "play_audio_rate"
+    AML_PARSER_AUDIO_PLAY_AUDIO_PATH                = "play_audio_path"
     def __init__(self, parser):
         super(AmlParserIniAudio, self).__init__(parser)
         self.m_section = AmlParserIniManager.AML_PARSER_SECTION_AUDIO
@@ -25,12 +31,16 @@ class AmlParserIniAudio(AmlParserIniBase):
             AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME      : str(AmlAudioDebug.DEFAULT_AUTO_MODE_DUMP_TIME_S),
             AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG       : 'Flase',
             AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP        : 'Flase',
+            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL: '2',
+            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE   : '2',
+            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE   : '48000',
+            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH   : AmlCommon.AML_DEBUG_DIRECOTRY_ROOT,
         }
         return self.__dictionary_default_value
     
     def getValueByKey(self, key):
-        if key == AmlParserIniAudio.AML_PARSER_AUDIO_CAPTRUE_MODE or   \
-            key == AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME :
+        if key == AmlParserIniAudio.AML_PARSER_AUDIO_CAPTRUE_MODE or        \
+            key == AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME:
             return self.getIntValueByKey(key)
         elif key == AmlParserIniAudio.AML_PARSER_AUDIO_DEBUG_INFO or        \
             key == AmlParserIniAudio.AML_PARSER_AUDIO_DUMP_DATA or          \
@@ -39,8 +49,13 @@ class AmlParserIniAudio(AmlParserIniBase):
             key == AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP :
             return self.getBoolValueByKey(key)
         else :
-            print('[E] AmlParserIniAudio::getValueByKey key:' + key + ', not support key.')
-            return -1
+            return self.getStrValueByKey(key)
 
     def setValueByKey(self, key, value):
-        self.setStrValueByKey(key, str(value))
+        if key == AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH or         \
+            key == AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL or     \
+            key == AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE or        \
+            key == AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE:
+            self.setStrValueByKey(key, value)
+        else:
+            self.setStrValueByKey(key, str(value))

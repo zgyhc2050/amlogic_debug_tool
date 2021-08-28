@@ -17,6 +17,23 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         super(AmlDebugSystemOperationUi, self).__init__(aml_ui)
         self.__m_stop_thread = False
 
+    def init_display_ui(self):
+        self.m_amlUi.AmlSystemPushDolbySrc_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_DOLBY_SRC_PATH))
+        self.m_amlUi.AmlSystemPushDtsSrc_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_DTS_SRC_PATH))
+        self.m_amlUi.AmlSystemPushMs12Src_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_MS12_SRC_PATH))
+        self.m_amlUi.AmlSystemPushDolbyDtsDst_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_DOLBYDTS_DST_PATH))
+        self.m_amlUi.AmlSystemPushMs12Dst_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_MS12_DST_PATH))
+        for i in range(1, 6):
+            eval('self.m_amlUi.AmlSystemPushCustom' + str(i) + 'Src_lineEdit').\
+            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_SRC_PATH')))
+            eval('self.m_amlUi.AmlSystemPushCustom' + str(i) + 'Dst_lineEdit').\
+            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_DST_PATH')))
+        for i in range(1, 5):
+            eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').\
+            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PULL_CUSTOM' + str(i) + '_SRC_PATH')))
+            eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Dst_lineEdit').\
+            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PULL_CUSTOM' + str(i) + '_DST_PATH')))
+
     def signals_connect_slots(self):
         self.m_amlUi.AmlSystemPushDolbyDtsPush_Button.clicked.connect(self.__click_push_dst_dolby)
         self.m_amlUi.AmlSystemPushMs12Push_Button.clicked.connect(self.__click_push_ms12)
@@ -37,33 +54,13 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
             eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Dst_lineEdit').editingFinished.connect(eval('self.finished_PullCustom' + str(i) + 'Dst'))
             eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Pull_Button').clicked.connect(eval('self.click_pull_custom' + str(i)))
 
-    def init_default_config(self):
-        pass
-
-    def init_display_ui(self):
-        self.m_amlUi.AmlSystemPushDolbySrc_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_DOLBY_SRC_PATH))
-        self.m_amlUi.AmlSystemPushDtsSrc_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_DTS_SRC_PATH))
-        self.m_amlUi.AmlSystemPushMs12Src_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_MS12_SRC_PATH))
-        self.m_amlUi.AmlSystemPushDolbyDtsDst_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_DOLBYDTS_DST_PATH))
-        self.m_amlUi.AmlSystemPushMs12Dst_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_MS12_DST_PATH))
-        for i in range(1, 6):
-            eval('self.m_amlUi.AmlSystemPushCustom' + str(i) + 'Src_lineEdit').\
-            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_SRC_PATH')))
-            eval('self.m_amlUi.AmlSystemPushCustom' + str(i) + 'Dst_lineEdit').\
-            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PUSH_CUSTOM' + str(i) + '_DST_PATH')))
-        for i in range(1, 5):
-            eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').\
-            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PULL_CUSTOM' + str(i) + '_SRC_PATH')))
-            eval('self.m_amlUi.AmlSystemPullCustom' + str(i) + 'Dst_lineEdit').\
-            setText(self.__m_iniPaser.getValueByKey(eval('AmlParserIniSysOperation.AML_PARSER_SYS_OPERAT_PULL_CUSTOM' + str(i) + '_DST_PATH')))
-
     def closeEvent(self):
         self.__m_stop_thread = True
 
     def __pushFilesToSoc(self, src, dst):
-        AmlCommon.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True, self.m_amlUi.terminalLog)
+        AmlCommon.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True, self.log_fuc)
     def __pullFilesToSoc(self, src, dst):
-        AmlCommon.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True, self.m_amlUi.terminalLog)
+        AmlCommon.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True, self.log_fuc)
         self.m_amlUi.AmlSystemPushDolbySrc_lineEdit.text()
 
     def __click_push_dst_dolby(self):
@@ -102,20 +99,20 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         thread.start()
 
     def __closeAvbProc(self):
-        AmlCommon.exe_sys_cmd('adb reboot bootloader', True, self.m_amlUi.terminalLog)
-        AmlCommon.exe_sys_cmd('fastboot flashing unlock_critical', True, self.m_amlUi.terminalLog)
-        AmlCommon.exe_sys_cmd('fastboot flashing unlock', True, self.m_amlUi.terminalLog)
-        AmlCommon.exe_sys_cmd('fastboot reboot', True, self.m_amlUi.terminalLog)
+        AmlCommon.exe_sys_cmd('adb reboot bootloader', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('fastboot flashing unlock_critical', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('fastboot flashing unlock', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('fastboot reboot', True, self.log_fuc)
         timeCntS = 40
-        self.m_amlUi.terminalLog('__closeAvbProc: flashing unlock reboot platform, please wait ' + str(timeCntS) + ' s...')
+        self.log_fuc('__closeAvbProc: flashing unlock reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
             timeCntS -= 1
-        AmlCommon.exe_sys_cmd('adb root', True, self.m_amlUi.terminalLog)
-        AmlCommon.exe_sys_cmd('adb disable-verity', True, self.m_amlUi.terminalLog)
-        AmlCommon.exe_sys_cmd('adb reboot', True, self.m_amlUi.terminalLog)
+        AmlCommon.exe_sys_cmd('adb root', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('adb disable-verity', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('adb reboot', True, self.log_fuc)
         timeCntS = 40
-        self.m_amlUi.terminalLog('__closeAvbProc: disable-verity reboot platform, please wait ' + str(timeCntS) + ' s...')
+        self.log_fuc('__closeAvbProc: disable-verity reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
             timeCntS -= 1

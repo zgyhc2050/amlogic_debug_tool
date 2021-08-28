@@ -1,7 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-import importlib
-
 class AmlDebugModule():
     moduleList = []
     @staticmethod
@@ -22,16 +20,12 @@ class AmlDebugModule():
 class AmlDebugBaseUi(metaclass=ABCMeta):
     def __init__(self, aml_ui):
         self.m_amlUi = aml_ui
-        self.signals_connect_slots()
-        self.init_default_config()
+        self.log_fuc = aml_ui.terminalLogSignal.emit
         self.init_display_ui()
+        self.signals_connect_slots()
 
     @abstractmethod
     def signals_connect_slots(self):
-        pass
-
-    @abstractmethod
-    def init_default_config(self):
         pass
 
     @abstractmethod
