@@ -13,6 +13,7 @@ def instance(aml_ui):
 class AmlCommonUi(AmlDebugBaseUi):
     def __init__(self, aml_ui):
         self.__m_amlUi = aml_ui
+        AmlCommon.log_func = aml_ui.terminalLogSignal.emit
         super(AmlCommonUi, self).__init__(aml_ui)
 
     def signals_connect_slots(self):

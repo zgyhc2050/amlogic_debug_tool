@@ -28,11 +28,11 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
         self.AmlAudioTerminalLog_textBrowser.moveCursor(QTextCursor.End)
 
     def remount(self):
-        AmlCommon.exe_adb_cmd('adb root', True, self.terminalLogSignal.emit)
-        return AmlCommon.exe_adb_cmd('adb remount', True, self.terminalLogSignal.emit)
+        AmlCommon.exe_adb_cmd('adb root', True)
+        return AmlCommon.exe_adb_cmd('adb remount', True)
 
     def reboot(self):
-        AmlCommon.exe_adb_cmd('adb reboot', True, self.terminalLogSignal.emit)
+        AmlCommon.exe_adb_cmd('adb reboot', True)
 
     def closeEvent(self,event):
         reply = QMessageBox.question(self, 'Amlogic Tips',"Confirm exit?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -48,7 +48,6 @@ if __name__ == '__main__':
         print(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
         os.makedirs(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT, 777)
     amlParserIniContainer.initParser()
-
     ui = AmlDebugUi()
     ui.setWindowIcon(QIcon(AmlCommon.AML_DEBUG_TOOL_ICO_PATH))
     ui.setWindowTitle("Amlogic Debug Tool")

@@ -58,9 +58,9 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         self.__m_stop_thread = True
 
     def __pushFilesToSoc(self, src, dst):
-        AmlCommon.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True, self.log_fuc)
+        AmlCommon.exe_adb_cmd('adb push "' + src + '" "' + dst + '"', True)
     def __pullFilesToSoc(self, src, dst):
-        AmlCommon.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True, self.log_fuc)
+        AmlCommon.exe_adb_cmd('adb pull "' + src + '" "' + dst + '"', True)
         self.m_amlUi.AmlSystemPushDolbySrc_lineEdit.text()
 
     def __click_push_dst_dolby(self):
@@ -99,18 +99,18 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         thread.start()
 
     def __closeAvbProc(self):
-        AmlCommon.exe_sys_cmd('adb reboot bootloader', True, self.log_fuc)
-        AmlCommon.exe_sys_cmd('fastboot flashing unlock_critical', True, self.log_fuc)
-        AmlCommon.exe_sys_cmd('fastboot flashing unlock', True, self.log_fuc)
-        AmlCommon.exe_sys_cmd('fastboot reboot', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('adb reboot bootloader', True)
+        AmlCommon.exe_sys_cmd('fastboot flashing unlock_critical', True)
+        AmlCommon.exe_sys_cmd('fastboot flashing unlock', True)
+        AmlCommon.exe_sys_cmd('fastboot reboot', True)
         timeCntS = 40
         self.log_fuc('__closeAvbProc: flashing unlock reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
             timeCntS -= 1
-        AmlCommon.exe_sys_cmd('adb root', True, self.log_fuc)
-        AmlCommon.exe_sys_cmd('adb disable-verity', True, self.log_fuc)
-        AmlCommon.exe_sys_cmd('adb reboot', True, self.log_fuc)
+        AmlCommon.exe_sys_cmd('adb root', True)
+        AmlCommon.exe_sys_cmd('adb disable-verity', True)
+        AmlCommon.exe_sys_cmd('adb reboot', True)
         timeCntS = 40
         self.log_fuc('__closeAvbProc: disable-verity reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 

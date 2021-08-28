@@ -18,6 +18,7 @@ class AmlParserIniAudio(AmlParserIniBase):
     AML_PARSER_AUDIO_PLAY_AUDIO_BYTE                = "play_audio_byte"
     AML_PARSER_AUDIO_PLAY_AUDIO_RATE                = "play_audio_rate"
     AML_PARSER_AUDIO_PLAY_AUDIO_PATH                = "play_audio_path"
+    AML_PARSER_AUDIO_PLAY_AUDIO_SEL_CHANNEL         = "play_audio_sel_channel"
     def __init__(self, parser):
         super(AmlParserIniAudio, self).__init__(parser)
         self.m_section = AmlParserIniManager.AML_PARSER_SECTION_AUDIO

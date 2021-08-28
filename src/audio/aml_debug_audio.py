@@ -1,10 +1,10 @@
-import os
+import os, pyaudio, wave
 import shutil
 import time, threading
 from threading import Thread
 from pathlib import Path
 from src.common.aml_common import AmlCommon
-
+import numpy
 class AudioDebugCfg:
     def __init__(self):
         self.m_captureMode = 0
@@ -20,6 +20,11 @@ class AmlAudioDebug:
     DEBUG_CAPTURE_MODE_MUNUAL       = 1
     DEFAULT_CAPTURE_MODE            = DEBUG_CAPTURE_MODE_AUTO
     DEFAULT_AUTO_MODE_DUMP_TIME_S   = 3
+
+    PLAY_AUDIO_CHANNEL_12           = 0
+    PLAY_AUDIO_CHANNEL_34           = 1
+    PLAY_AUDIO_CHANNEL_56           = 2
+    PLAY_AUDIO_CHANNEL_78           = 3
     m_stopPlay = False
     def __init__(self, log_fuc):
         self.log_fuc = log_fuc
@@ -217,7 +222,7 @@ class AmlAudioDebug:
         self.log_fuc('Pull all file to PC ...')
         for dumpFile in self.__dumpFileLists:
             exeCmdStr = 'adb pull ' + dumpFile + ' ' + self.__nowPullPcPath
-            AmlCommon.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable, self.log_fuc)
+            AmlCommon.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable)
         if self.__debugCfg.m_createZipFile:
             tempFilePath = AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
             self.log_fuc('Zipping the files:' + self.__nowPullPcTime + '.zip')
@@ -242,7 +247,7 @@ class AmlAudioDebug:
     def __capture_logcat_stop(self):
         self.__exe_adb_shell_cmd(self.__adbLogcatStopLists)
         AmlCommon.exe_adb_cmd('adb shell "ps -ef |grep -v grep|grep logcat| awk \'{print $2}\'|xargs kill -9"',
-            self.__debugCfg.m_printDebugEnable, self.log_fuc)
+            self.__debugCfg.m_printDebugEnable)
 
     def __exe_adb_shell_cmd(self, cmdLists):
         exeCmdStr = ''
@@ -253,7 +258,7 @@ class AmlAudioDebug:
                 if 'echo' not in cmd:
                     self.log_fuc(cmd)
         exeCmdStr = 'adb shell "' + exeCmdStr + '"' 
-        AmlCommon.exe_adb_cmd(exeCmdStr, False, self.log_fuc)
+        AmlCommon.exe_adb_cmd(exeCmdStr, False)
 
     def __print_help_info(self):
             print('###############################################################################################')
@@ -263,48 +268,97 @@ class AmlAudioDebug:
             print('###############################################################################################')
             self.log_fuc('Please send folder ' + self.__nowPullPcPath + ' to RD colleagues! Thank You!')
 
-    def start_play_toggle(self, filePath, channel, byte, rate, func_playEnd):
+    def start_play_toggle(self, filePath, channel, byte, rate, selChn, func_playEnd):
         if not Path(filePath).exists():
             self.log_fuc('E [start_play_toggle]: filePath:' + filePath + ' not exists')
             return False
         if self.__m_isPlaying == False:
-            thread = threading.Thread(target = self.__audio_pcm_play_thread, args = (filePath, channel, byte, rate, func_playEnd))
+            thread = threading.Thread(target = self.__audio_pcm_play_thread, args = (filePath, channel, byte, rate, selChn, func_playEnd))
             thread.start()
         else:
             AmlAudioDebug.m_stopPlay = True
         self.__m_isPlaying = not self.__m_isPlaying
         return self.__m_isPlaying
 
-    def __audio_pcm_play_thread(self, filePath, channel, byte, rate, func_playEnd):
-        import pyaudio, wave
+    def __audio_pcm_play_thread(self, filePath, channel, byte, rate, selChn, func_playEnd):
+        self.log_fuc('I [__audio_pcm_play_thread]: play pcm data byte:' + str(byte) + ', channel:' + \
+            str(channel) + ', rate:' + str(rate) + ', sel ch:' + str(selChn * 2 + 1) + '_' + str(selChn * 2 + 2))
         AmlAudioDebug.m_stopPlay = False
         with open(filePath, 'rb') as pcmfile:
             pcmdata = pcmfile.read()
-        with wave.open('D:\\temp.wav', 'wb') as wavfile:
+        temp_wave_file = 'D:\\temp.wav'
+        with wave.open(temp_wave_file, 'wb') as wavfile:
             wavfile.setparams((channel, byte, rate, 0, 'NONE', 'NONE'))
             wavfile.writeframes(pcmdata)
-
-        temp_wave = wave.open('D:\\temp.wav', 'rb')
+        if channel > 2:
+            temp_wave_file = self.__convertChannelData(temp_wave_file, channel, byte, rate, selChn)
+        temp_wave = wave.open(temp_wave_file, 'rb')
         amlPyAudio = pyaudio.PyAudio()
         AmlAudioDebug.__m_isPlaying = True
         # for i in range(amlPyAudio.get_device_count()):
         #     print(amlPyAudio.get_device_info_by_index(i))
 
-        frames = temp_wave.getnframes()
+        remain_frames = temp_wave.getnframes()
         bit_width = temp_wave.getsampwidth()
         channel = temp_wave.getnchannels()
         sample_rate = temp_wave.getframerate()
-        print('frames:' + str(frames))
         read_frames = 1024
-        self.log_fuc('I [__audio_pcm_play_thread]: play pcm data byte:' + str(bit_width) + ', channel:' + str(channel) + ', rate:' + str(sample_rate))
         stream = amlPyAudio.open(format = amlPyAudio.get_format_from_width(bit_width), channels = channel, rate = sample_rate, output = True)
-        self.log_fuc('I [__audio_pcm_play_thread]: starting to play file:' + filePath)
-        while frames > 0 and AmlAudioDebug.m_stopPlay == False:
-            data = temp_wave.readframes(read_frames)
+        self.log_fuc('I [__audio_pcm_play_thread]: starting to play file:' + filePath + ', frames:' + str(remain_frames))
+        while remain_frames > 0 and AmlAudioDebug.m_stopPlay == False:
+            if remain_frames > read_frames:
+                frames = read_frames
+            else:
+                frames = remain_frames
+            data = temp_wave.readframes(frames)
+            remain_frames -= frames
             stream.write(data)
         stream.stop_stream()
         stream.close()
         amlPyAudio.terminate()
         AmlAudioDebug.__m_isPlaying = False
         func_playEnd()
+        AmlCommon.del_spec_file(temp_wave_file)
         self.log_fuc('I [__audio_pcm_play_thread]: exit play')
+
+    def __convertChannelData(self, file, channel, sample_size, rate, convert_type):
+        if channel % 2 != 0 or channel > 8 or channel <= 0:
+            self.log_fuc('E [__convertChannelData]: not support channel:' + channel + ' convert')
+            return file
+        if convert_type >= channel / 2:
+            self.log_fuc('E [__convertChannelData]: not support convert type:' + convert_type)
+            return file
+        wavfile =  wave.open(file, 'rb')
+        audio_data = wavfile.readframes(wavfile.getnframes())
+        wavfile.close()
+        l_index = 2 * convert_type
+        r_index = 2 * convert_type + 1
+        if sample_size == 1:
+            numpy_type = numpy.int8
+            shape_numb = channel
+        elif sample_size == 2:
+            numpy_type = numpy.int16
+            shape_numb = channel
+        elif sample_size == 4:
+            numpy_type = numpy.int16
+            shape_numb = channel * 2
+            sample_size = 2
+            # Get 32bit right side data
+            l_index = 4 * convert_type + 1
+            r_index = 4 * convert_type + 3
+        else:
+            self.log_fuc('E [__convertChannelData]: not support sample_size:' + sample_size)
+            return file
+
+        wave_data = numpy.fromstring(audio_data, dtype = numpy_type)
+        wave_data.shape = (-1, shape_numb)
+        wave_data = wave_data.T
+        wava_2ch_data = numpy.array(list(zip(wave_data[l_index], wave_data[r_index]))).flatten()
+
+        AmlCommon.del_spec_file(file)
+        temp2ChannelFileName = 'D:\\temp_2ch.wav'
+        with wave.open(temp2ChannelFileName, 'wb') as wavfile:
+            wavfile.setparams((2, sample_size, rate, 0, 'NONE', 'NONE'))
+            wavfile.writeframes(wava_2ch_data.tostring())
+        wavfile.close()
+        return temp2ChannelFileName

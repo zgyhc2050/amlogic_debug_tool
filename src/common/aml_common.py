@@ -35,31 +35,28 @@ class AmlThread(threading.Thread):
     def isStopped(self):
         return self.__stopped
 
-
-def exe_adb_cmd_default_print(str):
-    print(str)
-
 class AmlCommon:
     AML_DEBUG_DIRECOTRY_ROOT                = "d:\\aml_debug"
     AML_DEBUG_TOOL_ICO_PATH                 = ':/debug.ico'
     AML_DEBUG_DIRECOTRY_CONFIG = AML_DEBUG_DIRECOTRY_ROOT + '\\config.ini'
+    log_func               = print
     @staticmethod
-    def exe_adb_cmd(cmd, bprint=False, callback_print=exe_adb_cmd_default_print):
-        return AmlCommon.exe_sys_cmd(cmd, bprint, callback_print)
+    def exe_adb_cmd(cmd, bprint=False):
+        return AmlCommon.exe_sys_cmd(cmd, bprint)
 
     @staticmethod
-    def exe_sys_cmd(cmd, bprint=False, callback_print=exe_adb_cmd_default_print):
+    def exe_sys_cmd(cmd, bprint=False):
         try:
             ret = subprocess.Popen(cmd, shell=True)
             ret.wait()
             if bprint == True:
                 if ret.returncode == RET_VAL_SUCCESS:
-                    callback_print(cmd + ' --> Success')
+                    AmlCommon.log_func(cmd + ' --> Success')
                 else:
-                    callback_print(cmd + ' --> Failed' + ', ret:'+ str(ret.returncode))
+                    AmlCommon.log_func(cmd + ' --> Failed' + ', ret:'+ str(ret.returncode))
             return ret.returncode
         except:
-            callback_print(cmd + ' --> Exception happend!!!')
+            AmlCommon.log_func(cmd + ' --> Exception happend!!!')
             return RET_VAL_EXCEPTION
 
     @staticmethod
@@ -83,3 +80,10 @@ class AmlCommon:
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
 
+    @staticmethod
+    def del_spec_file(filePath):
+        if os.path.exists(filePath):
+            try:
+                os.remove(filePath)
+            except:
+                AmlCommon.log_func('F [del_spec_file]: delete file:' + filePath + ' failed.')

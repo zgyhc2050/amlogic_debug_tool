@@ -39,7 +39,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_amlUi.AmlAudioCreateZipEnable_checkBox.setChecked(self.audioDebugcfg.m_createZipFile)
         self.m_amlUi.AmlAudioDebugPlayAudioOpenFile_Button.clicked.connect(self.__click_playAudioRateFileOpen)
         support_channel_array = ['1', '2', '4', '6', '8']
-        support_byte_array = ['1', '2', '3', '4']
+        support_byte_array = ['1', '2', '4']
         support_rate_array = ['8000', '16000', '32000', '44100', '48000', '64000', '88200', '96000', '192000']
         self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.addItems(support_channel_array)
         self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.setCurrentText(self.__m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL))
@@ -47,6 +47,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_amlUi.AmlAudioDebugPlayAudioByte_comboBox.setCurrentText(self.__m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE))
         self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.addItems(support_rate_array)
         self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.setCurrentText(self.__m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE))
+        self.__refresh_PlayAudioSelectChannelUi()
         self.m_amlUi.AmlAudioDebugPlayAudioPath_lineEdit.setText(self.__m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH))
 
     def signals_connect_slots(self):
@@ -61,10 +62,10 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_amlUi.AmlAudioPrintDebugEnable_checkBox.clicked.connect(self.__click_PrintDebugEnable)
         self.m_amlUi.AmlAudioCreateZipEnable_checkBox.clicked.connect(self.__click_CreateZipEnable)
         self.m_amlUi.AmlAudioDebugPlayAudio_Button.clicked.connect(self.__click_play_toggle)
-        self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.currentTextChanged .connect(self.__finished_PlayAudioChannel)
-        self.m_amlUi.AmlAudioDebugPlayAudioByte_comboBox.currentTextChanged.connect(self.__finished_PlayAudioByte)
-        self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.currentTextChanged.connect(self.__finished_PlayAudioRate)
-        self.m_amlUi.AmlAudioDebugPlayAudioPath_lineEdit.editingFinished.connect(self.__finished_PlayAudioPath)
+        self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.currentTextChanged .connect(self.__textChanged_PlayAudioChannel)
+        self.m_amlUi.AmlAudioDebugPlayAudioByte_comboBox.currentTextChanged.connect(self.__textChanged_PlayAudioByte)
+        self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.currentTextChanged.connect(self.__textChanged_PlayAudioRate)
+        self.m_amlUi.AmlAudioDebugPlayAudioPath_lineEdit.editingFinished.connect(self.__editing_PlayAudioPath)
 
     def __init_default_config(self):
         self.audioDebugcfg.m_captureMode = self.__m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CAPTRUE_MODE)
@@ -110,13 +111,15 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.__m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG, self.m_amlUi.AmlAudioPrintDebugEnable_checkBox.isChecked())
     def __click_CreateZipEnable(self):
         self.__m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP, self.m_amlUi.AmlAudioCreateZipEnable_checkBox.isChecked())
-    def __finished_PlayAudioChannel(self):
+    def __textChanged_PlayAudioChannel(self):
+        self.__refresh_PlayAudioSelectChannelUi()
         self.__m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL, self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.currentText())
-    def __finished_PlayAudioByte(self):
+    def __textChanged_PlayAudioByte(self):
         self.__m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE, self.m_amlUi.AmlAudioDebugPlayAudioByte_comboBox.currentText())
-    def __finished_PlayAudioRate(self):
+    def __textChanged_PlayAudioRate(self):
+        print('rate:' + str(self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.currentIndex()))
         self.__m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE, self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.currentText())
-    def __finished_PlayAudioPath(self):
+    def __editing_PlayAudioPath(self):
         self.__m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH, self.m_amlUi.AmlAudioDebugPlayAudioPath_lineEdit.text())
 
     def __click_stop_capture(self):
@@ -137,14 +140,15 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self.m_amlUi, "Open File", openPath, "All Files(*);;Text Files(*.txt)")
         if not fileName == '':
             self.m_amlUi.AmlAudioDebugPlayAudioPath_lineEdit.setText(fileName)
-            self.__finished_PlayAudioPath()
+            self.__editing_PlayAudioPath()
 
     def __click_play_toggle(self):
         channel = int(self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.currentText())
+        selChn = self.m_amlUi.AmlAudioDebugPlayAudiSelChannel_comboBox.currentIndex()
         byte = int(self.m_amlUi.AmlAudioDebugPlayAudioByte_comboBox.currentText())
         rate = int(self.m_amlUi.AmlAudioDebugPlayAudioRate_comboBox.currentText())
         fileName = self.m_amlUi.AmlAudioDebugPlayAudioPath_lineEdit.text()
-        isPlaying = self.audioDebug.start_play_toggle(fileName, channel, byte, rate, self.__callback_audioPlayFinish)
+        isPlaying = self.audioDebug.start_play_toggle(fileName, channel, byte, rate, selChn, self.__callback_audioPlayFinish)
         if isPlaying == True:
             self.m_amlUi.AmlAudioDebugPlayAudio_Button.setText('Stop(playing)')
         else:
@@ -194,3 +198,15 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
 
     def __callback_audioPlayFinish(self):
         self.m_amlUi.AmlAudioDebugPlayAudio_Button.setText('Play')
+
+    def __refresh_PlayAudioSelectChannelUi(self):
+        support_sel_ch_array = ['1_2', '3_4', '5_6', '7_8']
+        self.m_amlUi.AmlAudioDebugPlayAudiSelChannel_comboBox.clear()
+        channels = int(self.m_amlUi.AmlAudioDebugPlayAudioChannel_comboBox.currentText())
+        self.m_amlUi.AmlAudioDebugPlayAudiSelChannel_comboBox.addItem(support_sel_ch_array[0])
+        if channels >= 4:
+            self.m_amlUi.AmlAudioDebugPlayAudiSelChannel_comboBox.addItem(support_sel_ch_array[1])
+        if channels >= 6:
+            self.m_amlUi.AmlAudioDebugPlayAudiSelChannel_comboBox.addItem(support_sel_ch_array[2])
+        if channels == 8:
+            self.m_amlUi.AmlAudioDebugPlayAudiSelChannel_comboBox.addItem(support_sel_ch_array[3])
