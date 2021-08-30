@@ -286,79 +286,94 @@ class AmlAudioDebug:
         AmlAudioDebug.m_stopPlay = False
         with open(filePath, 'rb') as pcmfile:
             pcmdata = pcmfile.read()
-        temp_wave_file = 'D:\\temp.wav'
-        with wave.open(temp_wave_file, 'wb') as wavfile:
+        tempWavFile = 'D:\\temp.wav'
+        with wave.open(tempWavFile, 'wb') as wavfile:
             wavfile.setparams((channel, byte, rate, 0, 'NONE', 'NONE'))
             wavfile.writeframes(pcmdata)
-        if channel > 2:
-            temp_wave_file = self.__convertChannelData(temp_wave_file, channel, byte, rate, selChn)
-        temp_wave = wave.open(temp_wave_file, 'rb')
-        amlPyAudio = pyaudio.PyAudio()
-        AmlAudioDebug.__m_isPlaying = True
+        if channel > 2 or (channel == 2 and byte > 2):
+            tempWavFile = self.__packageWavData(tempWavFile, channel, byte, rate, selChn)
+ 
+        self.log_fuc('I [__audio_pcm_play_thread]: starting to play file:' + filePath)
         # for i in range(amlPyAudio.get_device_count()):
         #     print(amlPyAudio.get_device_info_by_index(i))
+        AmlAudioDebug.__m_isPlaying = True
+        self.__play_pcm_file(tempWavFile)
+        AmlAudioDebug.__m_isPlaying = False
+        func_playEnd()
+        AmlCommon.del_spec_file(tempWavFile)
+        self.log_fuc('I [__audio_pcm_play_thread]: exit play')
 
-        remain_frames = temp_wave.getnframes()
-        bit_width = temp_wave.getsampwidth()
-        channel = temp_wave.getnchannels()
-        sample_rate = temp_wave.getframerate()
+    def __play_pcm_file(self, filePath):
+        wavFile = wave.open(filePath, 'rb')
+        amlPyAudio = pyaudio.PyAudio()
+        remain_frames = wavFile.getnframes()
+        bit_width = wavFile.getsampwidth()
+        channel = wavFile.getnchannels()
+        sample_rate = wavFile.getframerate()
         read_frames = 1024
         stream = amlPyAudio.open(format = amlPyAudio.get_format_from_width(bit_width), channels = channel, rate = sample_rate, output = True)
-        self.log_fuc('I [__audio_pcm_play_thread]: starting to play file:' + filePath + ', frames:' + str(remain_frames))
+        self.log_fuc('I [__play_pcm_file]: starting to play' + ', frames:' + str(remain_frames) + ' (' + str(remain_frames//sample_rate) + ' s)')
         while remain_frames > 0 and AmlAudioDebug.m_stopPlay == False:
             if remain_frames > read_frames:
                 frames = read_frames
             else:
                 frames = remain_frames
-            data = temp_wave.readframes(frames)
+            data = wavFile.readframes(frames)
             remain_frames -= frames
             stream.write(data)
         stream.stop_stream()
         stream.close()
         amlPyAudio.terminate()
-        AmlAudioDebug.__m_isPlaying = False
-        func_playEnd()
-        AmlCommon.del_spec_file(temp_wave_file)
-        self.log_fuc('I [__audio_pcm_play_thread]: exit play')
 
-    def __convertChannelData(self, file, channel, sample_size, rate, convert_type):
+    def __packageWavData(self, file, channel, sampleSize, rate, convertType):
         if channel % 2 != 0 or channel > 8 or channel <= 0:
-            self.log_fuc('E [__convertChannelData]: not support channel:' + channel + ' convert')
+            self.log_fuc('E [__packageWavData]: not support channel:' + channel + ' convert')
             return file
-        if convert_type >= channel / 2:
-            self.log_fuc('E [__convertChannelData]: not support convert type:' + convert_type)
+        if convertType >= channel / 2:
+            self.log_fuc('E [__packageWavData]: not support convert type:' + convertType)
             return file
-        wavfile =  wave.open(file, 'rb')
-        audio_data = wavfile.readframes(wavfile.getnframes())
-        wavfile.close()
-        l_index = 2 * convert_type
-        r_index = 2 * convert_type + 1
-        if sample_size == 1:
-            numpy_type = numpy.int8
-            shape_numb = channel
-        elif sample_size == 2:
-            numpy_type = numpy.int16
-            shape_numb = channel
-        elif sample_size == 4:
-            numpy_type = numpy.int16
-            shape_numb = channel * 2
-            sample_size = 2
-            # Get 32bit right side data
-            l_index = 4 * convert_type + 1
-            r_index = 4 * convert_type + 3
-        else:
-            self.log_fuc('E [__convertChannelData]: not support sample_size:' + sample_size)
-            return file
+        srcWavFile =  wave.open(file, 'rb')
+        srcWavData = srcWavFile.readframes(srcWavFile.getnframes())
+        srcWavFile.close()
 
-        wave_data = numpy.fromstring(audio_data, dtype = numpy_type)
-        wave_data.shape = (-1, shape_numb)
-        wave_data = wave_data.T
-        wava_2ch_data = numpy.array(list(zip(wave_data[l_index], wave_data[r_index]))).flatten()
-
+        dstWavData, channel = self.__convertTo2Channel(srcWavData, channel, sampleSize, convertType)
+        dstWavData, sampleSize = self.__convertTo2ByteBitWide(dstWavData, sampleSize)
         AmlCommon.del_spec_file(file)
-        temp2ChannelFileName = 'D:\\temp_2ch.wav'
-        with wave.open(temp2ChannelFileName, 'wb') as wavfile:
-            wavfile.setparams((2, sample_size, rate, 0, 'NONE', 'NONE'))
-            wavfile.writeframes(wava_2ch_data.tostring())
+        dstWavFile = 'D:\\temp_2ch.wav'
+        with wave.open(dstWavFile, 'wb') as wavfile:
+            wavfile.setparams((channel, sampleSize, rate, 0, 'NONE', 'NONE'))
+            wavfile.writeframes(dstWavData.tostring())
         wavfile.close()
-        return temp2ChannelFileName
+        return dstWavFile
+
+    def __convertTo2Channel(self, src, channel, sampleSize, convertType):
+        if channel <= 2:
+            return src, channel
+        if sampleSize == 1:
+            numpy_type = numpy.int16
+        elif sampleSize == 2:
+            numpy_type = numpy.int32
+        elif sampleSize == 4:
+            numpy_type = numpy.int64
+        else:
+            self.log_fuc('E [__convertChannel]: not support sampleSize:' + sampleSize)
+            return src, channel
+        wavData = numpy.fromstring(src, dtype = numpy_type)
+        wavData.shape = (-1, channel)
+        wavData = wavData.T
+        l_index = 2 * convertType
+        r_index = 2 * convertType + 1
+        dst = numpy.array(list(zip(wavData[l_index], wavData[r_index]))).flatten()
+        return dst, 2
+
+    def __convertTo2ByteBitWide(self, src, sampleSize):
+        if sampleSize <= 2:
+            return src, sampleSize
+        if sampleSize != 4:
+            self.log_fuc('E [__convertTo2ByteBitWide]: not support sampleSize:' + sampleSize)
+            return src, sampleSize
+        wavData = numpy.fromstring(src, dtype = numpy.int16)
+        wavData.shape = (-1, 4)
+        wavData = wavData.T
+        dst = numpy.array(list(zip(wavData[1], wavData[3]))).flatten()
+        return dst, 2
