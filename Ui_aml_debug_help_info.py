@@ -19,7 +19,8 @@ class Ui_AmlDebugHelpAboutInfo_Dialog(object):
         self.pushButton.setGeometry(QtCore.QRect(110, 170, 93, 28))
         self.pushButton.setObjectName("pushButton")
         self.AmlDebugHelpAboutInfo_Label = QtWidgets.QLabel(AmlDebugHelpAboutInfo_Dialog)
-        self.AmlDebugHelpAboutInfo_Label.setGeometry(QtCore.QRect(60, 10, 271, 151))
+        self.AmlDebugHelpAboutInfo_Label.setGeometry(QtCore.QRect(30, 10, 301, 151))
+        self.AmlDebugHelpAboutInfo_Label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.AmlDebugHelpAboutInfo_Label.setObjectName("AmlDebugHelpAboutInfo_Label")
 
         self.retranslateUi(AmlDebugHelpAboutInfo_Dialog)

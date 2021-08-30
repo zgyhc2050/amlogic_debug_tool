@@ -8,7 +8,8 @@ AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH = './aml_debug_tool.py'
 
 COMPILE_EXE_USER_NAME = getpass.getuser()
 COMPILE_EXE_USER_TIME = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-COMPILE_EXE_VERSION   = '1.1.2'
+COMPILE_EXE_VERSION   = '1.1.3'
+COMPILE_EXE_COMMIT    = ''
 
 AML_DEBUG_TOOL_BASE_ROW                     = 2
 AML_DEBUG_TOOL_ABOUT_VERSION_ROW            = AML_DEBUG_TOOL_BASE_ROW + 1
@@ -19,6 +20,10 @@ AML_DEBUG_TOOL_ABOUT_COMMIT_ROW             = AML_DEBUG_TOOL_BASE_ROW + 4
 def generating_version_info():
     read_constant_py = open('./res/script/constant.py', 'r', encoding = 'utf-8')
     temp_write_constant_py = open('./res/script/constant_temp.py', 'w', encoding = 'utf-8')
+
+
+    with open('./.git/FETCH_HEAD', 'r') as git_commit_hash:
+        COMPILE_EXE_COMMIT = git_commit_hash.read(7)
     row_num = 0
     for raw_str in read_constant_py:
         row_num += 1
@@ -29,7 +34,7 @@ def generating_version_info():
         elif row_num == AML_DEBUG_TOOL_ABOUT_DATE_ROW:
             raw_str = "    AML_DEBUG_TOOL_ABOUT_DATE               = '" + COMPILE_EXE_USER_TIME + "'\n"
         elif row_num == AML_DEBUG_TOOL_ABOUT_COMMIT_ROW:
-            raw_str = "    AML_DEBUG_TOOL_ABOUT_COMMIT             = '" + '***' + "'\n"
+            raw_str = "    AML_DEBUG_TOOL_ABOUT_COMMIT             = '" + COMPILE_EXE_COMMIT + " (not included this time)'\n"
         temp_write_constant_py.write(raw_str)
     read_constant_py.close()
     temp_write_constant_py.close()
