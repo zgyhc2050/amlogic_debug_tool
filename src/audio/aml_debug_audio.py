@@ -1,9 +1,9 @@
 import os, pyaudio, wave
 import shutil
 import time, threading
-from threading import Thread
 from pathlib import Path
 from src.common.aml_common import AmlCommon
+from src.common.aml_common_utils import AmlCommonUtils
 import numpy
 class AudioDebugCfg:
     def __init__(self):
@@ -14,6 +14,7 @@ class AudioDebugCfg:
         self.m_printDebugEnable = 0
         self.m_autoDebugTimeS = 0
         self.m_createZipFile = 0
+        self.m_homeClick = False
 
 class AmlAudioDebug:
     DEBUG_CAPTURE_MODE_AUTO         = 0
@@ -33,7 +34,6 @@ class AmlAudioDebug:
         self.__curState = -1
         self.__m_isPlaying = False
         self.__dumpCmdOutFilePath = '/data/dump_audio.log'
-        self.__logcatFilePath = '/data/logcat.txt'
         self.__adbDumpCmdLists = [
             'cat /proc/asound/cards',
             'cat /proc/asound/pcm',
@@ -52,11 +52,11 @@ class AmlAudioDebug:
 
         self.__adbDumpDataClearCmdLists = [
             'setenforce 0',
-            'mkdir /data/audio /data/vendor/audiohal/ -p',
-            'chmod 777 /data/audio /data/vendor/audiohal/',
+            'touch /data/audio_spk.pcm /data/audio_dtv.pcm',
+            'mkdir /data/audio /data/audio_out /data/vendor/audiohal/ -p',
+            'chmod 777 /data/audio /data/audio_out /data/vendor/audiohal/ /data/audio_spk.pcm /data/audio_dtv.pcm',
             'rm /data/audio/* /data/vendor/audiohal/* -rf',
             'rm ' + self.__dumpCmdOutFilePath + ' -rf',
-            'rm ' + self.__logcatFilePath + ' -rf',
         ]
 
         self.__adbDumpDataStartLists = [
@@ -99,14 +99,15 @@ class AmlAudioDebug:
             'vendor/etc/audio_policy_configuration.xml',
             'vendor/etc/audio_policy_volumes.xml',
             '/data/audio',
+            '/data/audio_out',
             '/data/vendor/audiohal/',
             self.__dumpCmdOutFilePath,
-            self.__logcatFilePath,
+            AmlCommon.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT,
         ]
         self.__nowPullPcPath = ''
         self.__nowPullPcTime = ''
 
-    def start_capture(self, startCaptureFinish):
+    def start_capture(self, curTimeName, startCaptureFinish):
         if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             self.log_fuc('Auto mode: Start to capture the info...')
         elif self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL:
@@ -114,33 +115,37 @@ class AmlAudioDebug:
         if self.__curState == self.RUN_STATE_STARTED:
             self.log_fuc('current already started, do nothing')
             return
+        self.log_fuc('AmlAudioDebug::start_capture m_homeClick:' + str(self.__debugCfg.m_homeClick))
         self.__curState = self.RUN_STATE_STARTED
-        # 1. Create the audio dump directory on PC, and prepare env to debug.
-        self.__capture_debug_create_directory()
+        if self.__debugCfg.m_homeClick:
+            self.__nowPullPcTime = curTimeName
+        else :
+            # 1. Create the audio dump directory on PC, and prepare env to debug.
+            self.__nowPullPcTime = AmlCommonUtils.pre_create_directory(AmlCommon.AML_DEBUG_MODULE_AUDIO)
+        self.__nowPullPcPath = AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + "\\" + self.__nowPullPcTime +  "\\" + AmlCommonUtils.moduleDirPathDict[AmlCommon.AML_DEBUG_MODULE_AUDIO]
         self.__prepare_debug_env()
-        if self.__debugCfg.m_logcatEnable:
+        if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
             # open the audio hal debug level for capture logcat
-            self.__capture_logcat_start()
+            self.__capture_logcat_enable_prop()
         if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             # 2. Capture the debug info and write it to txt file.
             self.__capture_debug_text()
-        if self.__debugCfg.m_logcatEnable:
-            logcatProcThread = threading.Thread(target=self.__catpture_logcat)
-            logcatProcThread.setDaemon(True)
-            logcatProcThread.start()
+        if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
+            AmlCommonUtils.logcat_start()
         # 4. Capture the audio data.
         self.__capture_audio_data_start()
 
         if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
-            if self.__debugCfg.m_logcatEnable:
-                if not self.__debugCfg.m_dumpDataEnable:
+            if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
+                if self.__debugCfg.m_dumpDataEnable == False:
                     self.log_fuc('3.1 Please wait ' + str(self.__debugCfg.m_autoDebugTimeS) + 's for logcat...')
                     time.sleep(self.__debugCfg.m_autoDebugTimeS)
                 else:
                     self.log_fuc('3.1 Start auto capture logcat...')
                 # 5. Kill the logcat thread, stop logcat.
                 self.log_fuc('3.2 Stop auto capture logcat...')
-                self.__capture_logcat_stop()
+                self.__capture_logcat_disable_prop()   
+                AmlCommonUtils.logcat_stop()
 
             # 6. Pull the all debug files to PC
             self.__pull_capture_debug_info_to_pc()
@@ -158,38 +163,30 @@ class AmlAudioDebug:
         self.__manual_capture_stop()
         stopcaptureFinish()
 
+    def open_logcat(self):
+        self.__capture_logcat_enable_prop()
+
+    def close_logcat(self):
+        self.__capture_logcat_disable_prop()
+
     def __manual_capture_stop(self):
         self.log_fuc('2.2 MUNUAL mode: fetching the audio data end.')
         if self.__debugCfg.m_dumpDataEnable:
             self.__capture_audio_data_prop_disable()
-        if self.__debugCfg.m_logcatEnable:
+        if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
             self.log_fuc('3.2 Stop manual capture logcat...')
-            self.__capture_logcat_stop()
+            self.__capture_logcat_disable_prop()
 
         if self.__debugCfg.m_debugInfoEnable:
             self.__capture_debug_text()
         self.__pull_capture_debug_info_to_pc()
         self.__print_help_info()
         self.__curState = self.RUN_STATE_STOPED
-    def __catpture_logcat(self):
-        self.log_fuc('__catpture_logcat: Start logcat+++++')
-        AmlCommon.exe_adb_cmd('adb shell "logcat -G 40M;logcat -c;logcat > ' + self.__logcatFilePath + '"')
-        self.log_fuc('__catpture_logcat: Exit logcat------')
 
     def setAudioDebugCfg(self, cfg):
         self.__debugCfg = cfg
     
     def getCurDebugPath(self):
-        return self.__nowPullPcPath
-
-    def __capture_debug_create_directory(self):
-        self.__nowPullPcTime = time.strftime("%Y%m%d_%H-%M-%S", time.localtime())
-        self.__nowPullPcPath = AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + "\\" + self.__nowPullPcTime
-        self.log_fuc('Current date:' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ', directory is: ' + self.__nowPullPcPath)
-        if not Path(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT).exists():
-            self.log_fuc(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
-            os.makedirs(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT, 777)
-        os.makedirs(self.__nowPullPcPath, 777)
         return self.__nowPullPcPath
 
     def __capture_debug_text(self):
@@ -214,13 +211,17 @@ class AmlAudioDebug:
             self.log_fuc('2.2 AUTO mode: fetching the audio data end.')
 
     def __prepare_debug_env(self):
-        self.__capture_logcat_stop()
+        if self.__debugCfg.m_homeClick == False:
+            self.__capture_logcat_disable_prop()
         self.__capture_audio_data_prop_disable()
         self.__capture_clear_all_files()
 
     def __pull_capture_debug_info_to_pc(self):
         self.log_fuc('Pull all file to PC ...')
         for dumpFile in self.__dumpFileLists:
+            if (self.__debugCfg.m_homeClick == True or self.__debugCfg.m_logcatEnable == False) and  dumpFile == AmlCommon.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT or \
+                self.__debugCfg.m_dumpDataEnable == False and self.__dumpCmdOutFilePath == dumpFile:
+                continue
             exeCmdStr = 'adb pull ' + dumpFile + ' ' + self.__nowPullPcPath
             AmlCommon.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable)
         if self.__debugCfg.m_createZipFile:
@@ -239,15 +240,15 @@ class AmlAudioDebug:
         self.__exe_adb_shell_cmd(self.__adbDumpDataStopLists)
 
     def __capture_clear_all_files(self):
+        if self.__debugCfg.m_homeClick == False:
+            AmlCommon.exe_adb_cmd('adb shell "rm ' + AmlCommon.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT + ' -rf"', self.__debugCfg.m_printDebugEnable)
         self.__exe_adb_shell_cmd(self.__adbDumpDataClearCmdLists)
 
-    def __capture_logcat_start(self):
+    def __capture_logcat_enable_prop(self):
         self.__exe_adb_shell_cmd(self.__adbLogcatStartLists)
 
-    def __capture_logcat_stop(self):
+    def __capture_logcat_disable_prop(self):
         self.__exe_adb_shell_cmd(self.__adbLogcatStopLists)
-        AmlCommon.exe_adb_cmd('adb shell "ps -ef |grep -v grep|grep logcat| awk \'{print $2}\'|xargs kill -9"',
-            self.__debugCfg.m_printDebugEnable)
 
     def __exe_adb_shell_cmd(self, cmdLists):
         exeCmdStr = ''

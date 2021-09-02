@@ -5,14 +5,18 @@ from abc import ABCMeta, abstractmethod
 from src.common.aml_common import AmlCommon
 
 class AmlParserIniManager:
+    AML_PARSER_SECTION_HOME                                 = "AM_HOME"
     AML_PARSER_SECTION_AUDIO                                = "AM_AUDIO"
     AML_PARSER_SECTION_VIDEO                                = "AM_VIDEO"
+    AML_PARSER_SECTION_CEC                                  = "AM_CEC"
     AML_PARSER_SECTION_SYS_OPERATION                        = "AM_SYS_OPERATION"
     def __init__(self):
         self.__parser = configparser.ConfigParser()
+        import src.home.aml_ini_parser_home
         import src.audio.aml_ini_parser_audio
         import src.system_operation.aml_ini_parser_sys_operation
         self.__m_dictionary_aml_parser = {
+            AmlParserIniManager.AML_PARSER_SECTION_HOME                             : src.home.aml_ini_parser_home.instance(self.__parser),
             AmlParserIniManager.AML_PARSER_SECTION_AUDIO                            : src.audio.aml_ini_parser_audio.instance(self.__parser),
             AmlParserIniManager.AML_PARSER_SECTION_SYS_OPERATION                    : src.system_operation.aml_ini_parser_sys_operation.instance(self.__parser),
         }

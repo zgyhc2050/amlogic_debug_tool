@@ -21,11 +21,15 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
         super(AmlDebugUi, self).__init__()
         super().setupUi(self)
         AmlDebugModule.initModule(self)
+        
+        import src.common.aml_common_ui
+        self.m_commonUi = src.common.aml_common_ui.instance(self)
+        self.m_commonUi.signals_connect_slots()
         self.terminalLogSignal.connect(self.terminalLog)
 
     def terminalLog(self, someInfo):
-        self.AmlAudioTerminalLog_textBrowser.append(someInfo)
-        self.AmlAudioTerminalLog_textBrowser.moveCursor(QTextCursor.End)
+        self.AmlDebugTerminalLog_textBrowser.append(someInfo)
+        self.AmlDebugTerminalLog_textBrowser.moveCursor(QTextCursor.End)
 
     def remount(self):
         AmlCommon.exe_adb_cmd('adb root', True)

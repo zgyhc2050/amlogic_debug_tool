@@ -10,6 +10,9 @@ RET_VAL_SUCCESS         = 0
 RET_VAL_FAIL            = -1
 RET_VAL_EXCEPTION       = -2
 
+
+
+
 class AmlThread(threading.Thread):
 
     def __init__(self, func, thread_num=0, timeout=1.0):
@@ -36,7 +39,16 @@ class AmlThread(threading.Thread):
         return self.__stopped
 
 class AmlCommon:
+    AML_DEBUG_MODULE_HOME           = 0
+    AML_DEBUG_MODULE_AUDIO          = 1
+    AML_DEBUG_MODULE_VIDEO          = 2
+    AML_DEBUG_MODULE_CEC            = 3
+    AML_DEBUG_MODULE_SYS_OPERATION  = 4
+    AML_DEBUG_MODULE_MAX            = AML_DEBUG_MODULE_SYS_OPERATION + 1
+
     AML_DEBUG_DIRECOTRY_ROOT                = "d:\\aml_debug"
+    AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT     = '/data/logcat.txt'
+    AML_DEBUG_PLATFORM_DIRECOTRY_DMESG      = '/data/dmesg.txt'
     AML_DEBUG_TOOL_ICO_PATH                 = ':/debug.ico'
     AML_DEBUG_DIRECOTRY_CONFIG = AML_DEBUG_DIRECOTRY_ROOT + '\\config.ini'
     log_func               = print

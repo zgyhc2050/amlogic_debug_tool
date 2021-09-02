@@ -10,11 +10,10 @@ def instance(aml_ui):
 
 ########################################################################################################
 # "Common UI design"
-class AmlCommonUi(AmlDebugBaseUi):
+class AmlCommonUi():
     def __init__(self, aml_ui):
         self.__m_amlUi = aml_ui
         AmlCommon.log_func = aml_ui.terminalLogSignal.emit
-        super(AmlCommonUi, self).__init__(aml_ui)
 
     def signals_connect_slots(self):
         self.__m_amlUi.AmlDebug_actionAbout.triggered.connect(self.__click_menu_help_about)

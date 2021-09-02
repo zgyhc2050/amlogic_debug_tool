@@ -10,11 +10,11 @@ def instance(aml_ui):
     return AmlDebugSystemOperationUi(aml_ui)
 
 ########################################################################################################
-# Table 2: "System Operation"
+# Table: "System Operation"
 class AmlDebugSystemOperationUi(AmlDebugBaseUi):
     def __init__(self, aml_ui):
         self.__m_iniPaser = amlParserIniContainer.getParserById(AmlParserIniManager.AML_PARSER_SECTION_SYS_OPERATION)
-        super(AmlDebugSystemOperationUi, self).__init__(aml_ui)
+        super(AmlDebugSystemOperationUi, self).__init__(aml_ui, AmlCommon.AML_DEBUG_MODULE_SYS_OPERATION)
         self.__m_stop_thread = False
 
     def init_display_ui(self):

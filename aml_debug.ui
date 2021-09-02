@@ -33,7 +33,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -47,39 +47,207 @@
     <property name="tabBarAutoHide">
      <bool>false</bool>
     </property>
-    <widget class="QWidget" name="AmlAudioDebug_tab">
+    <widget class="QWidget" name="AmlDebugHome_tab">
      <attribute name="title">
-      <string>Audio Debug</string>
+      <string>Home</string>
      </attribute>
-     <widget class="QPushButton" name="AmlAudioDebugStart_pushButton">
+     <widget class="QGroupBox" name="AmlDebugHomeModules_groupBox">
       <property name="geometry">
        <rect>
-        <x>590</x>
-        <y>20</y>
-        <width>111</width>
-        <height>41</height>
+        <x>0</x>
+        <y>0</y>
+        <width>231</width>
+        <height>281</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Start</string>
+      <property name="title">
+       <string>Modules</string>
       </property>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesCec_checkBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>90</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cec</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesVideo_checkBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>50</y>
+         <width>101</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Video</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesAudio_checkBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Audio</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesOther_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>130</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesOther1_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>170</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesOther2_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>210</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesOther3_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>250</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesOther5_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>60</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeModulesOther4_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
-     <widget class="QGroupBox" name="AmlAudioDebugMode_groupBox">
+     <widget class="QGroupBox" name="AmlDebugMode_groupBox">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>360</x>
         <y>0</y>
-        <width>111</width>
+        <width>131</width>
         <height>131</height>
        </rect>
       </property>
       <property name="title">
        <string>Mode</string>
       </property>
-      <widget class="QRadioButton" name="AmlAudioDebugModeAuto_radioButton">
+      <widget class="QRadioButton" name="AmlDebugHomeModeAuto_radioButton">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -95,7 +263,255 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QRadioButton" name="AmlAudioDebugModeManual_radioButton">
+      <widget class="QRadioButton" name="AmlDebugHomeModeManual_radioButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>70</y>
+         <width>89</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Manual</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="AmlDebugHomeOptions_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>0</y>
+        <width>131</width>
+        <height>281</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Options</string>
+      </property>
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsDmesg_checkBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>90</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>dmesg</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsBugreport_checkBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>50</y>
+         <width>101</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>bugreport</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsLogcat_checkBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>logcat</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsOther1_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>120</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsOther2_checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>150</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="AmlDebugHomeStop_pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>80</y>
+        <width>111</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Stop</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="AmlDebugHomeStart_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>20</y>
+        <width>111</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="AmlDebugHomeCaptureTime_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>130</y>
+        <width>131</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Capture Time(s)</string>
+      </property>
+      <widget class="QSpinBox" name="AmlDebugHomeCaptureTime_spinBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>42</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+       <property name="value">
+        <number>3</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_21">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>30</y>
+         <width>21</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::MarkdownText</enum>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="AmlDebugAudio_tab">
+     <attribute name="title">
+      <string>Audio</string>
+     </attribute>
+     <widget class="QPushButton" name="AmlDebugAudioStart_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>20</y>
+        <width>111</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="AmlDebugAudioMode_groupBox">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>111</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Mode</string>
+      </property>
+      <widget class="QRadioButton" name="AmlDebugAudioModeAuto_radioButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>89</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Auto</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="AmlDebugAudioModeManual_radioButton">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -112,7 +528,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QPushButton" name="AmlAudioDebugStop_pushButton">
+     <widget class="QPushButton" name="AmlDebugAudioStop_pushButton">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -128,7 +544,7 @@
        <string>Stop</string>
       </property>
      </widget>
-     <widget class="QGroupBox" name="AmlAudioDebugOptions_groupBox">
+     <widget class="QGroupBox" name="AmlDebugAudioOptions_groupBox">
       <property name="geometry">
        <rect>
         <x>110</x>
@@ -140,7 +556,7 @@
       <property name="title">
        <string>Options</string>
       </property>
-      <widget class="QCheckBox" name="AmlAudioDebugOptionsLogcat_checkBox">
+      <widget class="QCheckBox" name="AmlDebugAudioOptionsLogcat_checkBox">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -156,7 +572,7 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QCheckBox" name="AmlAudioDebugOptionsDump_checkBox">
+      <widget class="QCheckBox" name="AmlDebugAudioOptionsDump_checkBox">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -172,7 +588,7 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QCheckBox" name="AmlAudioDebugOptionsDebug_checkBox">
+      <widget class="QCheckBox" name="AmlDebugAudioOptionsDebug_checkBox">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -195,7 +611,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="AmlAudioDebugPrintDebug_groupBox">
+     <widget class="QGroupBox" name="AmlDebugAudioPrintDebug_groupBox">
       <property name="geometry">
        <rect>
         <x>240</x>
@@ -207,7 +623,7 @@
       <property name="title">
        <string>Print Debug</string>
       </property>
-      <widget class="QCheckBox" name="AmlAudioPrintDebugEnable_checkBox">
+      <widget class="QCheckBox" name="AmlDebugAudioPrintDebugEnable_checkBox">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -221,7 +637,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="AmlAudioDebugCaptureTime_groupBox">
+     <widget class="QGroupBox" name="AmlDebugAudioCaptureTime_groupBox">
       <property name="geometry">
        <rect>
         <x>240</x>
@@ -269,7 +685,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QCheckBox" name="AmlAudioCreateZipEnable_checkBox">
+     <widget class="QCheckBox" name="AmlDebugAudioCreateZipEnable_checkBox">
       <property name="geometry">
        <rect>
         <x>410</x>
@@ -408,7 +824,7 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>1_2</string>
+        <string/>
        </property>
        <property name="currentIndex">
         <number>-1</number>
@@ -442,19 +858,24 @@
       </widget>
      </widget>
      <zorder>groupBox</zorder>
-     <zorder>AmlAudioDebugStart_pushButton</zorder>
-     <zorder>AmlAudioDebugMode_groupBox</zorder>
-     <zorder>AmlAudioDebugStop_pushButton</zorder>
-     <zorder>AmlAudioDebugOptions_groupBox</zorder>
-     <zorder>AmlAudioDebugPrintDebug_groupBox</zorder>
-     <zorder>AmlAudioDebugCaptureTime_groupBox</zorder>
-     <zorder>AmlAudioCreateZipEnable_checkBox</zorder>
+     <zorder>AmlDebugAudioStart_pushButton</zorder>
+     <zorder>AmlDebugAudioMode_groupBox</zorder>
+     <zorder>AmlDebugAudioStop_pushButton</zorder>
+     <zorder>AmlDebugAudioOptions_groupBox</zorder>
+     <zorder>AmlDebugAudioPrintDebug_groupBox</zorder>
+     <zorder>AmlDebugAudioCaptureTime_groupBox</zorder>
+     <zorder>AmlDebugAudioCreateZipEnable_checkBox</zorder>
      <zorder>AmlAudioDebugPlayAudioPath_lineEdit</zorder>
      <zorder>AmlAudioDebugPlayAudioOpenFile_Button</zorder>
      <zorder>label_16</zorder>
      <zorder>AmlAudioDebugPlayAudioRate_comboBox</zorder>
     </widget>
-    <widget class="QWidget" name="AmlSystemOperation_tab">
+    <widget class="QWidget" name="AmlDebugCec_tab">
+     <attribute name="title">
+      <string>Cec</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="AmlDebugSysOperation_tab">
      <attribute name="title">
       <string>System Operation</string>
      </attribute>
@@ -1307,7 +1728,7 @@
     <property name="title">
      <string>Terminal log</string>
     </property>
-    <widget class="QTextBrowser" name="AmlAudioTerminalLog_textBrowser">
+    <widget class="QTextBrowser" name="AmlDebugTerminalLog_textBrowser">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -1327,7 +1748,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'SimSun'; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>
