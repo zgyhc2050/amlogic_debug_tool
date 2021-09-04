@@ -1,6 +1,6 @@
 from src.common.aml_ini_parser import AmlParserIniBase, AmlParserIniManager
 from src.audio.aml_debug_audio import AmlAudioDebug
-from src.common.aml_common import AmlCommon
+from src.common.aml_common_utils import AmlCommonUtils
 
 def instance(parser):
     return AmlParserIniAudio(parser)
@@ -35,7 +35,7 @@ class AmlParserIniAudio(AmlParserIniBase):
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL: '2',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE   : '2',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE   : '48000',
-            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH   : AmlCommon.AML_DEBUG_DIRECOTRY_ROOT,
+            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH   : AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT,
         }
         return self.__dictionary_default_value
     

@@ -4,7 +4,7 @@ from src.common.aml_debug_base_ui import AmlDebugBaseUi
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from res.script.constant import AmlDebugConstant
-from src.common.aml_common import AmlCommon
+from src.common.aml_common_utils import AmlCommonUtils
 def instance(aml_ui):
     return AmlCommonUi(aml_ui)
 
@@ -13,7 +13,7 @@ def instance(aml_ui):
 class AmlCommonUi():
     def __init__(self, aml_ui):
         self.__m_amlUi = aml_ui
-        AmlCommon.log_func = aml_ui.terminalLogSignal.emit
+        AmlCommonUtils.log_func = aml_ui.terminalLogSignal.emit
 
     def signals_connect_slots(self):
         self.__m_amlUi.AmlDebug_actionAbout.triggered.connect(self.__click_menu_help_about)
@@ -31,7 +31,7 @@ class AmlCommonUi():
         dialog = AmlDebugHelpAboutInfo_Dialog()
         dialog.show()
         dialog.setWindowFlags(Qt.WindowStaysOnTopHint)
-        dialog.setWindowIcon(QIcon(AmlCommon.AML_DEBUG_TOOL_ICO_PATH))
+        dialog.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
         dialog.AmlDebugHelpAboutInfo_Label.setText(
             'Version: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION +
             '\nCompile user: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE + 

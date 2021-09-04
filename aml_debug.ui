@@ -33,7 +33,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -874,6 +874,167 @@
      <attribute name="title">
       <string>Cec</string>
      </attribute>
+     <widget class="QPushButton" name="AmlDebugCecSetprop_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>20</y>
+        <width>93</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Setprop</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="AmlDebugCecReboot_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>60</y>
+        <width>93</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>reboot</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="AmlDebugCecStart_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>20</y>
+        <width>93</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_23">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>10</y>
+        <width>401</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#ff0000;&quot;&gt;1. Click the &amp;quot;Setprop&amp;quot;;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#ff0000;&quot;&gt;2. Click the &amp;quot;reboot&amp;quot;;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#ff0000;&quot;&gt;3. Click the &amp;quot;Start&amp;quot; after reboot finish;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#ff0000;&quot;&gt;4. Reproduce the issue;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; color:#ff0000;&quot;&gt;5. Click the &amp;quot;Stop&amp;quot;, wait to finish.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="AmlDebugCecOptions_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>131</width>
+        <height>221</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Options</string>
+      </property>
+      <widget class="QCheckBox" name="AmlDebugCecOptionsBugreport_checkBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>bugreport</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugCecOptionsLogcat_checkBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>50</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>logcat</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsOther2_checkBox_2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>80</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Other</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="AmlDebugCecStop_pushButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>100</y>
+        <width>93</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Stop</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="AmlDebugCecCtrlPanel_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>0</y>
+        <width>231</width>
+        <height>191</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Control Panel</string>
+      </property>
+     </widget>
+     <zorder>AmlDebugCecCtrlPanel_groupBox</zorder>
+     <zorder>AmlDebugCecSetprop_pushButton</zorder>
+     <zorder>AmlDebugCecReboot_pushButton</zorder>
+     <zorder>AmlDebugCecStart_pushButton</zorder>
+     <zorder>label_23</zorder>
+     <zorder>AmlDebugCecOptions_groupBox</zorder>
+     <zorder>AmlDebugCecStop_pushButton</zorder>
     </widget>
     <widget class="QWidget" name="AmlDebugSysOperation_tab">
      <attribute name="title">

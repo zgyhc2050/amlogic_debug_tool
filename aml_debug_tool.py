@@ -1,19 +1,17 @@
 import os
 import sys
 from pathlib import Path
-from threading import Thread
 
 import res.ico_debug
 import Ui_aml_debug
 
-from PyQt5.QtGui import QTextCursor, QIcon
+from PyQt5.QtGui import QIcon, QTextCursor
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from src.common.aml_ini_parser import amlParserIniContainer
-from src.common.aml_common import AmlCommon
+from src.common.aml_common_utils import AmlCommonUtils
 from src.common.aml_debug_base_ui import AmlDebugModule
-
 
 class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
     terminalLogSignal = pyqtSignal(str)
@@ -26,17 +24,11 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
         self.m_commonUi = src.common.aml_common_ui.instance(self)
         self.m_commonUi.signals_connect_slots()
         self.terminalLogSignal.connect(self.terminalLog)
+        AmlCommonUtils.set_log_fuc(self.terminalLogSignal.emit)
 
     def terminalLog(self, someInfo):
         self.AmlDebugTerminalLog_textBrowser.append(someInfo)
         self.AmlDebugTerminalLog_textBrowser.moveCursor(QTextCursor.End)
-
-    def remount(self):
-        AmlCommon.exe_adb_cmd('adb root', True)
-        return AmlCommon.exe_adb_cmd('adb remount', True)
-
-    def reboot(self):
-        AmlCommon.exe_adb_cmd('adb reboot', True)
 
     def closeEvent(self,event):
         reply = QMessageBox.question(self, 'Amlogic Tips',"Confirm exit?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -48,12 +40,12 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    if not Path(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT).exists():
-        print(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
-        os.makedirs(AmlCommon.AML_DEBUG_DIRECOTRY_ROOT, 777)
+    if not Path(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT).exists():
+        print(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
+        os.makedirs(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT, 777)
     amlParserIniContainer.initParser()
     ui = AmlDebugUi()
-    ui.setWindowIcon(QIcon(AmlCommon.AML_DEBUG_TOOL_ICO_PATH))
+    ui.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
     ui.setWindowTitle("Amlogic Debug Tool")
     ui.show()
     sys.exit(app.exec_())
