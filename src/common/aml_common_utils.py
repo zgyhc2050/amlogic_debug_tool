@@ -1,4 +1,4 @@
-import time, threading, os
+import time, threading, os, math
 from pathlib import Path
 import subprocess
 import zipfile
@@ -8,6 +8,8 @@ import shutil
 RET_VAL_SUCCESS         = 0
 RET_VAL_FAIL            = -1
 RET_VAL_EXCEPTION       = -2
+
+
 
 class AmlCommonUtils():
     AML_DEBUG_MODULE_HOME                       = 0
@@ -27,23 +29,45 @@ class AmlCommonUtils():
         AML_DEBUG_MODULE_VIDEO    :   'video',
         AML_DEBUG_MODULE_CEC      :   'cec',
     }
-    log = print
+
+    AML_DEBUG_LOG_LEVEL_V                       = 'V'
+    AML_DEBUG_LOG_LEVEL_D                       = 'D'
+    AML_DEBUG_LOG_LEVEL_I                       = 'I'
+    AML_DEBUG_LOG_LEVEL_W                       = 'W'
+    AML_DEBUG_LOG_LEVEL_E                       = 'E'
+    AML_DEBUG_LOG_LEVEL_F                       = 'F'
+
+
+    log_func = print   
+    adb_cur_dev = ''
+
+    def log(info, level='D'):
+        if AmlCommonUtils.log_func == print:
+            AmlCommonUtils.log_func(level + ' ' + info)
+        else:
+            AmlCommonUtils.log_func(info, level)
+
+    def default_log(info, level):
+        print(level + ' ' + info)
 
     def set_log_fuc(func):
-        AmlCommonUtils.log = func
+        AmlCommonUtils.log_func = func
+    def set_adb_cur_device(dev):
+        AmlCommonUtils.adb_cur_dev = dev
 
     def pre_create_directory(createByModule, moduleEnableArray=0):
         if not Path(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT).exists():
-            AmlCommonUtils.log(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
+            AmlCommonUtils.log(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.", AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
             os.makedirs(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT, 777)
         curTime = time.strftime("%Y%m%d_%H-%M-%S", time.localtime())
         curPullPcTimePath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + "\\" + curTime
-        AmlCommonUtils.log('pre_create_directory Current date:' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ', directory is: ' + curPullPcTimePath)
+        AmlCommonUtils.log('pre_create_directory Current date:' + \
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ', directory is: ' + curPullPcTimePath, AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
         os.makedirs(curPullPcTimePath, 777)
         modulePath = curPullPcTimePath
         if createByModule == AmlCommonUtils.AML_DEBUG_MODULE_HOME:
             if moduleEnableArray == 0:
-                AmlCommonUtils.log('W __pre_create_directory: cfg is null')
+                AmlCommonUtils.log('__pre_create_directory: cfg is null', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
             for index in range(AmlCommonUtils.AML_DEBUG_MODULE_AUDIO, AmlCommonUtils.AML_DEBUG_MODULE_MAX):
                 if moduleEnableArray[index] == True:
                         modulePath = curPullPcTimePath + "\\" + AmlCommonUtils.moduleDirPathDict[index]
@@ -54,8 +78,17 @@ class AmlCommonUtils():
                 os.makedirs(modulePath, 777)
                 AmlCommonUtils.log('pre_create_directory create:' + modulePath)
             else:
-                AmlCommonUtils.log('E __pre_create_directory: createByModule:' + createByModule + ' invalid.')
+                AmlCommonUtils.log('__pre_create_directory: createByModule:' + createByModule + ' invalid.', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
         return curTime
+
+    def get_current_time():
+        ct = time.time()
+        local_time = time.localtime(ct)
+        data_head = time.strftime("%H:%M:%S", local_time)
+        decimals_t, integers_t =math.modf(ct)
+        data_secs = (ct - integers_t) * 1000
+        time_stamp = "%s.%03d" % (data_head, data_secs)
+        return time_stamp
 
     def get_path_by_module(time, id):
         return AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + "\\" + time +  "\\" + AmlCommonUtils.moduleDirPathDict[id]
@@ -66,7 +99,7 @@ class AmlCommonUtils():
         logcatProcThread.start()
 
     def __logcat_wait_thread(callbackFinish, delayEndS):
-        AmlCommonUtils.log('__logcat_wait_thread: time:' + str(delayEndS) + 's, logcat loading...')
+        AmlCommonUtils.log('__logcat_wait_thread: time:' + str(delayEndS) + 's, logcat loading...', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
         logcatProcThread = threading.Thread(target=AmlCommonUtils.__logcat_run_thread)
         logcatProcThread.setDaemon(True)
         logcatProcThread.start()
@@ -87,42 +120,100 @@ class AmlCommonUtils():
         AmlCommonUtils.exe_adb_cmd('pull "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT + '" ' + pc_path, True)
 
     def bugreport(path):
-        AmlCommonUtils.log('Start bugreport+++++')
-        #AmlCommonUtils.exe_adb_cmd('bugreport ' + path, True)
-        time.sleep(3)
-        AmlCommonUtils.log('Exit bugreport-----')
+        # TODO: 后续需要解决bugreport使用subprocess.Popen卡住的问题
+        # AmlCommonUtils.exe_adb_cmd('bugreport ' + path, True)
+        cmd = ''
+        if AmlCommonUtils.adb_cur_dev != '':
+            cmd = 'adb -s ' + AmlCommonUtils.adb_cur_dev + ' ' + 'bugreport ' + path
+        else:
+            cmd = 'adb ' + 'bugreport ' + path
+        AmlCommonUtils.log('Start bugreport+++++', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
+        AmlCommonUtils.log('' + cmd)
+        os.system(cmd)
+        AmlCommonUtils.log('Exit bugreport-----', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
+        
 
     def dmesg():
-        AmlCommonUtils.log('dmesg')
+        AmlCommonUtils.log('dmesg', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
         AmlCommonUtils.exe_adb_shell_cmd('rm ' + ' /data/dmesg.txt -rf', True)
         AmlCommonUtils.exe_adb_shell_cmd('dmesg' + ' > /data/dmesg.txt', True)
 
-    def remount():
-        AmlCommonUtils.exe_adb_cmd('root', True)
+    def adb_root():
+        return AmlCommonUtils.exe_adb_cmd('root', True)
+
+    def adb_remount():
         return AmlCommonUtils.exe_adb_cmd('remount', True)
 
-    def reboot():
-        AmlCommonUtils.exe_adb_cmd('reboot', True)
+    def adb_reboot():
+        return AmlCommonUtils.exe_adb_cmd('reboot', True)
+
+    def adb_connect_by_ip(ip):
+        ret =  AmlCommonUtils.exe_sys_cmd('adb connnect ' + ip, True)
+        if 'connected to ' + ip not in ret:
+            AmlCommonUtils.log('adb connect ip:' + ip + 'failed !!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
+            return ''
+        dev_name = ''
+        dev_list = AmlCommonUtils.get_adb_devices()
+        for dev in dev_list:
+            if ip in dev:
+                dev_name = dev
+                break
+        if dev_name == '':
+            AmlCommonUtils.log('adb_connect_by_ip can\'t find ip:' + ip + ' in the listView.', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
+            return  ''
+        AmlCommonUtils.set_adb_cur_device(dev_name)
+        AmlCommonUtils.adb_root()
+        AmlCommonUtils.adb_connect_by_ip(ip)
+        AmlCommonUtils.adb_remount()
+        return dev_name
 
     def exe_adb_shell_cmd(cmd, bprint=False):
         return AmlCommonUtils.exe_adb_cmd('shell "' + cmd + '"', bprint)
 
     def exe_adb_cmd(cmd, bprint=False):
-        return AmlCommonUtils.exe_sys_cmd('adb ' + cmd , bprint)
+        if AmlCommonUtils.adb_cur_dev != '':
+            return AmlCommonUtils.exe_sys_cmd('adb -s ' + AmlCommonUtils.adb_cur_dev + ' ' + cmd , bprint)
+        else:
+            return AmlCommonUtils.exe_sys_cmd('adb ' + cmd , bprint)
 
     def exe_sys_cmd(cmd, bprint=False):
         try:
-            ret = subprocess.Popen(cmd, shell=True)
-            ret.wait()
+            ret = ''
+            proc = subprocess.Popen(cmd, shell=True, 
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+            proc.stdin.close()
+            proc.wait()
+            result = proc.stdout.read() # 读取cmd执行的输出结果（是byte类型，需要decode）
+            ret = result.decode()
+            proc.stdout.close()
+            ret = ret.replace('\r', '')
+            if ret != '':
+                AmlCommonUtils.log(ret)   
             if bprint == True:
-                if ret.returncode == RET_VAL_SUCCESS:
+                if proc.returncode == RET_VAL_SUCCESS:
                     AmlCommonUtils.log(cmd + ' --> Success')
                 else:
-                    AmlCommonUtils.log(cmd + ' --> Failed' + ', ret:'+ str(ret.returncode))
-            return ret.returncode
+                    AmlCommonUtils.log(cmd + ' --> Failed' + ', ret:'+ str(proc.returncode), AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
+            return ret
         except:
-            AmlCommonUtils.log(cmd + ' --> Exception happend!!!')
-            return RET_VAL_EXCEPTION
+            AmlCommonUtils.log(cmd + ' --> Exception happend!!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
+            return ''
+
+    def get_adb_devices():
+        devs_list = []
+        ret = AmlCommonUtils.exe_adb_cmd('devices', True)
+        i=0
+        ret = ret.replace('\r', '')
+        devs = ret.split('\n')
+        for dev in devs:
+            dev.replace('\n', '')
+            # print(str(i) + '|' +dev+'#')
+            if i > 0 and dev != '':
+                id = dev.split()[0]
+                devs_list.append(id)
+                # print('id:' + id)
+            i += 1
+        return devs_list
 
     @staticmethod
     def zip_compress(srcPathName, targetPathName):
@@ -151,4 +242,6 @@ class AmlCommonUtils():
             try:
                 os.remove(filePath)
             except:
-                AmlCommonUtils.log('F [del_spec_file]: delete file:' + filePath + ' failed.')
+                AmlCommonUtils.log('del_spec_file delete file:' + filePath + ' failed.', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
+
+

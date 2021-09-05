@@ -1,6 +1,5 @@
 import os
 from threading import Thread
-from pathlib import Path
 
 from PyQt5 import QtWidgets
 from src.audio.aml_debug_audio import AmlAudioDebug, AudioDebugCfg
@@ -32,14 +31,13 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
             self.m_mainUi.AmlDebugAudioModeAuto_radioButton.setChecked(True)
             self.m_mainUi.AmlDebugAudioCaptureTime_groupBox.setEnabled(True)
         else:
-            self.log('E init_display_ui: Not supported capture mode:' + str(mode) + ' !!!')
+            self.log.e('E init_display_ui: Not supported capture mode:' + str(mode) + ' !!!')
         self.m_mainUi.AmlDebugAudioOptionsDebug_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_DEBUG_INFO))
         self.m_mainUi.AmlDebugAudioOptionsDump_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_DUMP_DATA))
         self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_LOGCAT))
         self.m_mainUi.AmlDebugAudioPrintDebugEnable_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG))
         self.m_mainUi.AmlAudioCaptureTime_spinBox.setValue(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME))
         self.m_mainUi.AmlDebugAudioCreateZipEnable_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP))
-        self.m_mainUi.AmlAudioDebugPlayAudioOpenFile_Button.clicked.connect(self.__click_playAudioRateFileOpen)
         support_channel_array = ['1', '2', '4', '6', '8']
         support_byte_array = ['1', '2', '4']
         support_rate_array = ['8000', '16000', '32000', '44100', '48000', '64000', '88200', '96000', '192000']
@@ -67,8 +65,9 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_mainUi.AmlAudioDebugPlayAudioChannel_comboBox.currentTextChanged.connect(self.__textChanged_PlayAudioChannel)
         self.m_mainUi.AmlAudioDebugPlayAudioByte_comboBox.currentTextChanged.connect(self.__textChanged_PlayAudioByte)
         self.m_mainUi.AmlAudioDebugPlayAudioRate_comboBox.currentTextChanged.connect(self.__textChanged_PlayAudioRate)
-        # self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.textChanged.connect(self.__editing_PlayAudioPath)
         self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.editingFinished.connect(self.__editing_PlayAudioPath)
+        self.m_mainUi.AmlAudioDebugPlayAudioOpenFile_Button.clicked.connect(self.__click_playAudioRateFileOpen)
+        self.m_mainUi.AmlDebugAudioOpenOutput_pushButton.clicked.connect(self.__click_open_output)
 
     def __click_auto_mode(self):
         self.m_mainUi.AmlDebugAudioCaptureTime_groupBox.setEnabled(True)
@@ -79,7 +78,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CAPTRUE_MODE, AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL)
 
     def start_capture(self, curTimeName='', homeCallbackFinish=print, homeClick=False):
-        self.log('start_capture')
+        self.log.i('start_capture')
         self.__homeCallbackStartFinish = homeCallbackFinish
         self.__homeStartClick = homeClick
         self.m_mainUi.AmlDebugAudioMode_groupBox.setEnabled(False)
@@ -95,11 +94,11 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         thread.start()
 
     def stop_capture(self, homeCallbackFinish=print, homeClick=False):
-        self.log('stop_capture')
+        self.log.i('stop_capture')
         self.__homeCallbackStopFinish = homeCallbackFinish
         self.__homeStopClick = homeClick
         if self.audioDebugcfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
-            self.log('stop_capture: auto mode not need stop.')
+            self.log.i('stop_capture: auto mode not need stop.')
             if self.__homeStopClick == True:
                 self.__homeCallbackStopFinish(self.m_moduleId)
             return
@@ -129,19 +128,11 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
     def __textChanged_PlayAudioRate(self, value):
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE, value)
     def __editing_PlayAudioPath(self):
-        self.log('__editing_PlayAudioPath:')
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH, self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.text())
 
     def __click_playAudioRateFileOpen(self):
-        openPath = self.audioDebug.getCurDebugPath()
-        if not Path(openPath).exists() or openPath == '':
-            print('I [__click_playAudioRateFileOpen]: audio debug path:' + openPath + ' not exist')
-            openPath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT
-        else:
-            print('I [__click_playAudioRateFileOpen]: audio debug path:' + openPath + ' exist')
-        if not Path(openPath).exists() or openPath == '':
-            print('I [__click_playAudioRateFileOpen]: root path:' + openPath + ' not exist')
-            openPath = os.getcwd()
+        curPath = self.audioDebug.getCurDebugPath()
+        openPath = self.check_output_path(curPath)
         fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self.m_mainUi, "Open File", openPath, "All Files(*);;Text Files(*.txt)")
         if not fileName == '':
             self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.setText(fileName)
@@ -159,6 +150,10 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         else:
             self.m_mainUi.AmlAudioDebugPlayAudio_Button.setText('Play')
 
+    def __click_open_output(self):
+        curPath = self.audioDebug.getCurDebugPath()
+        os.startfile(self.check_output_path(curPath))
+
     def get_logcat_enable(self):
         return self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.isChecked()
 
@@ -173,7 +168,8 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
 
     def __startCaptureInfo(self, curTimeName):
         if self.__homeStartClick == False:
-            AmlCommonUtils.remount()
+            AmlCommonUtils.adb_root()
+            AmlCommonUtils.adb_remount()
         self.audioDebug.start_capture(curTimeName, self.__callback_startCaptureFinish)
 
     def __callback_startCaptureFinish(self):       
@@ -184,10 +180,10 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
             self.m_mainUi.AmlDebugAudioPrintDebug_groupBox.setEnabled(True)
             self.m_mainUi.AmlDebugAudioCreateZipEnable_checkBox.setEnabled(True)
             self.m_mainUi.AmlDebugAudioStart_pushButton.setEnabled(True)
-            self.log('------ Auto mode capture Finish !!! ------')
+            self.log.i('------ Auto mode capture Finish !!! ------')
         elif self.audioDebugcfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL:
             self.m_mainUi.AmlDebugAudioStop_pushButton.setEnabled(True)
-            self.log('Manual mode Start capture finish')
+            self.log.i('Manual mode Start capture finish')
         if self.__homeStartClick == True:
             self.__homeCallbackStartFinish(self.m_moduleId)
 
@@ -197,7 +193,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
             self.__homeCallbackStopFinish(self.m_moduleId)
 
     def __callback_stopCaptureFinish(self):
-        self.log('------ Manual mode capture Finish !!! ------')
+        self.log.i('------ Manual mode capture Finish !!! ------')
         self.m_mainUi.AmlDebugAudioMode_groupBox.setEnabled(True)
         self.m_mainUi.AmlDebugAudioOptions_groupBox.setEnabled(True)
         self.m_mainUi.AmlDebugAudioPrintDebug_groupBox.setEnabled(True)
@@ -213,7 +209,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         elif self.m_mainUi.AmlDebugAudioModeManual_radioButton.isChecked() == True:
             self.audioDebugcfg.m_captureMode = AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL
         else:
-            self.log('__pre_audio_debug_config: Not supported capture mode!!!')
+            self.log.w('__pre_audio_debug_config: Not supported capture mode!!!')
         self.audioDebugcfg.m_debugInfoEnable = self.m_mainUi.AmlDebugAudioOptionsDebug_checkBox.isChecked()
         self.audioDebugcfg.m_dumpDataEnable = self.m_mainUi.AmlDebugAudioOptionsDump_checkBox.isChecked()
         self.audioDebugcfg.m_logcatEnable = self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.isChecked()
@@ -235,3 +231,4 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
             self.m_mainUi.AmlAudioDebugPlayAudiSelChannel_comboBox.addItem(support_sel_ch_array[2])
         if channels == 8:
             self.m_mainUi.AmlAudioDebugPlayAudiSelChannel_comboBox.addItem(support_sel_ch_array[3])
+

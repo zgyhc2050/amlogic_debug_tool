@@ -26,7 +26,7 @@ class AmlDebugCecUi(AmlDebugBaseUi):
 
     def signals_connect_slots(self):
         self.m_mainUi.AmlDebugCecSetprop_pushButton.clicked.connect(self.__click_setprop)
-        self.m_mainUi.AmlDebugCecReboot_pushButton.clicked.connect(AmlCommonUtils.reboot)
+        self.m_mainUi.AmlDebugCecReboot_pushButton.clicked.connect(AmlCommonUtils.adb_reboot)
         self.m_mainUi.AmlDebugCecStart_pushButton.clicked.connect(self.start_capture)
         self.m_mainUi.AmlDebugCecStop_pushButton.clicked.connect(self.stop_capture)
         self.m_mainUi.AmlDebugCecOptionsLogcat_checkBox.clicked[bool].connect(self.__click_optionsLogcat)
@@ -44,12 +44,13 @@ class AmlDebugCecUi(AmlDebugBaseUi):
             self.m_mainUi.AmlDebugHomeOptionsBugreport_checkBox.setChecked(True)
         self.m_iniPaser.setValueByKey(AmlParserIniCec.AML_PARSER_CEC_BUGREPORT, enable)
     def __click_setprop(self):
-        AmlCommonUtils.remount()
+        AmlCommonUtils.adb_root()
+        AmlCommonUtils.adb_remount()
         for cmd in self.__adbSetDebugPropList:
             AmlCommonUtils.exe_adb_shell_cmd(cmd, True)
 
     def start_capture(self, curTimeName='', homeCallbackFinish='', homeClick=False):
-        self.log('start_capture')
+        self.log.i('start_capture')
         self.m_mainUi.AmlDebugCecStart_pushButton.setEnabled(False)
         self.__m_logcatEnable = self.m_mainUi.AmlDebugCecOptionsLogcat_checkBox.isChecked()
         self.__m_bugreportEnable = self.m_mainUi.AmlDebugCecOptionsBugreport_checkBox.isChecked()
@@ -65,7 +66,7 @@ class AmlDebugCecUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugCecStop_pushButton.setEnabled(True)
 
     def stop_capture(self, homeCallbackFinish='', homeClick=False):
-        self.log('stop_capture')
+        self.log.i('stop_capture')
         self.m_mainUi.AmlDebugCecStop_pushButton.setEnabled(False)
         self.m_mainUi.AmlDebugCecCtrlPanel_groupBox.setEnabled(False)
         self.m_mainUi.AmlDebugCecOptions_groupBox.setEnabled(False)

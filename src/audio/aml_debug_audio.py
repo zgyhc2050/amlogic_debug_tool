@@ -108,13 +108,13 @@ class AmlAudioDebug:
 
     def start_capture(self, curTimeName, startCaptureFinish):
         if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
-            self.log('Auto mode: Start to capture the info...')
+            self.log.d('Auto mode: Start to capture the info...')
         elif self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL:
-            self.log('Manual mode: Start to capture the info...')
+            self.log.d('Manual mode: Start to capture the info...')
         if self.__curState == self.RUN_STATE_STARTED:
-            self.log('current already started, do nothing')
+            self.log.w('current already started, do nothing')
             return
-        self.log('AmlAudioDebug::start_capture m_homeClick:' + str(self.__debugCfg.m_homeClick))
+        self.log.d('AmlAudioDebug::start_capture m_homeClick:' + str(self.__debugCfg.m_homeClick))
         self.__curState = self.RUN_STATE_STARTED
         if self.__debugCfg.m_homeClick:
             self.__nowPullPcTime = curTimeName
@@ -137,12 +137,12 @@ class AmlAudioDebug:
         if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
                 if self.__debugCfg.m_dumpDataEnable == False:
-                    self.log('3.1 Please wait ' + str(self.__debugCfg.m_autoDebugTimeS) + 's for logcat...')
+                    self.log.d('3.1 Please wait ' + str(self.__debugCfg.m_autoDebugTimeS) + 's for logcat...')
                     time.sleep(self.__debugCfg.m_autoDebugTimeS)
                 else:
-                    self.log('3.1 Start auto capture logcat...')
+                    self.log.d('3.1 Start auto capture logcat...')
                 # 5. Kill the logcat thread, stop logcat.
-                self.log('3.2 Stop auto capture logcat...')
+                self.log.d('3.2 Stop auto capture logcat...')
                 self.__capture_logcat_disable_prop()   
                 AmlCommonUtils.logcat_stop()
 
@@ -154,10 +154,10 @@ class AmlAudioDebug:
 
     def stop_capture(self, stopcaptureFinish):
         if self.__curState != self.RUN_STATE_STARTED:
-            self.log('stop_capture: current no start, do nothing')
+            self.log.d('stop_capture: current no start, do nothing')
             return
         if self.__debugCfg.m_captureMode != AmlAudioDebug.DEBUG_CAPTURE_MODE_MUNUAL:
-            self.log('stop_capture: current not MUNAUL mode, not support stop!!!')
+            self.log.d('stop_capture: current not MUNAUL mode, not support stop!!!')
             return
         self.__manual_capture_stop()
         stopcaptureFinish()
@@ -169,11 +169,11 @@ class AmlAudioDebug:
         self.__capture_logcat_disable_prop()
 
     def __manual_capture_stop(self):
-        self.log('2.2 MUNUAL mode: fetching the audio data end.')
+        self.log.d('2.2 MUNUAL mode: fetching the audio data end.')
         if self.__debugCfg.m_dumpDataEnable:
             self.__capture_audio_data_prop_disable()
         if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
-            self.log('3.2 Stop manual capture logcat...')
+            self.log.d('3.2 Stop manual capture logcat...')
             self.__capture_logcat_disable_prop()
 
         if self.__debugCfg.m_debugInfoEnable:
@@ -191,8 +191,8 @@ class AmlAudioDebug:
     def __capture_debug_text(self):
         if not self.__debugCfg.m_debugInfoEnable:
             return
-        self.log('1.1 Please wait a moment, starting to dump debugging information...')
-        self.log('1.2 Cat the some info to ' + self.__dumpCmdOutFilePath + ' file')
+        self.log.d('1.1 Please wait a moment, starting to dump debugging information...')
+        self.log.d('1.2 Cat the some info to ' + self.__dumpCmdOutFilePath + ' file')
         dumpCmdListTemp = []
         for adbDumpCmd in self.__adbDumpCmdLists:
             dumpCmdListTemp.append('echo ' + adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath)
@@ -203,11 +203,11 @@ class AmlAudioDebug:
         if not self.__debugCfg.m_dumpDataEnable:
             return
         self.__capture_audio_data_prop_enable()
-        self.log('2.1 AUTO mode: Start fetching the audio data, wait for ' + str(self.__debugCfg.m_autoDebugTimeS) + ' seconds...')
+        self.log.d('2.1 AUTO mode: Start fetching the audio data, wait for ' + str(self.__debugCfg.m_autoDebugTimeS) + ' seconds...')
         if self.__debugCfg.m_captureMode == AmlAudioDebug.DEBUG_CAPTURE_MODE_AUTO:
             time.sleep(self.__debugCfg.m_autoDebugTimeS)
             self.__capture_audio_data_prop_disable()
-            self.log('2.2 AUTO mode: fetching the audio data end.')
+            self.log.d('2.2 AUTO mode: fetching the audio data end.')
 
     def __prepare_debug_env(self):
         if self.__debugCfg.m_homeClick == False:
@@ -216,7 +216,7 @@ class AmlAudioDebug:
         self.__capture_clear_all_files()
 
     def __pull_capture_debug_info_to_pc(self):
-        self.log('Pull all file to PC ...')
+        self.log.d('Pull all file to PC ...')
         for dumpFile in self.__dumpFileLists:
             if (self.__debugCfg.m_homeClick == True or self.__debugCfg.m_logcatEnable == False) and  dumpFile == AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT or \
                 self.__debugCfg.m_dumpDataEnable == False and self.__dumpCmdOutFilePath == dumpFile:
@@ -224,13 +224,12 @@ class AmlAudioDebug:
             exeCmdStr = 'pull ' + dumpFile + ' ' + self.__nowPullPcPath
             AmlCommonUtils.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable)
         if self.__debugCfg.m_createZipFile:
-            tempFilePath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
-            self.log('Zipping the files:' + self.__nowPullPcTime + '.zip')
-            AmlCommonUtils.zip_compress(self.__nowPullPcPath, tempFilePath)
-            shutil.rmtree(self.__nowPullPcPath, ignore_errors=True)
-            #shutil.move(tempFilePath, self.__nowPullPcPath)
-            if self.__debugCfg.m_createZipFile:
-                self.log('compress director:' + self.__nowPullPcPath + ' to ' + self.__nowPullPcPath + '\\' + self.__nowPullPcTime + '.zip')
+            zip_src_dir = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime
+            zip_dst_file = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
+            self.log.i('Zipping director:' + zip_src_dir + ' to ' + zip_dst_file)
+            AmlCommonUtils.zip_compress(zip_src_dir, zip_dst_file)
+            shutil.rmtree(zip_src_dir, ignore_errors=True)
+            #shutil.move(zip_dst_dir, self.__nowPullPcPath)
 
     def __capture_audio_data_prop_enable(self):
         self.__exe_adb_shell_cmd(self.__adbDumpDataStartLists)
@@ -256,20 +255,24 @@ class AmlAudioDebug:
             exeCmdStr += cmd + ';'
             if self.__debugCfg.m_printDebugEnable == True:
                 if 'echo' not in cmd:
-                    self.log(cmd)
+                    self.log.d(cmd)
         AmlCommonUtils.exe_adb_shell_cmd(exeCmdStr, False)
 
     def __print_help_info(self):
-            print('###############################################################################################')
-            print('##                                                                                           ##')
-            print('##  Please send folder %-40s' % self.__nowPullPcPath + ' to RD colleagues! Thank You! ##')
-            print('##                                                                                           ##')
-            print('###############################################################################################')
-            self.log('Please send folder ' + self.__nowPullPcPath + ' to RD colleagues! Thank You!')
+        if self.__debugCfg.m_createZipFile:
+            target_file = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
+        else:
+            target_file = self.__nowPullPcPath
+        print('###############################################################################################')
+        print('##                                                                                           ##')
+        print('##  Please send folder %-40s' % target_file + ' to RD colleagues! Thank You! ##')
+        print('##                                                                                           ##')
+        print('###############################################################################################')
+        self.log.i('Please send folder ' + target_file + ' to RD colleagues! Thank You!')
 
     def start_play_toggle(self, filePath, channel, byte, rate, selChn, func_playEnd):
         if not Path(filePath).exists():
-            self.log('E [start_play_toggle]: filePath:' + filePath + ' not exists')
+            self.log.e('start_play_toggle filePath:' + filePath + ' not exists')
             return False
         if self.__m_isPlaying == False:
             thread = threading.Thread(target = self.__audio_pcm_play_thread, args = (filePath, channel, byte, rate, selChn, func_playEnd))
@@ -280,7 +283,7 @@ class AmlAudioDebug:
         return self.__m_isPlaying
 
     def __audio_pcm_play_thread(self, filePath, channel, byte, rate, selChn, func_playEnd):
-        self.log('I [__audio_pcm_play_thread]: play pcm data byte:' + str(byte) + ', channel:' + \
+        self.log.i('__audio_pcm_play_thread play pcm data byte:' + str(byte) + ', channel:' + \
             str(channel) + ', rate:' + str(rate) + ', sel ch:' + str(selChn * 2 + 1) + '_' + str(selChn * 2 + 2))
         AmlAudioDebug.m_stopPlay = False
         with open(filePath, 'rb') as pcmfile:
@@ -292,7 +295,7 @@ class AmlAudioDebug:
         if channel > 2 or (channel == 2 and byte > 2):
             tempWavFile = self.__packageWavData(tempWavFile, channel, byte, rate, selChn)
  
-        self.log('I [__audio_pcm_play_thread]: starting to play file:' + filePath)
+        self.log.i('__audio_pcm_play_thread starting to play file:' + filePath)
         # for i in range(amlPyAudio.get_device_count()):
         #     print(amlPyAudio.get_device_info_by_index(i))
         AmlAudioDebug.__m_isPlaying = True
@@ -300,7 +303,7 @@ class AmlAudioDebug:
         AmlAudioDebug.__m_isPlaying = False
         func_playEnd()
         AmlCommonUtils.del_spec_file(tempWavFile)
-        self.log('I [__audio_pcm_play_thread]: exit play')
+        self.log.i('__audio_pcm_play_thread exit play')
 
     def __play_pcm_file(self, filePath):
         wavFile = wave.open(filePath, 'rb')
@@ -311,7 +314,7 @@ class AmlAudioDebug:
         sample_rate = wavFile.getframerate()
         read_frames = 1024
         stream = amlPyAudio.open(format = amlPyAudio.get_format_from_width(bit_width), channels = channel, rate = sample_rate, output = True)
-        self.log('I [__play_pcm_file]: starting to play' + ', frames:' + str(remain_frames) + ' (' + str(remain_frames//sample_rate) + ' s)')
+        self.log.i('__play_pcm_file starting to play' + ', frames:' + str(remain_frames) + ' (' + str(remain_frames//sample_rate) + ' s)')
         while remain_frames > 0 and AmlAudioDebug.m_stopPlay == False:
             if remain_frames > read_frames:
                 frames = read_frames
@@ -326,10 +329,10 @@ class AmlAudioDebug:
 
     def __packageWavData(self, file, channel, sampleSize, rate, convertType):
         if channel % 2 != 0 or channel > 8 or channel <= 0:
-            self.log('E [__packageWavData]: not support channel:' + channel + ' convert')
+            self.log.e('__packageWavData not support channel:' + channel + ' convert')
             return file
         if convertType >= channel / 2:
-            self.log('E [__packageWavData]: not support convert type:' + convertType)
+            self.log.e('__packageWavData not support convert type:' + convertType)
             return file
         srcWavFile =  wave.open(file, 'rb')
         srcWavData = srcWavFile.readframes(srcWavFile.getnframes())
@@ -355,7 +358,7 @@ class AmlAudioDebug:
         elif sampleSize == 4:
             numpy_type = numpy.int64
         else:
-            self.log('E [__convertChannel]: not support sampleSize:' + sampleSize)
+            self.log.d('E [__convertChannel]: not support sampleSize:' + sampleSize)
             return src, channel
         wavData = numpy.fromstring(src, dtype = numpy_type)
         wavData.shape = (-1, channel)
@@ -369,7 +372,7 @@ class AmlAudioDebug:
         if sampleSize <= 2:
             return src, sampleSize
         if sampleSize != 4:
-            self.log('E [__convertTo2ByteBitWide]: not support sampleSize:' + sampleSize)
+            self.log.d('E [__convertTo2ByteBitWide]: not support sampleSize:' + sampleSize)
             return src, sampleSize
         wavData = numpy.fromstring(src, dtype = numpy.int16)
         wavData.shape = (-1, 4)

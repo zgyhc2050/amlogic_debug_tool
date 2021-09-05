@@ -15,6 +15,8 @@ class AmlParserIniHome(AmlParserIniBase):
 
     AML_PARSER_HOME_CAPTRUE_MODE                   = "captrue_mode"
     AML_PARSER_HOME_CAPTURE_TIME                   = "captrue_time"
+    
+    AML_PARSER_HOME_IP_ADDRESS                     = "ip_address"
 
     DEBUG_CAPTURE_MODE_AUTO         = 0
     DEBUG_CAPTURE_MODE_MUNUAL       = 1
@@ -34,6 +36,7 @@ class AmlParserIniHome(AmlParserIniBase):
 
             AmlParserIniHome.AML_PARSER_HOME_CAPTRUE_MODE      : str(AmlParserIniHome.DEFAULT_CAPTURE_MODE),
             AmlParserIniHome.AML_PARSER_HOME_CAPTURE_TIME      : '5',
+            AmlParserIniHome.AML_PARSER_HOME_IP_ADDRESS        : '',
         }
         return self.__dictionary_default_value
     

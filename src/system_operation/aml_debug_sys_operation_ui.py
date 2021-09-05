@@ -35,8 +35,8 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
     def signals_connect_slots(self):
         self.m_mainUi.AmlSystemPushDolbyDtsPush_Button.clicked.connect(self.__click_push_dst_dolby)
         self.m_mainUi.AmlSystemPushMs12Push_Button.clicked.connect(self.__click_push_ms12)
-        self.m_mainUi.AmlSystemRemount_Button.clicked.connect(AmlCommonUtils.remount)
-        self.m_mainUi.AmlSystemReboot_Button.clicked.connect(AmlCommonUtils.reboot)
+        self.m_mainUi.AmlSystemRemount_Button.clicked.connect(self.__click_remount)
+        self.m_mainUi.AmlSystemReboot_Button.clicked.connect(AmlCommonUtils.adb_reboot)
         self.m_mainUi.AmlSystemCloseAvb_Button.clicked.connect(self.__click_close_avb)
         self.m_mainUi.AmlSystemPushDolbySrc_lineEdit.editingFinished.connect(self.__finished_PushDolbySrc)
         self.m_mainUi.AmlSystemPushDtsSrc_lineEdit.editingFinished.connect(self.__finished_PushDtsSrc)
@@ -61,7 +61,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
             elif type == 'Button':
                 eval('self.m_mainUi.AmlSystemPushCustom' + str(i) + 'Push_Button').clicked.connect(lambda: self.__click_push_custom(i))
             else:
-                self.log('not support direct:' + direct + ', type:' + type)
+                self.log.d('not support direct:' + direct + ', type:' + type)
         elif direct == 'pull':
             if type == 'Src':
                 eval('self.m_mainUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').editingFinished.connect(lambda: self.__finished_PullCustomSrc(i))
@@ -70,7 +70,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
             elif type == 'Button':
                 eval('self.m_mainUi.AmlSystemPullCustom' + str(i) + 'Pull_Button').clicked.connect(lambda: self.__click_pull_custom(i))
             else:
-                self.log('not support direct:' + direct + ', type:' + type)
+                self.log.d('not support direct:' + direct + ', type:' + type)
 
     def closeEvent(self):
         self.__m_stop_thread = True
@@ -93,6 +93,10 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
     def __click_pull_custom(self, i):
         self.__pullFilesToSoc(eval('self.m_mainUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').text(), eval('self.m_mainUi.AmlSystemPullCustom' + str(i) + 'Dst_lineEdit').text())
 
+    def __click_remount(self):
+        AmlCommonUtils.adb_root()
+        AmlCommonUtils.adb_remount()
+
     def __click_close_avb(self):
         self.m_mainUi.AmlSystemCloseAvb_Button.setEnabled(False)
         thread = Thread(target = self.__closeAvbProc)
@@ -104,19 +108,20 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         AmlCommonUtils.exe_sys_cmd('fastboot flashing unlock', True)
         AmlCommonUtils.exe_sys_cmd('fastboot reboot', True)
         timeCntS = 40
-        self.log('__closeAvbProc: flashing unlock reboot platform, please wait ' + str(timeCntS) + ' s...')
+        self.log.d('__closeAvbProc: flashing unlock reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
             timeCntS -= 1
-        AmlCommonUtils.exe_adb_cmd('root', True)
+        AmlCommonUtils.adb_root()
         AmlCommonUtils.exe_adb_cmd('disable-verity', True)
-        AmlCommonUtils.exe_adb_cmd('reboot', True)
+        AmlCommonUtils.adb_reboot()
         timeCntS = 40
-        self.log('__closeAvbProc: disable-verity reboot platform, please wait ' + str(timeCntS) + ' s...')
+        self.log.d('__closeAvbProc: disable-verity reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
             timeCntS -= 1
-        self.m_mainUi.remount()
+        AmlCommonUtils.adb_root()
+        AmlCommonUtils.adb_remount()
         self.m_mainUi.AmlSystemCloseAvb_Button.setEnabled(True)
 
     def __finished_PushDolbySrc(self):

@@ -14,7 +14,7 @@ from src.common.aml_common_utils import AmlCommonUtils
 from src.common.aml_debug_base_ui import AmlDebugModule
 
 class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
-    terminalLogSignal = pyqtSignal(str)
+    terminalLogSignal = pyqtSignal(str, str)
     def __init__(self):
         super(AmlDebugUi, self).__init__()
         super().setupUi(self)
@@ -26,8 +26,9 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
         self.terminalLogSignal.connect(self.terminalLog)
         AmlCommonUtils.set_log_fuc(self.terminalLogSignal.emit)
 
-    def terminalLog(self, someInfo):
-        self.AmlDebugTerminalLog_textBrowser.append(someInfo)
+    def terminalLog(self, log, level=AmlCommonUtils.AML_DEBUG_LOG_LEVEL_D):
+        log = AmlCommonUtils.get_current_time() + ' ' + level + ' ' + log
+        self.AmlDebugTerminalLog_textBrowser.append(log)
         self.AmlDebugTerminalLog_textBrowser.moveCursor(QTextCursor.End)
 
     def closeEvent(self,event):

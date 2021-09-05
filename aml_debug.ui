@@ -33,7 +33,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -240,7 +240,7 @@
        <rect>
         <x>360</x>
         <y>0</y>
-        <width>131</width>
+        <width>121</width>
         <height>131</height>
        </rect>
       </property>
@@ -391,7 +391,7 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>720</x>
+        <x>500</x>
         <y>80</y>
         <width>111</width>
         <height>41</height>
@@ -404,7 +404,7 @@
      <widget class="QPushButton" name="AmlDebugHomeStart_pushButton">
       <property name="geometry">
        <rect>
-        <x>720</x>
+        <x>500</x>
         <y>20</y>
         <width>111</width>
         <height>41</height>
@@ -419,7 +419,7 @@
        <rect>
         <x>360</x>
         <y>130</y>
-        <width>131</width>
+        <width>121</width>
         <height>71</height>
        </rect>
       </property>
@@ -462,6 +462,122 @@
        </property>
       </widget>
      </widget>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>620</x>
+        <y>0</y>
+        <width>331</width>
+        <height>281</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>adb device select</string>
+      </property>
+      <widget class="QListView" name="AmlDebugHomeAdbDev_listView">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>321</width>
+         <height>121</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="AmlDebugHomeAdbDev_comboBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>211</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="AmlDebugHomeAdbDevIp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>230</y>
+         <width>171</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="inputMask">
+        <string>000.000.000.000;_</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="AmlDebugHomeAdbDevConnect_pushButton">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>220</y>
+         <width>93</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="AmlDebugHomeAdbDevRefresh_pushButton">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>27</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>210</y>
+         <width>201</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>IP address</string>
+       </property>
+      </widget>
+      <zorder>groupBox_3</zorder>
+      <zorder>AmlDebugHomeAdbDev_listView</zorder>
+      <zorder>AmlDebugHomeAdbDev_comboBox</zorder>
+      <zorder>AmlDebugHomeAdbDevIp_lineEdit</zorder>
+      <zorder>AmlDebugHomeAdbDevConnect_pushButton</zorder>
+      <zorder>AmlDebugHomeAdbDevRefresh_pushButton</zorder>
+     </widget>
+     <widget class="QPushButton" name="AmlDebugHomeOpenOutput_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>210</y>
+        <width>101</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Open output
+directory</string>
+      </property>
+     </widget>
+     <zorder>groupBox_2</zorder>
+     <zorder>AmlDebugHomeModules_groupBox</zorder>
+     <zorder>AmlDebugMode_groupBox</zorder>
+     <zorder>AmlDebugHomeOptions_groupBox</zorder>
+     <zorder>AmlDebugHomeStop_pushButton</zorder>
+     <zorder>AmlDebugHomeStart_pushButton</zorder>
+     <zorder>AmlDebugHomeCaptureTime_groupBox</zorder>
+     <zorder>AmlDebugHomeOpenOutput_pushButton</zorder>
     </widget>
     <widget class="QWidget" name="AmlDebugAudio_tab">
      <attribute name="title">
@@ -857,6 +973,20 @@
        </property>
       </widget>
      </widget>
+     <widget class="QPushButton" name="AmlDebugAudioOpenOutput_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>842</x>
+        <y>0</y>
+        <width>111</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Open output
+directory</string>
+      </property>
+     </widget>
      <zorder>groupBox</zorder>
      <zorder>AmlDebugAudioStart_pushButton</zorder>
      <zorder>AmlDebugAudioMode_groupBox</zorder>
@@ -869,6 +999,7 @@
      <zorder>AmlAudioDebugPlayAudioOpenFile_Button</zorder>
      <zorder>label_16</zorder>
      <zorder>AmlAudioDebugPlayAudioRate_comboBox</zorder>
+     <zorder>AmlDebugAudioOpenOutput_pushButton</zorder>
     </widget>
     <widget class="QWidget" name="AmlDebugCec_tab">
      <attribute name="title">
