@@ -129,7 +129,7 @@ class Ui_MainWindow(object):
         self.AmlDebugHomeCaptureTime_spinBox.setEnabled(False)
         self.AmlDebugHomeCaptureTime_spinBox.setGeometry(QtCore.QRect(20, 30, 42, 22))
         self.AmlDebugHomeCaptureTime_spinBox.setMaximum(1000)
-        self.AmlDebugHomeCaptureTime_spinBox.setProperty("value", 3)
+        self.AmlDebugHomeCaptureTime_spinBox.setProperty("value", 6)
         self.AmlDebugHomeCaptureTime_spinBox.setObjectName("AmlDebugHomeCaptureTime_spinBox")
         self.label_21 = QtWidgets.QLabel(self.AmlDebugHomeCaptureTime_groupBox)
         self.label_21.setGeometry(QtCore.QRect(70, 30, 21, 21))

@@ -120,18 +120,9 @@ class AmlCommonUtils():
         AmlCommonUtils.exe_adb_cmd('pull "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT + '" ' + pc_path, True)
 
     def bugreport(path):
-        # TODO: 后续需要解决bugreport使用subprocess.Popen卡住的问题
-        # AmlCommonUtils.exe_adb_cmd('bugreport ' + path, True)
-        cmd = ''
-        if AmlCommonUtils.adb_cur_dev != '':
-            cmd = 'adb -s ' + AmlCommonUtils.adb_cur_dev + ' ' + 'bugreport ' + path
-        else:
-            cmd = 'adb ' + 'bugreport ' + path
         AmlCommonUtils.log('Start bugreport+++++', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
-        AmlCommonUtils.log('' + cmd)
-        os.system(cmd)
+        AmlCommonUtils.exe_adb_cmd('bugreport ' + path, True)
         AmlCommonUtils.log('Exit bugreport-----', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
-        
 
     def dmesg():
         AmlCommonUtils.log('dmesg', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
@@ -182,13 +173,14 @@ class AmlCommonUtils():
             proc = subprocess.Popen(cmd, shell=True, 
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
             proc.stdin.close()
+            for line in iter(proc.stdout.readline, b''):
+                temp_str = line.strip().decode('utf-8')
+                if temp_str != '\n' and temp_str != '':
+                    ret = ret + temp_str + '\n'
+                if bprint:
+                    AmlCommonUtils.log(temp_str)
             proc.wait()
-            result = proc.stdout.read() # 读取cmd执行的输出结果（是byte类型，需要decode）
-            ret = result.decode()
             proc.stdout.close()
-            ret = ret.replace('\r', '')
-            if ret != '':
-                AmlCommonUtils.log(ret)   
             if bprint == True:
                 if proc.returncode == RET_VAL_SUCCESS:
                     AmlCommonUtils.log(cmd + ' --> Success')
@@ -202,12 +194,11 @@ class AmlCommonUtils():
     def get_adb_devices():
         devs_list = []
         ret = AmlCommonUtils.exe_adb_cmd('devices', True)
-        i=0
-        ret = ret.replace('\r', '')
+        i = 0
         devs = ret.split('\n')
         for dev in devs:
             dev.replace('\n', '')
-            # print(str(i) + '|' +dev+'#')
+            # The i=0 first line is not adb device id.
             if i > 0 and dev != '':
                 id = dev.split()[0]
                 devs_list.append(id)

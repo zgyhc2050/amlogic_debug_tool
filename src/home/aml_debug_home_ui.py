@@ -141,7 +141,6 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
         self.log.i('start_capture')
         self.__curTimeName = AmlCommonUtils.pre_create_directory(self.m_moduleId, self.__m_debugCfg.m_ModuleEnableArray)
         self.__nowPullPcTimePath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__curTimeName
-        print('m_bugreportEnable:' + str(self.__m_debugCfg.m_bugreportEnable) + ', m_logcatEnable:' + str(self.__m_debugCfg.m_logcatEnable) + ', dmesg:'+str(self.__m_debugCfg.m_dmesgEnable))
         thread = Thread(target = self.__start_capture_thread, args=(homeCallbackFinish,))
         thread.start()
 
@@ -161,8 +160,8 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
             for module in AmlDebugModule.moduleList:
                 if self.__m_debugCfg.m_ModuleEnableArray[module.m_moduleId] == True and module.get_logcat_enable() == True:
                     module.open_logcat()
-            AmlCommonUtils.logcat_start()
             if self.__m_debugCfg.m_captureMode == AmlParserIniHome.DEBUG_CAPTURE_MODE_AUTO:
+                AmlCommonUtils.logcat_start()
                 time.sleep(timeS)
                 self.log.i('AmlDebugHomeUi::start_capture logcat stop ++++')
                 for module in AmlDebugModule.moduleList:

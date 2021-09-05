@@ -35,7 +35,7 @@ class AmlParserIniHome(AmlParserIniBase):
             AmlParserIniHome.AML_PARSER_HOME_DMESG             : 'Flase',
 
             AmlParserIniHome.AML_PARSER_HOME_CAPTRUE_MODE      : str(AmlParserIniHome.DEFAULT_CAPTURE_MODE),
-            AmlParserIniHome.AML_PARSER_HOME_CAPTURE_TIME      : '5',
+            AmlParserIniHome.AML_PARSER_HOME_CAPTURE_TIME      : '6',
             AmlParserIniHome.AML_PARSER_HOME_IP_ADDRESS        : '',
         }
         return self.__dictionary_default_value

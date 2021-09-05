@@ -62,7 +62,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
                 eval('self.m_mainUi.AmlSystemPushCustom' + str(i) + 'Push_Button').clicked.connect(lambda: self.__click_push_custom(i))
             else:
                 self.log.d('not support direct:' + direct + ', type:' + type)
-        elif direct == 'pull':
+        elif direct == 'Pull':
             if type == 'Src':
                 eval('self.m_mainUi.AmlSystemPullCustom' + str(i) + 'Src_lineEdit').editingFinished.connect(lambda: self.__finished_PullCustomSrc(i))
             elif type == 'Dst':
@@ -88,6 +88,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         self.__pushFilesToSoc(self.m_mainUi.AmlSystemPushMs12Src_lineEdit.text() + '\\libdolbyms12.so', self.m_mainUi.AmlSystemPushMs12Dst_lineEdit.text())
 
     def __click_push_custom(self, i):
+        self.log.i('push i:' + str(i))
         self.__pushFilesToSoc(eval('self.m_mainUi.AmlSystemPushCustom' + str(i) + 'Src_lineEdit').text(), eval('self.m_mainUi.AmlSystemPushCustom' + str(i) + 'Dst_lineEdit').text())
 
     def __click_pull_custom(self, i):

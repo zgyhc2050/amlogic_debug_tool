@@ -1,3 +1,5 @@
+from threading import Thread
+
 from src.cec.aml_ini_parser_cec import AmlParserIniCec
 from src.common.aml_debug_base_ui import AmlDebugBaseUi
 from src.common.aml_common_utils import AmlCommonUtils
@@ -73,11 +75,15 @@ class AmlDebugCecUi(AmlDebugBaseUi):
         if homeClick:
             homeCallbackFinish()
         else:
-            if self.__m_logcatEnable:
-                AmlCommonUtils.logcat_stop()
-                AmlCommonUtils.pull_logcat_to_pc(self.__nowPullPcPath)
-            if self.__m_bugreportEnable:
-                AmlCommonUtils.bugreport(self.__nowPullPcPath)
+            thread = Thread(target = self.__stop_capture_thread)
+            thread.start()
+
+    def __stop_capture_thread(self):
+        if self.__m_logcatEnable:
+            AmlCommonUtils.logcat_stop()
+            AmlCommonUtils.pull_logcat_to_pc(self.__nowPullPcPath)
+        if self.__m_bugreportEnable:
+            AmlCommonUtils.bugreport(self.__nowPullPcPath)
         self.m_mainUi.AmlDebugCecStart_pushButton.setEnabled(True)
         self.m_mainUi.AmlDebugCecCtrlPanel_groupBox.setEnabled(True)
         self.m_mainUi.AmlDebugCecOptions_groupBox.setEnabled(True)
