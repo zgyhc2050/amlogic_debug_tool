@@ -67,6 +67,7 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugHomeAdbDevConnect_pushButton.clicked.connect(self.__click_adbConnect)
         self.m_mainUi.AmlDebugHomeAdbDev_comboBox.currentTextChanged[str].connect(self.__textChanged_selectAdbDev)
         self.m_mainUi.AmlDebugHomeOpenOutput_pushButton.clicked.connect(self.__click_open_output)
+        self.m_mainUi.AmlDebugHomeAdbDevIp_lineEdit.textChanged.connect(self.__textChanged_adbIpAdress)
 
     def __click_auto_mode(self):
         self.m_mainUi.AmlDebugHomeCaptureTime_groupBox.setEnabled(True)
@@ -134,6 +135,9 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
     def __click_open_output(self):
         os.startfile(self.check_output_path(self.__nowPullPcTimePath))
 
+    def __textChanged_adbIpAdress(self, value):
+        self.m_iniPaser.setValueByKey(AmlParserIniHome.AML_PARSER_HOME_IP_ADDRESS, value)
+
     def closeEvent(self):
         self.__m_stop_thread = True
 
@@ -150,13 +154,13 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
         AmlCommonUtils.pull_logcat_to_pc(self.__nowPullPcTimePath)
         if self.__m_debugCfg.m_dmesgEnable:
             AmlCommonUtils.exe_adb_cmd('pull "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_DMESG + '" ' + self.__nowPullPcTimePath, True)
-        self.log.i('AmlDebugHomeUi::stop_capture')
+        self.log.i('stop_capture')
         homeCallbackFinish(self.m_moduleId)
 
     def __start_capture_thread(self, homeCallbackFinish):
         if self.__m_debugCfg.m_logcatEnable:
             timeS = self.m_mainUi.AmlDebugHomeCaptureTime_spinBox.value()
-            self.log.i('AmlDebugHomeUi::start_capture logcat start, please wait ' + str(timeS) + 's for logcat...')
+            self.log.i('start_capture logcat start, please wait ' + str(timeS) + 's for logcat...')
             for module in AmlDebugModule.moduleList:
                 if self.__m_debugCfg.m_ModuleEnableArray[module.m_moduleId] == True and module.get_logcat_enable() == True:
                     module.open_logcat()
@@ -228,10 +232,10 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
 
     def __adb_dev_ui_refresh(self):
         dev_list = AmlCommonUtils.get_adb_devices()
+        self.m_mainUi.AmlDebugHomeAdbDev_comboBox.clear()
         if len(dev_list) > 0:
-            listModel = QStringListModel()
-            listModel.setStringList(dev_list)
-            self.m_mainUi.AmlDebugHomeAdbDev_listView.setModel(listModel)
-            self.m_mainUi.AmlDebugHomeAdbDev_comboBox.clear()
             self.m_mainUi.AmlDebugHomeAdbDev_comboBox.addItems(dev_list)
+        listModel = QStringListModel()
+        listModel.setStringList(dev_list)
+        self.m_mainUi.AmlDebugHomeAdbDev_listView.setModel(listModel)
         return dev_list

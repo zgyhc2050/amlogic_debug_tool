@@ -139,7 +139,8 @@ class AmlCommonUtils():
         return AmlCommonUtils.exe_adb_cmd('reboot', True)
 
     def adb_connect_by_ip(ip):
-        ret =  AmlCommonUtils.exe_sys_cmd('adb connnect ' + ip, True)
+        connect_ip_cmd = 'adb connect ' + ip
+        ret = AmlCommonUtils.exe_sys_cmd(connect_ip_cmd, True)
         if 'connected to ' + ip not in ret:
             AmlCommonUtils.log('adb connect ip:' + ip + 'failed !!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
             return ''
@@ -154,7 +155,7 @@ class AmlCommonUtils():
             return  ''
         AmlCommonUtils.set_adb_cur_device(dev_name)
         AmlCommonUtils.adb_root()
-        AmlCommonUtils.adb_connect_by_ip(ip)
+        AmlCommonUtils.exe_sys_cmd(connect_ip_cmd, True)
         AmlCommonUtils.adb_remount()
         return dev_name
 
@@ -178,7 +179,7 @@ class AmlCommonUtils():
                 if temp_str != '\n' and temp_str != '':
                     ret = ret + temp_str + '\n'
                 if bprint:
-                    AmlCommonUtils.log(temp_str)
+                    AmlCommonUtils.log(temp_str, AmlCommonUtils.AML_DEBUG_LOG_LEVEL_V)
             proc.wait()
             proc.stdout.close()
             if bprint == True:
@@ -193,7 +194,7 @@ class AmlCommonUtils():
 
     def get_adb_devices():
         devs_list = []
-        ret = AmlCommonUtils.exe_adb_cmd('devices', True)
+        ret = AmlCommonUtils.exe_sys_cmd('adb devices', True)
         i = 0
         devs = ret.split('\n')
         for dev in devs:

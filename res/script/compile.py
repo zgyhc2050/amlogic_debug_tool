@@ -8,7 +8,7 @@ AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH = './aml_debug_tool.py'
 
 COMPILE_EXE_USER_NAME = getpass.getuser()
 COMPILE_EXE_USER_TIME = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-COMPILE_EXE_VERSION   = '1.2.4'
+COMPILE_EXE_VERSION   = '1.2.5'
 COMPILE_EXE_COMMIT    = ''
 
 AML_DEBUG_TOOL_BASE_ROW                     = 2
@@ -55,7 +55,7 @@ def generating_version_info():
     os.rename('./res/tool/compile_temp.nsi', './res/tool/compile.nsi')
 
 def pyinstaller_compile(type):
-    os.system('@echo y | pyinstaller.exe -' + type + 'w ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH)
+    os.system('pyinstaller.exe -' + type + 'w ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
 
 def compile_executable():
     pyinstaller_compile('F')

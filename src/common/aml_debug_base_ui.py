@@ -80,13 +80,13 @@ class AmlDebugBaseUi(metaclass=ABCMeta):
 
     def check_output_path(self, openPath):
         if not Path(openPath).exists() or openPath == '':
-            self.log.i('check_output_path audio debug path:' + openPath + ' not exist')
+            self.log.i('check_output_path debug path:' + openPath + ' not exist')
             openPath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT
             if not Path(openPath).exists() or openPath == '':
                 self.log.w('check_output_path root path:' + openPath + ' not exist')
                 openPath = os.getcwd()
         else:
-            self.log.i('check_output_path audio debug path:' + openPath + ' exist')
+            self.log.i('check_output_path debug path:' + openPath + ' exist')
         return openPath
 
 
