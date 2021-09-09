@@ -230,6 +230,7 @@ class AmlAudioDebug:
             AmlCommonUtils.zip_compress(zip_src_dir, zip_dst_file)
             shutil.rmtree(zip_src_dir, ignore_errors=True)
             #shutil.move(zip_dst_dir, self.__nowPullPcPath)
+        AmlCommonUtils.generate_snapshot(self.__nowPullPcPath)
 
     def __capture_audio_data_prop_enable(self):
         self.__exe_adb_shell_cmd(self.__adbDumpDataStartLists)

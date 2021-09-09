@@ -197,6 +197,7 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
             self.m_mainUi.AmlDebugMode_groupBox.setEnabled(True)
             self.m_mainUi.AmlDebugHomeCaptureTime_groupBox.setEnabled(True)
             self.m_mainUi.AmlDebugHomeStart_pushButton.setEnabled(True)
+            AmlCommonUtils.generate_snapshot(self.__nowPullPcTimePath)
             self.log.i('######## [All Module] Auto mode capture Finish !!! ############')
         elif self.__m_debugCfg.m_captureMode == AmlParserIniHome.DEBUG_CAPTURE_MODE_MUNUAL:
             self.m_mainUi.AmlDebugHomeStop_pushButton.setEnabled(True)
@@ -209,6 +210,7 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
             if self.__stopFinishCnt[module.m_moduleId] == False and self.__m_debugCfg.m_ModuleEnableArray[module.m_moduleId] == True:
                 self.log.i('__callback_stopFinish: return m_moduleId:' + str(module.m_moduleId))
                 return
+        AmlCommonUtils.generate_snapshot(self.__nowPullPcTimePath)
         self.log.i('######## [All Module] Manual mode capture Finish !!! ############')
         self.m_mainUi.AmlDebugHomeModules_groupBox.setEnabled(True)
         self.m_mainUi.AmlDebugHomeOptions_groupBox.setEnabled(True)

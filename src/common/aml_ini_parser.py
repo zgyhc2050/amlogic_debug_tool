@@ -32,8 +32,8 @@ class AmlParserIniManager:
 
     def initParser(self):
         self.__init_ini_data()
-        with open(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG, 'w+') as self.__iniFile:
-            self.__parser.write(self.__iniFile)
+        with open(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG, 'w+') as file:
+            self.__parser.write(file)
         self.__parser.read(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG)
 
     def __init_ini_data(self):

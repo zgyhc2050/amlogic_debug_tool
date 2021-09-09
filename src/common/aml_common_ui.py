@@ -33,10 +33,12 @@ class AmlCommonUi():
         dialog.setWindowFlags(Qt.WindowStaysOnTopHint)
         dialog.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
         dialog.AmlDebugHelpAboutInfo_Label.setText(
-            'Version: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION +
+            'Version: ' + 'Amlogic Debug Tool ' +AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION +
             '\nCompile user: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE + 
             '\nDate: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE + 
-            '\nCommit: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT)
+            '\nCommit: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT + 
+            '\n晶晨半导体（深圳）有限公司' + 
+            '\nCopyright © 2021 . Amlogic(CA)Co., Inc. All Rights Reserved.')
         dialog.exec_()
 
 class AmlDebugHelpAboutInfo_Dialog(Ui_AmlDebugHelpAboutInfo_Dialog, QDialog):

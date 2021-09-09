@@ -73,6 +73,7 @@ class AmlDebugCecUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugCecCtrlPanel_groupBox.setEnabled(False)
         self.m_mainUi.AmlDebugCecOptions_groupBox.setEnabled(False)
         if homeClick:
+            AmlCommonUtils.generate_snapshot(self.__nowPullPcPath)
             homeCallbackFinish()
         else:
             thread = Thread(target = self.__stop_capture_thread)
@@ -84,6 +85,7 @@ class AmlDebugCecUi(AmlDebugBaseUi):
             AmlCommonUtils.pull_logcat_to_pc(self.__nowPullPcPath)
         if self.__m_bugreportEnable:
             AmlCommonUtils.bugreport(self.__nowPullPcPath)
+        AmlCommonUtils.generate_snapshot(self.__nowPullPcPath)
         self.m_mainUi.AmlDebugCecStart_pushButton.setEnabled(True)
         self.m_mainUi.AmlDebugCecCtrlPanel_groupBox.setEnabled(True)
         self.m_mainUi.AmlDebugCecOptions_groupBox.setEnabled(True)

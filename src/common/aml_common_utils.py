@@ -236,4 +236,23 @@ class AmlCommonUtils():
             except:
                 AmlCommonUtils.log('del_spec_file delete file:' + filePath + ' failed.', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
 
-
+    def generate_snapshot(path):
+        import configparser, getpass, socket
+        from res.script.constant import AmlDebugConstant
+        ini = configparser.ConfigParser()
+        section = 'Software_snapshot'
+        ini.add_section(section)
+        ini.set(section, 'version', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION)
+        ini.set(section, 'compile_user', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE)
+        ini.set(section, 'compile_time', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE)
+        ini.set(section, 'commit_hash', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT)
+        section = 'Current_snapshot'
+        ini.add_section(section)
+        ini.set(section, 'cur_debug_user', getpass.getuser())
+        ini.set(section, 'cur_debug_timezone', str(time.tzname))
+        ini.set(section, 'cur_debug_time', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        hostname = socket.gethostname()
+        ini.set(section, 'cur_debug_host', hostname)
+        ini.set(section, 'cur_debug_ip', socket.gethostbyname(hostname))
+        with open(path + '\\snapshot.ini', 'w+') as file:
+            ini.write(file)
