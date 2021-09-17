@@ -424,7 +424,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Capture Time(s)</string>
+       <string>Capture Time</string>
       </property>
       <widget class="QSpinBox" name="AmlDebugHomeCaptureTime_spinBox">
        <property name="enabled">
@@ -763,7 +763,7 @@ directory</string>
        </rect>
       </property>
       <property name="title">
-       <string>Capture Time(s)</string>
+       <string>Capture Time</string>
       </property>
       <widget class="QSpinBox" name="AmlAudioCaptureTime_spinBox">
        <property name="enabled">

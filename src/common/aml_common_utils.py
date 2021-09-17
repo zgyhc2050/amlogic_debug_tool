@@ -142,7 +142,7 @@ class AmlCommonUtils():
         connect_ip_cmd = 'adb connect ' + ip
         ret = AmlCommonUtils.exe_sys_cmd(connect_ip_cmd, True)
         if 'connected to ' + ip not in ret:
-            AmlCommonUtils.log('adb connect ip:' + ip + 'failed !!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
+            AmlCommonUtils.log('adb connect ip:' + ip + ' failed !!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_E)
             return ''
         dev_name = ''
         dev_list = AmlCommonUtils.get_adb_devices()
@@ -182,11 +182,8 @@ class AmlCommonUtils():
                     AmlCommonUtils.log(temp_str, AmlCommonUtils.AML_DEBUG_LOG_LEVEL_V)
             proc.wait()
             proc.stdout.close()
-            if bprint == True:
-                if proc.returncode == RET_VAL_SUCCESS:
-                    AmlCommonUtils.log(cmd + ' --> Success')
-                else:
-                    AmlCommonUtils.log(cmd + ' --> Failed' + ', ret:'+ str(proc.returncode), AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
+            if proc.returncode != RET_VAL_SUCCESS:
+                AmlCommonUtils.log(cmd + ' --> Failed' + ', ret:'+ str(proc.returncode), AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
             return ret
         except:
             AmlCommonUtils.log(cmd + ' --> Exception happend!!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
@@ -202,7 +199,8 @@ class AmlCommonUtils():
             # The i=0 first line is not adb device id.
             if i > 0 and dev != '':
                 id = dev.split()[0]
-                devs_list.append(id)
+                if id != '*':
+                    devs_list.append(id)
                 # print('id:' + id)
             i += 1
         return devs_list

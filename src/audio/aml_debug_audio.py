@@ -223,6 +223,7 @@ class AmlAudioDebug:
                 continue
             exeCmdStr = 'pull ' + dumpFile + ' ' + self.__nowPullPcPath
             AmlCommonUtils.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable)
+        AmlCommonUtils.generate_snapshot(self.__nowPullPcPath)
         if self.__debugCfg.m_createZipFile:
             zip_src_dir = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime
             zip_dst_file = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
@@ -230,7 +231,6 @@ class AmlAudioDebug:
             AmlCommonUtils.zip_compress(zip_src_dir, zip_dst_file)
             shutil.rmtree(zip_src_dir, ignore_errors=True)
             #shutil.move(zip_dst_dir, self.__nowPullPcPath)
-        AmlCommonUtils.generate_snapshot(self.__nowPullPcPath)
 
     def __capture_audio_data_prop_enable(self):
         self.__exe_adb_shell_cmd(self.__adbDumpDataStartLists)

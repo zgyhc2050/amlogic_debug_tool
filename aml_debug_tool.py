@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from src.common.aml_ini_parser import amlParserIniContainer
+from res.script.constant import AmlDebugConstant
 from src.common.aml_common_utils import AmlCommonUtils
 from src.common.aml_debug_base_ui import AmlDebugModule
 
@@ -47,6 +48,6 @@ if __name__ == '__main__':
     amlParserIniContainer.initParser()
     ui = AmlDebugUi()
     ui.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
-    ui.setWindowTitle("Amlogic Debug Tool")
+    ui.setWindowTitle("Amlogic Debug Tool v" + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION)
     ui.show()
     sys.exit(app.exec_())

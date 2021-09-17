@@ -88,7 +88,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         self.__pushFilesToSoc(self.m_mainUi.AmlSystemPushMs12Src_lineEdit.text() + '\\libdolbyms12.so', self.m_mainUi.AmlSystemPushMs12Dst_lineEdit.text())
 
     def __click_push_custom(self, i):
-        self.log.i('push i:' + str(i))
+        #self.log.i('push i:' + str(i))
         self.__pushFilesToSoc(eval('self.m_mainUi.AmlSystemPushCustom' + str(i) + 'Src_lineEdit').text(), eval('self.m_mainUi.AmlSystemPushCustom' + str(i) + 'Dst_lineEdit').text())
 
     def __click_pull_custom(self, i):
