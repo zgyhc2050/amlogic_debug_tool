@@ -35,6 +35,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugAudioOptionsDebug_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_DEBUG_INFO))
         self.m_mainUi.AmlDebugAudioOptionsDump_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_DUMP_DATA))
         self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_LOGCAT))
+        self.m_mainUi.AmlDebugAudioOptionsTombstone_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_TOMBSTONE))
         self.m_mainUi.AmlDebugAudioPrintDebugEnable_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG))
         self.m_mainUi.AmlAudioCaptureTime_spinBox.setValue(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME))
         self.m_mainUi.AmlDebugAudioCreateZipEnable_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP))
@@ -49,6 +50,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_mainUi.AmlAudioDebugPlayAudioRate_comboBox.setCurrentText(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE))
         self.__refresh_PlayAudioSelectChannelUi()
         self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.setText(self.m_iniPaser.getValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH))
+        self.m_mainUi.AmlAudioDebugPlayAudioDescription_Label.setOpenExternalLinks(True) 
 
     def signals_connect_slots(self):
         self.m_mainUi.AmlDebugAudioModeAuto_radioButton.clicked.connect(self.__click_auto_mode)
@@ -58,6 +60,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugAudioOptionsDebug_checkBox.clicked[bool].connect(self.__click_Debug)
         self.m_mainUi.AmlDebugAudioOptionsDump_checkBox.clicked[bool].connect(self.__click_Dump)
         self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.clicked[bool].connect(self.__click_Logcat)
+        self.m_mainUi.AmlDebugAudioOptionsTombstone_checkBox.clicked[bool].connect(self.__click_Tombstone)
         self.m_mainUi.AmlAudioCaptureTime_spinBox.valueChanged[int].connect(self.__changed_CaptureTime)
         self.m_mainUi.AmlDebugAudioPrintDebugEnable_checkBox.clicked[bool].connect(self.__click_PrintDebugEnable)
         self.m_mainUi.AmlDebugAudioCreateZipEnable_checkBox.clicked[bool].connect(self.__click_CreateZipEnable)
@@ -111,9 +114,9 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
     def __click_Dump(self, enable):
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_DUMP_DATA, enable)
     def __click_Logcat(self, enable):
-        if enable:
-            self.m_mainUi.AmlDebugHomeOptionsLogcat_checkBox.setChecked(True)
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_LOGCAT, enable)
+    def __click_Tombstone(self, enable):
+        self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_TOMBSTONE, enable)
     def __changed_CaptureTime(self, value):
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME, value)
     def __click_PrintDebugEnable(self, enable):
@@ -154,6 +157,8 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         curPath = self.audioDebug.getCurDebugPath()
         os.startfile(self.check_output_path(curPath))
 
+    def get_tombstone_enable(self):
+        return self.m_mainUi.AmlDebugAudioOptionsTombstone_checkBox.isChecked()
     def get_logcat_enable(self):
         return self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.isChecked()
 
@@ -213,6 +218,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.audioDebugcfg.m_debugInfoEnable = self.m_mainUi.AmlDebugAudioOptionsDebug_checkBox.isChecked()
         self.audioDebugcfg.m_dumpDataEnable = self.m_mainUi.AmlDebugAudioOptionsDump_checkBox.isChecked()
         self.audioDebugcfg.m_logcatEnable = self.m_mainUi.AmlDebugAudioOptionsLogcat_checkBox.isChecked()
+        self.audioDebugcfg.m_tombstoneEnable = self.m_mainUi.AmlDebugAudioOptionsTombstone_checkBox.isChecked()
         self.audioDebugcfg.m_autoDebugTimeS = self.m_mainUi.AmlAudioCaptureTime_spinBox.value()
         self.audioDebugcfg.m_printDebugEnable = self.m_mainUi.AmlDebugAudioPrintDebugEnable_checkBox.isChecked()
         self.audioDebugcfg.m_createZipFile = self.m_mainUi.AmlDebugAudioCreateZipEnable_checkBox.isChecked()

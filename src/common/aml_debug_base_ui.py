@@ -68,6 +68,8 @@ class AmlDebugBaseUi(metaclass=ABCMeta):
         return False
     def get_dmesg_enable(self):
         return False
+    def get_tombstone_enable(self):
+        return False
 
     def state_to_bool(self, state):
         if state == Qt.CheckState.Checked:

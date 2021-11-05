@@ -123,6 +123,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
             timeCntS -= 1
         AmlCommonUtils.adb_root()
         AmlCommonUtils.adb_remount()
+        AmlCommonUtils.adb_reboot()
         self.m_mainUi.AmlSystemCloseAvb_Button.setEnabled(True)
 
     def __finished_PushDolbySrc(self):

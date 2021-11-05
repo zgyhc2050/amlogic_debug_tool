@@ -22,6 +22,8 @@ class AmlCommonUtils():
     AML_DEBUG_DIRECOTRY_ROOT                    = "d:\\aml_debug"
     AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT         = '/data/logcat.txt'
     AML_DEBUG_PLATFORM_DIRECOTRY_DMESG          = '/data/dmesg.txt'
+    AML_DEBUG_PLATFORM_DIRECOTRY_TOMBSTONE      = '/data/tombstones/' 
+    AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO    = '/data/common_info.txt' 
     AML_DEBUG_TOOL_ICO_PATH                     = ':/debug.ico'
     AML_DEBUG_DIRECOTRY_CONFIG                  = AML_DEBUG_DIRECOTRY_ROOT + '\\config.ini'
     moduleDirPathDict = {
@@ -119,6 +121,18 @@ class AmlCommonUtils():
     def pull_logcat_to_pc(pc_path):
         AmlCommonUtils.exe_adb_cmd('pull "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT + '" ' + pc_path, True)
 
+    def pull_tombstones_to_pc(pc_path):
+        AmlCommonUtils.exe_adb_cmd('pull "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_TOMBSTONE + '" ' + pc_path, True)
+
+    def pull_common_info_to_pc(pc_path):
+        AmlCommonUtils.exe_adb_cmd('pull "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO + '" ' + pc_path, True)
+
+    def cap_common_debug_info(pc_path):
+        AmlCommonUtils.exe_adb_shell_cmd('echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ >> "' 
+            + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO)
+        AmlCommonUtils.exe_adb_shell_cmd('date >> "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO)
+        AmlCommonUtils.exe_adb_shell_cmd('ps -ef >> "' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO)
+
     def bugreport(path):
         AmlCommonUtils.log('Start bugreport+++++', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
         AmlCommonUtils.exe_adb_cmd('bugreport ' + path, True)
@@ -158,6 +172,9 @@ class AmlCommonUtils():
         AmlCommonUtils.exe_sys_cmd(connect_ip_cmd, True)
         AmlCommonUtils.adb_remount()
         return dev_name
+
+    def exe_adb_shell_getprop_cmd(cmd, bprint=False):
+        return AmlCommonUtils.exe_adb_cmd('shell getprop "' + cmd + '"', bprint)
 
     def exe_adb_shell_cmd(cmd, bprint=False):
         return AmlCommonUtils.exe_adb_cmd('shell "' + cmd + '"', bprint)
@@ -238,13 +255,15 @@ class AmlCommonUtils():
         import configparser, getpass, socket
         from res.script.constant import AmlDebugConstant
         ini = configparser.ConfigParser()
-        section = 'Software_snapshot'
+
+        section = 'Amlogic_debug_tool_snapshot'
         ini.add_section(section)
         ini.set(section, 'version', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION)
         ini.set(section, 'compile_user', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE)
         ini.set(section, 'compile_time', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE)
         ini.set(section, 'commit_hash', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT)
-        section = 'Current_snapshot'
+
+        section = 'PC_snapshot'
         ini.add_section(section)
         ini.set(section, 'cur_debug_user', getpass.getuser())
         ini.set(section, 'cur_debug_timezone', str(time.tzname))
@@ -252,5 +271,13 @@ class AmlCommonUtils():
         hostname = socket.gethostname()
         ini.set(section, 'cur_debug_host', hostname)
         ini.set(section, 'cur_debug_ip', socket.gethostbyname(hostname))
+
+        section = 'debug_platform_snapshot'
+        ini.add_section(section)
+        ini.set(section, 'soc_product', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.product').replace('\n', ''))
+        ini.set(section, 'android_api', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.version.sdk').replace('\n', ''))
+        ini.set(section, 'system_build_version', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.fingerprint').replace('\n', ''))
+        ini.set(section, 'cur_platform_date', AmlCommonUtils.exe_adb_shell_cmd('date').replace('\n', ''))
+
         with open(path + '\\snapshot.ini', 'w+') as file:
             ini.write(file)

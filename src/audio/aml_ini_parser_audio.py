@@ -10,6 +10,7 @@ class AmlParserIniAudio(AmlParserIniBase):
     AML_PARSER_AUDIO_DEBUG_INFO                     = "debug_info"
     AML_PARSER_AUDIO_DUMP_DATA                      = "dump_data"
     AML_PARSER_AUDIO_LOGCAT                         = "logcat"
+    AML_PARSER_AUDIO_TOMBSTONE                      = "tombstone"
     AML_PARSER_AUDIO_CAPTURE_TIME                   = "captrue_time"
     AML_PARSER_AUDIO_PRINT_DEBUG                    = "print_debug"
     AML_PARSER_AUDIO_CREATE_ZIP                     = "create_zip"
@@ -32,6 +33,7 @@ class AmlParserIniAudio(AmlParserIniBase):
             AmlParserIniAudio.AML_PARSER_AUDIO_CAPTURE_TIME      : str(AmlAudioDebug.DEFAULT_AUTO_MODE_DUMP_TIME_S),
             AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG       : 'Flase',
             AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP        : 'Flase',
+            AmlParserIniAudio.AML_PARSER_AUDIO_TOMBSTONE         : 'Flase',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL: '2',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE   : '2',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE   : '48000',
@@ -47,7 +49,8 @@ class AmlParserIniAudio(AmlParserIniBase):
             key == AmlParserIniAudio.AML_PARSER_AUDIO_DUMP_DATA or          \
             key == AmlParserIniAudio.AML_PARSER_AUDIO_LOGCAT or             \
             key == AmlParserIniAudio.AML_PARSER_AUDIO_PRINT_DEBUG or        \
-            key == AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP :
+            key == AmlParserIniAudio.AML_PARSER_AUDIO_CREATE_ZIP or        \
+            key == AmlParserIniAudio.AML_PARSER_AUDIO_TOMBSTONE :
             return self.getBoolValueByKey(key)
         else :
             return self.getStrValueByKey(key)

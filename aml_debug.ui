@@ -346,9 +346,9 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QCheckBox" name="AmlDebugHomeOptionsOther1_checkBox">
+      <widget class="QCheckBox" name="AmlDebugHomeOptionsTombstone_checkBox">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -359,7 +359,10 @@
         </rect>
        </property>
        <property name="text">
-        <string>Other</string>
+        <string>Tombstone</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -392,7 +395,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>80</y>
+        <y>100</y>
         <width>111</width>
         <height>41</height>
        </rect>
@@ -405,7 +408,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>20</y>
+        <y>40</y>
         <width>111</width>
         <height>41</height>
        </rect>
@@ -570,6 +573,19 @@
 directory</string>
       </property>
      </widget>
+     <widget class="QLabel" name="AmlDebugHomeUserManual_Lab">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>0</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;https://confluence.amlogic.com/pages/viewpage.action?pageId=115276808&amp;amp;preview=/115276808/128910563/Amlogic%20debug%E5%B7%A5%E5%85%B7%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C.pdf&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#ff0000;&quot;&gt;User's Manual&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
      <zorder>groupBox_2</zorder>
      <zorder>AmlDebugHomeModules_groupBox</zorder>
      <zorder>AmlDebugMode_groupBox</zorder>
@@ -578,6 +594,7 @@ directory</string>
      <zorder>AmlDebugHomeStart_pushButton</zorder>
      <zorder>AmlDebugHomeCaptureTime_groupBox</zorder>
      <zorder>AmlDebugHomeOpenOutput_pushButton</zorder>
+     <zorder>AmlDebugHomeUserManual_Lab</zorder>
     </widget>
     <widget class="QWidget" name="AmlDebugAudio_tab">
      <attribute name="title">
@@ -586,7 +603,7 @@ directory</string>
      <widget class="QPushButton" name="AmlDebugAudioStart_pushButton">
       <property name="geometry">
        <rect>
-        <x>590</x>
+        <x>700</x>
         <y>20</y>
         <width>111</width>
         <height>41</height>
@@ -650,7 +667,7 @@ directory</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>590</x>
+        <x>700</x>
         <y>80</y>
         <width>111</width>
         <height>41</height>
@@ -665,7 +682,7 @@ directory</string>
        <rect>
         <x>110</x>
         <y>0</y>
-        <width>131</width>
+        <width>231</width>
         <height>131</height>
        </rect>
       </property>
@@ -726,11 +743,33 @@ directory</string>
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QCheckBox" name="AmlDebugAudioOptionsTombstone_checkBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Tombstone</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="AmlDebugAudioPrintDebug_groupBox">
       <property name="geometry">
        <rect>
-        <x>240</x>
+        <x>360</x>
         <y>70</y>
         <width>131</width>
         <height>61</height>
@@ -756,7 +795,7 @@ directory</string>
      <widget class="QGroupBox" name="AmlDebugAudioCaptureTime_groupBox">
       <property name="geometry">
        <rect>
-        <x>240</x>
+        <x>360</x>
         <y>0</y>
         <width>131</width>
         <height>71</height>
@@ -804,7 +843,7 @@ directory</string>
      <widget class="QCheckBox" name="AmlDebugAudioCreateZipEnable_checkBox">
       <property name="geometry">
        <rect>
-        <x>410</x>
+        <x>510</x>
         <y>10</y>
         <width>101</width>
         <height>31</height>
@@ -970,6 +1009,19 @@ directory</string>
        </property>
        <property name="text">
         <string>Play</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="AmlAudioDebugPlayAudioDescription_Label">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>100</y>
+         <width>271</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;dump Manual: &lt;a href=&quot;https://confluence.amlogic.com/pages/viewpage.action?pageId=115276808&amp;amp;preview=/115276808/128910563/Amlogic%20debug%E5%B7%A5%E5%85%B7%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;使用手册--2.1.7&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>
@@ -1959,7 +2011,7 @@ directory</string>
        <rect>
         <x>840</x>
         <y>10</y>
-        <width>91</width>
+        <width>101</width>
         <height>141</height>
        </rect>
       </property>
@@ -1971,7 +2023,7 @@ directory</string>
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>75</width>
+         <width>81</width>
          <height>31</height>
         </rect>
        </property>
@@ -1984,7 +2036,7 @@ directory</string>
         <rect>
          <x>10</x>
          <y>60</y>
-         <width>75</width>
+         <width>81</width>
          <height>31</height>
         </rect>
        </property>
@@ -1997,7 +2049,7 @@ directory</string>
         <rect>
          <x>10</x>
          <y>100</y>
-         <width>75</width>
+         <width>81</width>
          <height>31</height>
         </rect>
        </property>
@@ -2045,6 +2097,7 @@ p, li { white-space: pre-wrap; }
     </widget>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -2062,7 +2115,6 @@ p, li { white-space: pre-wrap; }
    </widget>
    <addaction name="menuAbout"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="AmlDebug_actionAbout">
    <property name="text">
     <string>About</string>

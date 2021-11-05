@@ -50,6 +50,7 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugHomeOptionsBugreport_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniHome.AML_PARSER_HOME_BUGREPORT))
         self.m_mainUi.AmlDebugHomeOptionsDmesg_checkBox.setChecked(self.m_iniPaser.getValueByKey(AmlParserIniHome.AML_PARSER_HOME_DMESG))
         self.m_mainUi.AmlDebugHomeAdbDevIp_lineEdit.setText(self.m_iniPaser.getValueByKey(AmlParserIniHome.AML_PARSER_HOME_IP_ADDRESS))
+        self.m_mainUi.AmlDebugHomeUserManual_Lab.setOpenExternalLinks(True) 
 
     def signals_connect_slots(self):
         self.m_mainUi.AmlDebugHomeModeAuto_radioButton.clicked.connect(self.__click_auto_mode)
