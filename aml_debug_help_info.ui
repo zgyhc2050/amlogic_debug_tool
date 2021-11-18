@@ -6,33 +6,33 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>222</height>
+    <width>517</width>
+    <height>313</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Amlogic Debug Tool</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="AmlDebugHelpAboutCancel_pushButton">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>170</y>
-     <width>93</width>
+     <x>280</x>
+     <y>240</y>
+     <width>101</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>Ok</string>
+    <string>Close</string>
    </property>
   </widget>
   <widget class="QLabel" name="AmlDebugHelpAboutInfo_Label">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>351</width>
-     <height>151</height>
+     <x>30</x>
+     <y>20</y>
+     <width>471</width>
+     <height>141</height>
     </rect>
    </property>
    <property name="text">
@@ -42,11 +42,50 @@
     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
    </property>
   </widget>
+  <widget class="QLabel" name="AmlDebugHelpAboutUpdate_Label">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>200</y>
+     <width>301</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;check for updates.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="AmlDebugHelpAboutUpdateNow_pushButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>240</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Update Now</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="AmlDebugHelpAboutCheckUpdate_pushButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>200</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Check For Updates</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>AmlDebugHelpAboutCancel_pushButton</sender>
    <signal>clicked()</signal>
    <receiver>AmlDebugHelpAboutInfo_Dialog</receiver>
    <slot>accept()</slot>

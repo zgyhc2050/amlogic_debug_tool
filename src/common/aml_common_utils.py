@@ -1,9 +1,10 @@
-import time, threading, os, math
+import time, threading, os, math, sys
 from pathlib import Path
 import subprocess
 import zipfile
 import shutil
-
+import configparser, getpass, socket
+from res.script.constant import AmlDebugConstant
 
 RET_VAL_SUCCESS         = 0
 RET_VAL_FAIL            = -1
@@ -20,6 +21,7 @@ class AmlCommonUtils():
     AML_DEBUG_MODULE_MAX                        = AML_DEBUG_MODULE_SYS_OPERATION + 1
 
     AML_DEBUG_DIRECOTRY_ROOT                    = "d:\\aml_debug"
+    AML_DEBUG_TOOL_NAME_EXE                     = 'aml_debug_tool.exe'
     AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT         = '/data/logcat.txt'
     AML_DEBUG_PLATFORM_DIRECOTRY_DMESG          = '/data/dmesg.txt'
     AML_DEBUG_PLATFORM_DIRECOTRY_TOMBSTONE      = '/data/tombstones/' 
@@ -31,6 +33,10 @@ class AmlCommonUtils():
         AML_DEBUG_MODULE_VIDEO    :   'video',
         AML_DEBUG_MODULE_CEC      :   'cec',
     }
+
+    AML_DEBUG_TOOL_EXE_SERVER_PATH              = '\\\\10.28.49.68\\amlogic debug tool\\'
+    AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME        = 'online_updater.exe'
+    AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME        = 'aml_debug_tool_version.ini'
 
     AML_DEBUG_LOG_LEVEL_V                       = 'V'
     AML_DEBUG_LOG_LEVEL_D                       = 'D'
@@ -252,8 +258,6 @@ class AmlCommonUtils():
                 AmlCommonUtils.log('del_spec_file delete file:' + filePath + ' failed.', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
 
     def generate_snapshot(path):
-        import configparser, getpass, socket
-        from res.script.constant import AmlDebugConstant
         ini = configparser.ConfigParser()
 
         section = 'Amlogic_debug_tool_snapshot'
@@ -275,9 +279,73 @@ class AmlCommonUtils():
         section = 'debug_platform_snapshot'
         ini.add_section(section)
         ini.set(section, 'soc_product', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.product').replace('\n', ''))
+        ini.set(section, 'build_date', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.date').replace('\n', ''))
         ini.set(section, 'android_api', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.version.sdk').replace('\n', ''))
         ini.set(section, 'system_build_version', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.fingerprint').replace('\n', ''))
         ini.set(section, 'cur_platform_date', AmlCommonUtils.exe_adb_shell_cmd('date').replace('\n', ''))
 
         with open(path + '\\snapshot.ini', 'w+') as file:
             ini.write(file)
+
+    def check_for_updates():
+        upgrade_exe_file_path_server = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_NAME_EXE
+        upgrade_version_file_path_server = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME
+        upgrade_online_updater_file_path = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME
+        if os.path.isdir(AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH):
+            print('is dir')
+        else:
+            print('not dir')
+        # try:
+        #     if not Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH).exists():
+        #         AmlCommonUtils.log('[check_for_updates] Connect server failed!')
+        #         return -1, ''
+        # except:
+        #     AmlCommonUtils.log('[check_for_updates 1] An except occurs.')
+        #     return -1, ''
+        try:
+            if not Path(upgrade_exe_file_path_server).exists():
+                AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_NAME_EXE + ' not exists')
+                return -1, ''
+            if not Path(upgrade_version_file_path_server).exists():
+                AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME + ' not exists')
+                return -1, ''
+            if not Path(upgrade_online_updater_file_path).exists():
+                AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME + ' not exists')
+                return -1, ''
+        except:
+            AmlCommonUtils.log('[check_for_updates 2] An except occurs.')
+            return -1, ''
+
+        ini = configparser.ConfigParser()
+        ini.read(upgrade_version_file_path_server)
+        server_version = ini['AMLOGIC']['version']
+        server_version_array = server_version.split('.')
+        cur_version_array = AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION.split('.')
+        if len(server_version_array) != len(cur_version_array):
+            AmlCommonUtils.log('[check_for_updates] version invalid, cur:' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION + ', server:' + server_version)
+            return -1, ''
+        for i, val in enumerate(server_version_array):
+            # AmlCommonUtils.log('[check_for_updates] ' + 'i:' + str(i) + ',server:' + server_version_array[i] + ', cur:' + cur_version_array[i])
+            if int(server_version_array[i]) > int(cur_version_array[i]):
+                AmlCommonUtils.log('[check_for_updates] You can update the software to version:' + server_version)
+                return 1, server_version
+            elif int(server_version_array[i]) == int(cur_version_array[i]):
+                continue
+            else :
+                break
+        AmlCommonUtils.log('[check_for_updates] Your software is up to date!')
+        return 0, ''
+
+    def update_tool_now():
+        upgrade_online_updater_file_path = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME
+        try:
+            os.system('copy "' + upgrade_online_updater_file_path +  '" .\\')
+        except:
+            AmlCommonUtils.log('[update_tool_now] An except occurs.')
+        proc = subprocess.Popen(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME + ' ' + AmlDebugConstant.AML_DEBUG_TOOL_COMPILE_EXE_TYPE, \
+            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+        proc.stdin.close()
+        proc.stdout.close()
+        AmlCommonUtils.log('Upgrade is starting')
+        sys.exit(0)
+        

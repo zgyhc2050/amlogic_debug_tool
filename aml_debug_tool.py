@@ -45,9 +45,18 @@ if __name__ == '__main__':
     if not Path(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT).exists():
         print(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
         os.makedirs(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT, 777)
+    if Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME).exists():
+        os.remove(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME)
     amlParserIniContainer.initParser()
     ui = AmlDebugUi()
+    
     ui.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
     ui.setWindowTitle("Amlogic Debug Tool v" + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION)
     ui.show()
+    ret, version = AmlCommonUtils.check_for_updates()
+    if ret == 1:
+        reply = QMessageBox.question(ui, 'Online updater', 'There is new version: ' + version + '.\n Update now?  ', 
+        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            AmlCommonUtils.update_tool_now()
     sys.exit(app.exec_())

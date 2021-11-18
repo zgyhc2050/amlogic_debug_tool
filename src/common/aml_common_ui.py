@@ -45,3 +45,20 @@ class AmlDebugHelpAboutInfo_Dialog(Ui_AmlDebugHelpAboutInfo_Dialog, QDialog):
     def __init__(self):
         super(AmlDebugHelpAboutInfo_Dialog, self).__init__()
         super().setupUi(self)
+        self.AmlDebugHelpAboutCheckUpdate_pushButton.clicked.connect(self.__check_for_updates)
+        self.AmlDebugHelpAboutUpdateNow_pushButton.clicked.connect(self.__update_now)
+        self.AmlDebugHelpAboutUpdateNow_pushButton.setVisible(False)
+        self.AmlDebugHelpAboutUpdate_Label.setText('')
+
+    def __check_for_updates(self):
+        ret, version = AmlCommonUtils.check_for_updates()
+        if ret == 1:
+            self.AmlDebugHelpAboutUpdate_Label.setText('There is a new version: ' + version)
+            self.AmlDebugHelpAboutUpdateNow_pushButton.setVisible(True)
+        elif ret == -1:
+            self.AmlDebugHelpAboutUpdate_Label.setText('Connect server failed!')
+        elif ret == 0:
+            self.AmlDebugHelpAboutUpdate_Label.setText('Your software is up to date.')
+
+    def __update_now(self):
+        AmlCommonUtils.update_tool_now()

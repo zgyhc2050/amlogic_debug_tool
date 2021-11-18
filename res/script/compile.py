@@ -8,20 +8,25 @@ AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH = './aml_debug_tool.py'
 
 COMPILE_EXE_USER_NAME = getpass.getuser()
 COMPILE_EXE_USER_TIME = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-COMPILE_EXE_VERSION   = '1.2.9'
+COMPILE_EXE_VERSION   = '1.3.0'
 COMPILE_EXE_COMMIT    = ''
+COMPILE_EXE_TYPE_EXE        = 'executable'
+COMPILE_EXE_TYPE_INSTALLER  = 'installer'
+
 
 AML_DEBUG_TOOL_BASE_ROW                     = 2
 AML_DEBUG_TOOL_ABOUT_VERSION_ROW            = AML_DEBUG_TOOL_BASE_ROW + 1
 AML_DEBUG_TOOL_ABOUT_USERE_ROW              = AML_DEBUG_TOOL_BASE_ROW + 2
 AML_DEBUG_TOOL_ABOUT_DATE_ROW               = AML_DEBUG_TOOL_BASE_ROW + 3
 AML_DEBUG_TOOL_ABOUT_COMMIT_ROW             = AML_DEBUG_TOOL_BASE_ROW + 4
+AML_DEBUG_TOOL_COMPILE_EXE_TYPE_EXECUTABLE_ROW  = AML_DEBUG_TOOL_BASE_ROW + 5
+AML_DEBUG_TOOL_COMPILE_EXE_TYPE_INSTALLER_ROW   = AML_DEBUG_TOOL_BASE_ROW + 6
+AML_DEBUG_TOOL_COMPILE_EXE_TYPE_ROW             = AML_DEBUG_TOOL_BASE_ROW + 7
 
-def generating_version_info():
+def generating_version_info(compile_type):
+    print('[generating_version_info] compile_type:' + compile_type)
     read_constant_py = open('./res/script/constant.py', 'r', encoding = 'utf-8')
     temp_write_constant_py = open('./res/script/constant_temp.py', 'w', encoding = 'utf-8')
-
-
     with open('./.git/FETCH_HEAD', 'r') as git_commit_hash:
         COMPILE_EXE_COMMIT = git_commit_hash.read(7)
     row_num = 0
@@ -35,6 +40,12 @@ def generating_version_info():
             raw_str = "    AML_DEBUG_TOOL_ABOUT_DATE               = '" + COMPILE_EXE_USER_TIME + "'\n"
         elif row_num == AML_DEBUG_TOOL_ABOUT_COMMIT_ROW:
             raw_str = "    AML_DEBUG_TOOL_ABOUT_COMMIT             = '" + COMPILE_EXE_COMMIT + " (not included this time)'\n"
+        elif row_num == AML_DEBUG_TOOL_COMPILE_EXE_TYPE_EXECUTABLE_ROW:
+            raw_str = "    AML_DEBUG_TOOL_COMPILE_EXE_TYPE_EXECUTABLE   = '" + COMPILE_EXE_TYPE_EXE + "'\n"
+        elif row_num == AML_DEBUG_TOOL_COMPILE_EXE_TYPE_INSTALLER_ROW:
+            raw_str = "    AML_DEBUG_TOOL_COMPILE_EXE_TYPE_INSTALLER    = '" + COMPILE_EXE_TYPE_INSTALLER + "'\n"
+        elif row_num == AML_DEBUG_TOOL_COMPILE_EXE_TYPE_ROW:
+            raw_str = "    AML_DEBUG_TOOL_COMPILE_EXE_TYPE              = '" + compile_type + "'\n"
         temp_write_constant_py.write(raw_str)
     read_constant_py.close()
     temp_write_constant_py.close()
@@ -55,13 +66,19 @@ def generating_version_info():
     os.rename('./res/tool/compile_temp.nsi', './res/tool/compile.nsi')
 
 def pyinstaller_compile(type):
+    print('pyinstaller.exe -' + type + 'w ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
     os.system('pyinstaller.exe -' + type + 'w ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
+    # print('pyinstaller.exe -' + type + ' ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
+    # os.system('pyinstaller.exe -' + type + ' ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
 
 def compile_executable():
+    generating_version_info(COMPILE_EXE_TYPE_EXE)
     pyinstaller_compile('F')
 
 def compile_installation_package():
+    generating_version_info(COMPILE_EXE_TYPE_INSTALLER)
     pyinstaller_compile('D')
+    print('"' + NSIS_COMPILE_EXE_PATH + '" ' + COMPILE_SCRIPT_EXE_ICO_PATH)
     os.system('"' + NSIS_COMPILE_EXE_PATH + '" ' + COMPILE_SCRIPT_EXE_ICO_PATH)
     if os.path.exists('./res/tool/Amlogic Debug Setup.exe'):
         if os.path.exists('./dist/Amlogic Debug Setup.exe'):
@@ -121,8 +138,6 @@ def main(argv):
             return
         if option in ('-t', '--target'):
             target = value
-
-    generating_version_info()
     compile(target)
 
 if __name__ == '__main__':

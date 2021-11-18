@@ -57,9 +57,9 @@ class AmlAudioDebug:
 
         self.__adbDumpDataClearCmdLists = [
             'setenforce 0',
-            'touch /data/audio_spk.pcm /data/audio_dtv.pcm',
+            'touch /data/audio_spk.pcm /data/audio_dtv.pcm /data/alsa_pcm_write.pcm',
             'mkdir /data/audio /data/audio_out /data/vendor/audiohal/ -p',
-            'chmod 777 /data/audio /data/audio_out /data/vendor/audiohal/ /data/audio_spk.pcm /data/audio_dtv.pcm',
+            'chmod 777 /data/audio /data/audio_out /data/vendor/audiohal/ /data/audio_spk.pcm /data/audio_dtv.pcm /data/alsa_pcm_write.pcm',
             'rm /data/audio/* /data/vendor/audiohal/* -rf',
             'rm ' + self.__dumpCmdOutFilePath + ' -rf',
             'rm ' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO + ' -rf',
