@@ -83,8 +83,14 @@ class AmlParserIniBase(metaclass=ABCMeta):
         val = self.getStrValueByKey(key)
         if val == 'True' or val == '1' or val == 'true':
             return True
-        else :
+        else:
             return False
+
+    def setBoolValueByKey(self, key, val):
+        if val:
+            self.setStrValueByKey(key, 'True')
+        else:
+            self.setStrValueByKey(key, 'False')
 
     def setStrValueByKey(self, key, value):
         with open(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG, 'w+') as file:

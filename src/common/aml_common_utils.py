@@ -291,18 +291,10 @@ class AmlCommonUtils():
         upgrade_exe_file_path_server = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_NAME_EXE
         upgrade_version_file_path_server = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME
         upgrade_online_updater_file_path = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME
-        if os.path.isdir(AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH):
-            print('is dir')
-        else:
-            print('not dir')
-        # try:
-        #     if not Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH).exists():
-        #         AmlCommonUtils.log('[check_for_updates] Connect server failed!')
-        #         return -1, ''
-        # except:
-        #     AmlCommonUtils.log('[check_for_updates 1] An except occurs.')
-        #     return -1, ''
         try:
+            if not Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH).exists():
+                AmlCommonUtils.log('[check_for_updates] Connect server failed!')
+                return -1, ''
             if not Path(upgrade_exe_file_path_server).exists():
                 AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_NAME_EXE + ' not exists')
                 return -1, ''
@@ -313,7 +305,7 @@ class AmlCommonUtils():
                 AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME + ' not exists')
                 return -1, ''
         except:
-            AmlCommonUtils.log('[check_for_updates 2] An except occurs.')
+            AmlCommonUtils.log('[check_for_updates] An except occurs.')
             return -1, ''
 
         ini = configparser.ConfigParser()

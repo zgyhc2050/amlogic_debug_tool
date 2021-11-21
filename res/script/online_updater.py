@@ -19,6 +19,47 @@ if __name__ == '__main__':
         exe_type = sys.argv[1]
         print('[online_updater] cur soft exe type:' + exe_type)
 
+##########################delete old ini key##################################
+    import configparser
+    from pathlib import Path
+    oldIniKey = [
+        'push_dolby_src_path',
+        'push_dts_src_path',
+        'push_ms12_src_path',
+        'push_dolbydts_dst_path',
+        'push_ms12_dst_path',
+        'push_custom1_src_path',
+        'push_custom2_src_path',
+        'push_custom3_src_path',
+        'push_custom4_src_path',
+        'push_custom5_src_path',
+        'push_custom1_dst_path',
+        'push_custom2_dst_path',
+        'push_custom3_dst_path',
+        'push_custom4_dst_path',
+        'push_custom5_dst_path',
+        'pull_custom1_src_path',
+        'pull_custom2_src_path',
+        'pull_custom3_src_path',
+        'pull_custom4_src_path',
+        'pull_custom1_dst_path',
+        'pull_custom2_dst_path',
+        'pull_custom3_dst_path',
+        'pull_custom4_dst_path',
+    ]
+    try:
+        PATH_INI = 'd:\\aml_debug\\config.ini'
+        if Path(PATH_INI).exists():
+            parser = configparser.ConfigParser()
+            parser.read(PATH_INI)
+            for key in oldIniKey:
+                parser.remove_option('AM_SYS_OPERATION', key)
+            with open(PATH_INI, 'w+') as file:
+                parser.write(file)
+    except:
+        print('[online_updater] cur soft exe type:' + exe_type)
+#################################################################################
+
     upgrade_file_name = 'aml_debug_tool.exe'
     if exe_type == AmlDebugConstant.AML_DEBUG_TOOL_COMPILE_EXE_TYPE_INSTALLER:
         upgrade_file_name = 'Amlogic Debug Setup.exe'

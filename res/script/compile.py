@@ -8,7 +8,7 @@ AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH = './aml_debug_tool.py'
 
 COMPILE_EXE_USER_NAME = getpass.getuser()
 COMPILE_EXE_USER_TIME = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-COMPILE_EXE_VERSION   = '1.3.0'
+COMPILE_EXE_VERSION   = '1.3.1'
 COMPILE_EXE_COMMIT    = ''
 COMPILE_EXE_TYPE_EXE        = 'executable'
 COMPILE_EXE_TYPE_INSTALLER  = 'installer'

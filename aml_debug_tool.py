@@ -51,6 +51,8 @@ if __name__ == '__main__':
     ui = AmlDebugUi()
     
     ui.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
+    ui.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)  
+    ui.setFixedSize(ui.width(), ui.height())
     ui.setWindowTitle("Amlogic Debug Tool v" + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION)
     ui.show()
     ret, version = AmlCommonUtils.check_for_updates()
