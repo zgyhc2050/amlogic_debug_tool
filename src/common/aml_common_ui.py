@@ -35,7 +35,7 @@ class AmlCommonUi():
         # dialog.setWindowFlags(Qt.WindowStaysOnTopHint)
         dialog.setWindowIcon(QIcon(AmlCommonUtils.AML_DEBUG_TOOL_ICO_PATH))
         dialog.AmlDebugHelpAboutInfo_Label.setText(
-            'Version: ' + 'Amlogic Debug Tool ' +AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION +
+            'Version: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION + ' (' + AmlDebugConstant.AML_DEBUG_TOOL_COMPILE_EXE_TYPE + ')'
             '\nCompile user: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE + 
             '\nDate: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE + 
             '\nCommit: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT + 

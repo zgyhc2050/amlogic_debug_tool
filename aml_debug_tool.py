@@ -1,7 +1,4 @@
-import os
-import sys
-from pathlib import Path
-
+import os, sys
 import res.ico_debug
 import Ui_aml_debug
 
@@ -42,11 +39,9 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    if not Path(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT).exists():
-        print(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.")
-        os.makedirs(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT, 777)
-    if Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME).exists():
-        os.remove(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME)
+    ret = AmlCommonUtils.init()
+    if ret != 0:
+        exit
     amlParserIniContainer.initParser()
     ui = AmlDebugUi()
     

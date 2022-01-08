@@ -32,12 +32,12 @@ class AmlParserIniManager:
 
     def initParser(self):
         self.__init_ini_data()
-        with open(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG, 'w+') as file:
+        with open(AmlCommonUtils.get_cur_root_ini_file_path(), 'w+') as file:
             self.__parser.write(file)
-        self.__parser.read(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG)
+        self.__parser.read(AmlCommonUtils.get_cur_root_ini_file_path())
 
     def __init_ini_data(self):
-        self.__parser.read(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG)
+        self.__parser.read(AmlCommonUtils.get_cur_root_ini_file_path())
         for section in self.__m_dictionary_aml_parser.keys():
             default_value_dic = self.__m_dictionary_aml_parser[section].init_default_value()
             self.__add_section(section, default_value_dic)
@@ -93,7 +93,7 @@ class AmlParserIniBase(metaclass=ABCMeta):
             self.setStrValueByKey(key, 'False')
 
     def setStrValueByKey(self, key, value):
-        with open(AmlCommonUtils.AML_DEBUG_DIRECOTRY_CONFIG, 'w+') as file:
+        with open(AmlCommonUtils.get_cur_root_ini_file_path(), 'w+') as file:
             self.__parser.set(self.m_section, key, value)
             self.__parser.write(file)
 

@@ -37,7 +37,7 @@ class AmlParserIniAudio(AmlParserIniBase):
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_CHANNEL: '2',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_BYTE   : '2',
             AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_RATE   : '48000',
-            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH   : AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT,
+            AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH   : AmlCommonUtils.get_cur_root_path(),
         }
         return self.__dictionary_default_value
     

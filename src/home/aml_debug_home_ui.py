@@ -145,7 +145,7 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
     def start_capture(self, curTimeName, homeCallbackFinish, homeClick):
         self.log.i('start_capture')
         self.__curTimeName = AmlCommonUtils.pre_create_directory(self.m_moduleId, self.__m_debugCfg.m_ModuleEnableArray)
-        self.__nowPullPcTimePath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__curTimeName
+        self.__nowPullPcTimePath = AmlCommonUtils.get_cur_root_path() + '\\' + self.__curTimeName
         thread = Thread(target = self.__start_capture_thread, args=(homeCallbackFinish,))
         thread.start()
 

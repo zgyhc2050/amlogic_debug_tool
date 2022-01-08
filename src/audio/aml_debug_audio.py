@@ -134,7 +134,7 @@ class AmlAudioDebug:
             self.__nowPullPcTime = AmlCommonUtils.pre_create_directory(AmlCommonUtils.AML_DEBUG_MODULE_AUDIO)
         self.__nowPullPcPath = AmlCommonUtils.get_path_by_module(self.__nowPullPcTime, AmlCommonUtils.AML_DEBUG_MODULE_AUDIO)
         self.__prepare_debug_env()
-        curpath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime
+        curpath = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime
         if self.__debugCfg.m_homeClick == False:
             AmlCommonUtils.cap_common_debug_info(curpath)
         if self.__debugCfg.m_logcatEnable and self.__debugCfg.m_homeClick == False:
@@ -187,7 +187,7 @@ class AmlAudioDebug:
         self.__capture_logcat_disable_prop()
 
     def __manual_capture_stop(self):
-        curpath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime
+        curpath = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime
         self.log.d('2.2 MUNUAL mode: fetching the audio data end.')
         if self.__debugCfg.m_dumpDataEnable:
             self.__capture_audio_data_prop_disable()
@@ -240,7 +240,7 @@ class AmlAudioDebug:
 
     def __pull_capture_debug_info_to_pc(self):
         self.log.d('Pull all file to PC ...')
-        curpath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime
+        curpath = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime
         for dumpFile in self.__dumpFileLists:
             if ((self.__debugCfg.m_homeClick == True or self.__debugCfg.m_logcatEnable == False) and  dumpFile == AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT) or \
                 (self.__debugCfg.m_dumpDataEnable == False and self.__dumpCmdOutFilePath == dumpFile):
@@ -252,8 +252,8 @@ class AmlAudioDebug:
 
         AmlCommonUtils.generate_snapshot(curpath)
         if self.__debugCfg.m_createZipFile:
-            zip_src_dir = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime
-            zip_dst_file = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
+            zip_src_dir = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime
+            zip_dst_file = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime + '.zip'
             self.log.i('Zipping director:' + zip_src_dir + ' to ' + zip_dst_file)
             AmlCommonUtils.zip_compress(zip_src_dir, zip_dst_file)
             shutil.rmtree(zip_src_dir, ignore_errors=True)
@@ -288,7 +288,7 @@ class AmlAudioDebug:
 
     def __print_help_info(self):
         if self.__debugCfg.m_createZipFile:
-            target_file = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + '\\' + self.__nowPullPcTime + '.zip'
+            target_file = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime + '.zip'
         else:
             target_file = self.__nowPullPcPath
         print('###############################################################################################')

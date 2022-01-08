@@ -1,9 +1,9 @@
-import time, threading, os, math, sys
-from pathlib import Path
+import time, threading, os, math, sys, pathlib
 import subprocess
 import zipfile
 import shutil
 import configparser, getpass, socket
+from pathlib import Path
 from res.script.constant import AmlDebugConstant
 
 RET_VAL_SUCCESS         = 0
@@ -13,6 +13,8 @@ RET_VAL_EXCEPTION       = -2
 
 
 class AmlCommonUtils():
+    AML_DEBUG_DIRECOTRY_DRIVE                   = 'NA'
+
     AML_DEBUG_MODULE_HOME                       = 0
     AML_DEBUG_MODULE_AUDIO                      = 1
     AML_DEBUG_MODULE_VIDEO                      = 2
@@ -20,14 +22,14 @@ class AmlCommonUtils():
     AML_DEBUG_MODULE_SYS_OPERATION              = 4
     AML_DEBUG_MODULE_MAX                        = AML_DEBUG_MODULE_SYS_OPERATION + 1
 
-    AML_DEBUG_DIRECOTRY_ROOT                    = "d:\\aml_debug"
+    AML_DEBUG_DIRECOTRY_ROOT_NAME               = "aml_debug"
     AML_DEBUG_TOOL_NAME_EXE                     = 'aml_debug_tool.exe'
     AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT         = '/data/logcat.txt'
     AML_DEBUG_PLATFORM_DIRECOTRY_DMESG          = '/data/dmesg.txt'
     AML_DEBUG_PLATFORM_DIRECOTRY_TOMBSTONE      = '/data/tombstones/' 
     AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO    = '/data/common_info.txt' 
     AML_DEBUG_TOOL_ICO_PATH                     = ':/debug.ico'
-    AML_DEBUG_DIRECOTRY_CONFIG                  = AML_DEBUG_DIRECOTRY_ROOT + '\\config.ini'
+    AML_DEBUG_DIRECOTRY_CONFIG_NAME             = 'config.ini'
     moduleDirPathDict = {
         AML_DEBUG_MODULE_AUDIO    :   'audio',
         AML_DEBUG_MODULE_VIDEO    :   'video',
@@ -45,9 +47,31 @@ class AmlCommonUtils():
     AML_DEBUG_LOG_LEVEL_E                       = 'E'
     AML_DEBUG_LOG_LEVEL_F                       = 'F'
 
-
     log_func = print   
     adb_cur_dev = ''
+
+    def init():
+        if Path("d:").exists():
+            AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE = 'd'
+        if AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE == 'NA' and Path("e:").exists():
+            AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE = 'e'
+        if AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE == 'NA' and Path("c:").exists():
+            AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE = 'c'
+        if AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE == 'NA':
+            print('init: C, D, E drive not exist.')
+            return -1
+
+        if not Path(AmlCommonUtils.get_cur_root_path()).exists():
+            print(AmlCommonUtils.get_cur_root_path() + " folder does not exist, create it.")
+            os.makedirs(AmlCommonUtils.get_cur_root_path(), 777)
+        if Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME).exists():
+            os.remove(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME)
+        return 0
+
+    def get_cur_root_path():
+        return AmlCommonUtils.AML_DEBUG_DIRECOTRY_DRIVE + ":\\" + AmlCommonUtils. AML_DEBUG_DIRECOTRY_ROOT_NAME
+    def get_cur_root_ini_file_path():
+        return AmlCommonUtils.get_cur_root_path() + "\\" + AmlCommonUtils. AML_DEBUG_DIRECOTRY_CONFIG_NAME
 
     def log(info, level='D'):
         if AmlCommonUtils.log_func == print:
@@ -64,11 +88,11 @@ class AmlCommonUtils():
         AmlCommonUtils.adb_cur_dev = dev
 
     def pre_create_directory(createByModule, moduleEnableArray=0):
-        if not Path(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT).exists():
-            AmlCommonUtils.log(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + " folder does not exist, create it.", AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
-            os.makedirs(AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT, 777)
+        if not Path(AmlCommonUtils.get_cur_root_path()).exists():
+            AmlCommonUtils.log(AmlCommonUtils.get_cur_root_path() + " folder does not exist, create it.", AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
+            os.makedirs(AmlCommonUtils.get_cur_root_path(), 777)
         curTime = time.strftime("%Y%m%d_%H-%M-%S", time.localtime())
-        curPullPcTimePath = AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + "\\" + curTime
+        curPullPcTimePath = AmlCommonUtils.get_cur_root_path() + "\\" + curTime
         AmlCommonUtils.log('pre_create_directory Current date:' + \
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ', directory is: ' + curPullPcTimePath, AmlCommonUtils.AML_DEBUG_LOG_LEVEL_I)
         os.makedirs(curPullPcTimePath, 777)
@@ -99,7 +123,7 @@ class AmlCommonUtils():
         return time_stamp
 
     def get_path_by_module(time, id):
-        return AmlCommonUtils.AML_DEBUG_DIRECOTRY_ROOT + "\\" + time +  "\\" + AmlCommonUtils.moduleDirPathDict[id]
+        return AmlCommonUtils.get_cur_root_path() + "\\" + time +  "\\" + AmlCommonUtils.moduleDirPathDict[id]
 
     def logcat_start(callbackFinish='', delayEndS=-1):
         logcatProcThread = threading.Thread(target=AmlCommonUtils.__logcat_wait_thread, args=(callbackFinish, delayEndS,))
@@ -262,7 +286,7 @@ class AmlCommonUtils():
 
         section = 'Amlogic_debug_tool_snapshot'
         ini.add_section(section)
-        ini.set(section, 'version', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION)
+        ini.set(section, 'version', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION + ' (' + AmlDebugConstant.AML_DEBUG_TOOL_COMPILE_EXE_TYPE + ')')
         ini.set(section, 'compile_user', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE)
         ini.set(section, 'compile_time', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE)
         ini.set(section, 'commit_hash', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT)

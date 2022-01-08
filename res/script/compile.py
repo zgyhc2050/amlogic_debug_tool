@@ -8,7 +8,7 @@ AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH = './aml_debug_tool.py'
 
 COMPILE_EXE_USER_NAME = getpass.getuser()
 COMPILE_EXE_USER_TIME = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-COMPILE_EXE_VERSION   = '1.3.1'
+COMPILE_EXE_VERSION   = '1.3.2'
 COMPILE_EXE_COMMIT    = ''
 COMPILE_EXE_TYPE_EXE        = 'executable'
 COMPILE_EXE_TYPE_INSTALLER  = 'installer'
@@ -68,8 +68,6 @@ def generating_version_info(compile_type):
 def pyinstaller_compile(type):
     print('pyinstaller.exe -' + type + 'w ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
     os.system('pyinstaller.exe -' + type + 'w ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
-    # print('pyinstaller.exe -' + type + ' ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
-    # os.system('pyinstaller.exe -' + type + ' ' + AMLOGIC_DEBUG_TOOL_MAIN_PYTHON_PATH + ' -i ' + EXE_ICO_PATH + ' --noconfirm')
 
 def compile_executable():
     generating_version_info(COMPILE_EXE_TYPE_EXE)
