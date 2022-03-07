@@ -66,6 +66,7 @@ class AmlAudioDebug:
         ]
 
         self.__adbDumpDataStartLists = [
+            'setprop sys.droidlogic.audio.debug 1',
             'setprop vendor.media.audiohal.indump 1',
             'setprop vendor.media.audiohal.outdump 1',
             'setprop vendor.media.audiohal.alsadump 1',
@@ -81,6 +82,7 @@ class AmlAudioDebug:
         ]
 
         self.__adbDumpDataStopLists = [
+            'setprop sys.droidlogic.audio.debug 0',
             'setprop vendor.media.audiohal.indump 0',
             'setprop vendor.media.audiohal.outdump 0',
             'setprop vendor.media.audiohal.alsadump 0',
@@ -106,8 +108,9 @@ class AmlAudioDebug:
         ]
 
         self.__dumpFileLists = [
-            'vendor/etc/audio_policy_configuration.xml',
-            'vendor/etc/audio_policy_volumes.xml',
+            '/vendor/etc/audio_policy_configuration.xml',
+            '/vendor/etc/audio_policy_volumes.xml',
+            '/vendor/etc/mixer_paths.xml',
             '/data/audio',
             '/data/audio_out',
             '/data/vendor/audiohal/',

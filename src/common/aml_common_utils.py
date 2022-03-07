@@ -1,5 +1,5 @@
 import time, threading, os, math, sys, pathlib
-import subprocess
+import subprocess, signal
 import zipfile
 import shutil
 import configparser, getpass, socket
@@ -20,7 +20,8 @@ class AmlCommonUtils():
     AML_DEBUG_MODULE_VIDEO                      = 2
     AML_DEBUG_MODULE_CEC                        = 3
     AML_DEBUG_MODULE_SYS_OPERATION              = 4
-    AML_DEBUG_MODULE_MAX                        = AML_DEBUG_MODULE_SYS_OPERATION + 1
+    AML_DEBUG_MODULE_BURN                       = 5
+    AML_DEBUG_MODULE_MAX                        = AML_DEBUG_MODULE_BURN + 1
 
     AML_DEBUG_DIRECOTRY_ROOT_NAME               = "aml_debug"
     AML_DEBUG_TOOL_NAME_EXE                     = 'aml_debug_tool.exe'
@@ -215,11 +216,15 @@ class AmlCommonUtils():
         else:
             return AmlCommonUtils.exe_sys_cmd('adb ' + cmd , bprint)
 
-    def exe_sys_cmd(cmd, bprint=False):
+    class ForceStop:
+        def __init__(self):
+            self.stop = False
+
+    def exe_sys_cmd(cmd, bprint=False, path=None, forceStop=None):
         try:
             ret = ''
-            proc = subprocess.Popen(cmd, shell=True, 
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+            proc = subprocess.Popen(cmd, shell=True, start_new_session=True,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, cwd=path)
             proc.stdin.close()
             for line in iter(proc.stdout.readline, b''):
                 temp_str = line.strip().decode('utf-8')
@@ -227,13 +232,17 @@ class AmlCommonUtils():
                     ret = ret + temp_str + '\n'
                 if bprint:
                     AmlCommonUtils.log(temp_str, AmlCommonUtils.AML_DEBUG_LOG_LEVEL_V)
+                if forceStop != None and forceStop.stop == True:
+                    proc.kill()
+                    proc.terminate()
+                    os.killpg(proc.pid, signal.SIGTERM)
             proc.wait()
             proc.stdout.close()
             if proc.returncode != RET_VAL_SUCCESS:
                 AmlCommonUtils.log(cmd + ' --> Failed' + ', ret:'+ str(proc.returncode), AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
             return ret
         except:
-            AmlCommonUtils.log(cmd + ' --> Exception happend!!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
+            AmlCommonUtils.log('exe_sys_cmd:' + cmd + ' --> Exception happend!!!', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
             return ''
 
     def get_adb_devices():
@@ -364,4 +373,3 @@ class AmlCommonUtils():
         proc.stdout.close()
         AmlCommonUtils.log('Upgrade is starting')
         sys.exit(0)
-        

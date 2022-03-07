@@ -29,7 +29,7 @@ class AmlDebugUi(Ui_aml_debug.Ui_MainWindow, QMainWindow):
         self.AmlDebugTerminalLog_textBrowser.append(log)
         self.AmlDebugTerminalLog_textBrowser.moveCursor(QTextCursor.End)
 
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Amlogic Tips',"Confirm exit?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()

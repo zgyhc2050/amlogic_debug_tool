@@ -10,12 +10,14 @@ class AmlParserIniManager:
     AML_PARSER_SECTION_VIDEO                                = "AM_VIDEO"
     AML_PARSER_SECTION_CEC                                  = "AM_CEC"
     AML_PARSER_SECTION_SYS_OPERATION                        = "AM_SYS_OPERATION"
+    AML_PARSER_SECTION_BURN                                 = "AM_BURN"
     AML_INI_SECTION_DIC = {
         AmlCommonUtils.AML_DEBUG_MODULE_HOME                             : AML_PARSER_SECTION_HOME,
         AmlCommonUtils.AML_DEBUG_MODULE_AUDIO                            : AML_PARSER_SECTION_AUDIO,
         AmlCommonUtils.AML_DEBUG_MODULE_VIDEO                            : AML_PARSER_SECTION_VIDEO,
         AmlCommonUtils.AML_DEBUG_MODULE_CEC                              : AML_PARSER_SECTION_CEC,
         AmlCommonUtils.AML_DEBUG_MODULE_SYS_OPERATION                    : AML_PARSER_SECTION_SYS_OPERATION,
+        AmlCommonUtils.AML_DEBUG_MODULE_BURN                             : AML_PARSER_SECTION_BURN,
     }
     def __init__(self):
         self.__parser = configparser.ConfigParser()
@@ -55,7 +57,11 @@ class AmlParserIniManager:
             #print('key:' + key + ', value:' + key_dic[key])
 
     def getParserById(self, id):
-        return self.__m_dictionary_aml_parser[id]
+        if not id in self.__m_dictionary_aml_parser:
+            print('E [AmlParserIniBase::getParserById] not find the id:' + id + ', parser.')
+            return None
+        iniParser = self.__m_dictionary_aml_parser[id]
+        return iniParser
 
 class AmlParserIniBase(metaclass=ABCMeta):
     def __init__(self, parser): 

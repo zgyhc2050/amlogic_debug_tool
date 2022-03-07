@@ -174,7 +174,7 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
     def __startCaptureInfo(self, curTimeName):
         if self.__homeStartClick == False:
             AmlCommonUtils.adb_root()
-            AmlCommonUtils.adb_remount()
+            # AmlCommonUtils.adb_remount()
         self.audioDebug.start_capture(curTimeName, self.__callback_startCaptureFinish)
 
     def __callback_startCaptureFinish(self):       

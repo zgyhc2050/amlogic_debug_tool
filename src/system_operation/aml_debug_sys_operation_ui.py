@@ -2,6 +2,7 @@ from threading import Thread
 from PyQt5 import QtCore, QtWidgets
 import time
 
+
 from src.system_operation.aml_ini_parser_sys_operation import AmlParserIniSysOperation
 from src.common.aml_debug_base_ui import AmlDebugBaseUi
 from src.common.aml_common_utils import AmlCommonUtils
@@ -183,7 +184,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         AmlCommonUtils.exe_sys_cmd('fastboot flashing unlock_critical', True)
         AmlCommonUtils.exe_sys_cmd('fastboot flashing unlock', True)
         AmlCommonUtils.exe_sys_cmd('fastboot reboot', True)
-        timeCntS = 40
+        timeCntS = 60
         self.log.d('__closeAvbProc: flashing unlock reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
@@ -191,7 +192,7 @@ class AmlDebugSystemOperationUi(AmlDebugBaseUi):
         AmlCommonUtils.adb_root()
         AmlCommonUtils.exe_adb_cmd('disable-verity', True)
         AmlCommonUtils.adb_reboot()
-        timeCntS = 40
+        timeCntS = 60
         self.log.d('__closeAvbProc: disable-verity reboot platform, please wait ' + str(timeCntS) + ' s...')
         while timeCntS > 0 and self.__m_stop_thread == False: 
             time.sleep(1)
