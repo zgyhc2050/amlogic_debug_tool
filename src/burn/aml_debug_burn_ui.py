@@ -3,6 +3,7 @@ from threading import Thread
 
 from src.common.aml_debug_base_ui import AmlDebugBaseUi
 from src.common.aml_common_utils import AmlCommonUtils
+from src.burn.aml_ini_parser_burn import AmlParserIniBurn
 
 from src.burn.aml_debug_burn import AmlDebugBurn
 
@@ -19,16 +20,19 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
         super(AmlDebugBurnUi, self).__init__(aml_ui, AmlCommonUtils.AML_DEBUG_MODULE_BURN)
         self.__isBurning = False
         self.__burn = AmlDebugBurn(self)
+        self.dbBurnSelect = AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_ALL
 
     def init_display_ui(self):
-        self.m_mainUi.AmlDebugBurnTips_label.setOpenExternalLinks(True) 
+        self.m_mainUi.AmlDebugBurnTips_label.setOpenExternalLinks(True)
+        items = [AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_ALL, 
+                AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_LATEST, AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_DELETE_ALL]
+        self.m_mainUi.AmlDebugBurnSelect_comboBox.addItems(items)
+        self.dbBurnSelect = self.m_iniPaser.getValueByKey(AmlParserIniBurn.AML_PARSER_BURN_FILE_SAVE_OPTION)
+        self.m_mainUi.AmlDebugBurnSelect_comboBox.setCurrentText(self.dbBurnSelect)
 
     def signals_connect_slots(self):
         self.m_mainUi.AmlDebugBurnStart_pushButton.clicked.connect(self.__click_burnToggle)
-        # self.m_mainUi.burnSetCurProcessFormatSignal.connect(self.signalSetCurProcessFormat)
-        # self.m_mainUi.burnSetCurProcessMaxValueSignal.connect(self.signalSetCurProcessMaxValue)
-        # self.m_mainUi.burnSetCurProcessSignal.connect(self.signalSetCurProcess)
-        # self.m_mainUi.burnSetRefreshcurStatusSignal.connect(self.signalRefreshcurStatus)
+        self.m_mainUi.AmlDebugBurnSelect_comboBox.currentTextChanged.connect(self.__textChanged_selectSaveFileMode)
 
     def closeEvent(self):
         pass
@@ -36,9 +40,8 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
     def __click_burnToggle(self):
         if self.__isBurning == False:
             url = self.m_mainUi.AmlDebugBurnUrl_lineEdit.text()
-            # url = 'http://firmware-sz.amlogic.com/shenzhen/image/android/Android-S/patchbuild/2022-03-03/ohm-userdebug-android32-kernel64-GTV-5327/'
             self.m_mainUi.AmlDebugBurnStart_pushButton.setText('Stop')
-            self.thread = self.__burn.initBurn(url)
+            self.thread = self.__burn.initBurn(url, self.dbBurnSelect)
             self.thread.burnSetCurButtonStatusSignal.connect(self.signalSetButtonStatus)
             self.thread.burnSetCurProcessFormatSignal.connect(self.signalSetCurProcessFormat)
             self.thread.burnSetCurProcessMaxValueSignal.connect(self.signalSetCurProcessMaxValue)
@@ -53,6 +56,9 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
             self.signalSetCurProcess(0)
             self.signalRefreshcurStatus('')
         self.__isBurning = bool(1 - self.__isBurning)
+
+    def __textChanged_selectSaveFileMode(self):
+        self.dbBurnSelect = self.m_mainUi.AmlDebugBurnSelect_comboBox.currentText()
 
     def signalSetCurProcessFormat(self, value):
         self.m_mainUi.AmlDebugBurn_progressBar.setFormat(value)

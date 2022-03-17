@@ -1630,6 +1630,29 @@ Selected</string>
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1、fastboot烧录，连接adb线即可烧录，无需其他操作&lt;/p&gt;&lt;p&gt;2、仅公司内网能使用&lt;/p&gt;&lt;p&gt;3、PC需要安装 &lt;a href=&quot;https://dl.google.com/android/repository/platform-tools-latest-windows.zip&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;fastboot&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
+     <widget class="QComboBox" name="AmlDebugBurnSelect_comboBox">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>100</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="AmlDebugBurnStatus_label_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>20</y>
+        <width>671</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;eg: http://firmware.amlogic.com/image/patchbuild/2022-03-17/redi-user-android32-kernel64-11623/&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QGroupBox" name="AmlDebugTerminalLog_groupBox">

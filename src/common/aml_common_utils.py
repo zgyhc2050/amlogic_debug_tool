@@ -273,14 +273,21 @@ class AmlCommonUtils():
 
     # 删除指定目录下的所有文件以及文件夹
     @staticmethod
-    def del_all_file_and_direcotry(filepath):
-        del_list = os.listdir(filepath)
-        for f in del_list:
-            file_path = os.path.join(filepath, f)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
+    def delAllFileAndDir(dir, isDeleteDir=False):
+        try:
+            list = os.listdir(dir)
+            for f in list:
+                filePath = os.path.join(dir, f)
+                if os.path.isfile(filePath):
+                    os.remove(filePath)
+                elif os.path.isdir(filePath):
+                    shutil.rmtree(filePath)
+            if isDeleteDir:
+                os.rmdir(dir)
+            return 0
+        except:
+            AmlCommonUtils.log('delAllFileAndDir: some exception occurs, dir:' + dir)
+            return -1
 
     @staticmethod
     def del_spec_file(filePath):

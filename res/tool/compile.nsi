@@ -2,7 +2,7 @@
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "Amlogic Debug Tool"
-!define PRODUCT_VERSION "1.4.1"
+!define PRODUCT_VERSION "1.4.4"
 !define PRODUCT_PUBLISHER "晶晨半导体(深圳)有限公司"
 !define PRODUCT_WEB_SITE "http://www.amlogic.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\aml_debug_tool.exe"

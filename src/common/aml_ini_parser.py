@@ -25,11 +25,13 @@ class AmlParserIniManager:
         import src.audio.aml_ini_parser_audio
         import src.cec.aml_ini_parser_cec
         import src.system_operation.aml_ini_parser_sys_operation
+        import src.burn.aml_ini_parser_burn
         self.__m_dictionary_aml_parser = {
             AmlParserIniManager.AML_PARSER_SECTION_HOME                             : src.home.aml_ini_parser_home.instance(self.__parser),
             AmlParserIniManager.AML_PARSER_SECTION_AUDIO                            : src.audio.aml_ini_parser_audio.instance(self.__parser),
             AmlParserIniManager.AML_PARSER_SECTION_CEC                              : src.cec.aml_ini_parser_cec.instance(self.__parser),
             AmlParserIniManager.AML_PARSER_SECTION_SYS_OPERATION                    : src.system_operation.aml_ini_parser_sys_operation.instance(self.__parser),
+            AmlParserIniManager.AML_PARSER_SECTION_BURN                             : src.burn.aml_ini_parser_burn.instance(self.__parser),
         }
 
     def initParser(self):
