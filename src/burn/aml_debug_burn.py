@@ -15,6 +15,7 @@ class AmlDebugBurn:
         self.url = ''
         self.mode = ''
         self.stop = True
+        self.AML_DEBUG_BURN_DIR_PATH = AmlCommonUtils.get_cur_root_path() + '\\burn'
 
     def initBurn(self, url, mode):
         self.url = url
@@ -32,6 +33,13 @@ class AmlDebugBurn:
         if self.thread != None:
             self.thread.systemProcStop.stop = True
             self.thread.wait()
+    
+    def openBurnDir(self):
+        localPathDir = self.AML_DEBUG_BURN_DIR_PATH
+        if not Path(localPathDir).exists():
+            self.log.i('openBurnDir: localPathDir:' + localPathDir + ', not exist')
+            return
+        os.startfile(localPathDir) 
 
 class procThread(QThread):
     burnSetCurButtonStatusSignal = pyqtSignal(str)
@@ -57,15 +65,15 @@ class procThread(QThread):
                 self.log.e('__burnProcess: URL is empty.')
                 return
             ## d:\aml_debug\burn
-            localPathDir = AmlCommonUtils.get_cur_root_path() + '\\burn'
+            localPathDir = self.burn.AML_DEBUG_BURN_DIR_PATH
             if not Path(localPathDir).exists():
                 os.makedirs(localPathDir)
-
+            self.log.i('mode:' + self.mode)
             if self.mode == AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_LATEST:
                 AmlCommonUtils.delAllFileAndDir(localPathDir)
 
             # serverFastbootFileName: ohm-fastboot-flashall-20220301.zip, versionID: 5272
-            serverFastbootFileName1, serverFastbootFileName2, versionID = self.get_fastboot_zip_name(self.url)
+            serverFastbootFileName1, serverFastbootFileName2, versionID = self.getFastbootZipName(self.url)
             if serverFastbootFileName1 == '' and serverFastbootFileName2 == '':
                 self.log.e('__burnProcess: cannot find fastboot name in URL:' + self.url)
                 return
@@ -188,33 +196,33 @@ class procThread(QThread):
             self.log.f('unzipFiles: somes except happed. =_=')
             return -1
 
-    def get_fastboot_zip_name(self, url):
+    def getFastbootZipName(self, url):
         try:
             # URL: http://firmware.amlogic.com/shanghai/image/android/Android-S/patchbuild/2022-03-01/ohm-userdebug-android32-kernel64-GTV-5272/
             url = url.strip(' ')
             index = url.find('20')
             if index == -1:
-                self.log.w('get_fastboot_zip_name: not find the str 20, url invalid')
+                self.log.w('getFastbootZipName: not find the str 20, url invalid')
                 return '', '', ''
             # 2022-
             if url[index + 4] != '-':
-                self.log.w('get_fastboot_zip_name: not find the date in URL, url invalid')
+                self.log.w('getFastbootZipName: not find the date in URL, url invalid')
                 return '', '', ''
 
             # date: 20220301
             tempStr = url[index :]
             if len(tempStr) < len('20xx-xx-xx'):
-                self.log.w('get_fastboot_zip_name: not find the date in URL, url invalid, date:' + tempStr)
+                self.log.w('getFastbootZipName: not find the date in URL, url invalid, date:' + tempStr)
                 return '', '', ''
 
             versionIdStartIndex = url.rfind('-')
             if versionIdStartIndex == -1:
-                self.log.w('get_fastboot_zip_name: not find the str "-", url invalid')
+                self.log.w('getFastbootZipName: not find the str "-", url invalid')
                 return '', '', ''
             # 5272
             versionID = url[versionIdStartIndex + 1 :].strip('/')
             if not versionID.isdigit():
-                self.log.w('get_fastboot_zip_name: not find the version ID in URL, url invalid, ID:' + versionID)
+                self.log.w('getFastbootZipName: not find the version ID in URL, url invalid, ID:' + versionID)
                 return '', '', ''
 
             date = url[index : index + len('20xx')] + url[index + len('20xx-') : index + len('20xx-xx')] + url[index + len('20xx-xx-') : index + len('20xx-xx-xx')]
@@ -230,11 +238,11 @@ class procThread(QThread):
             # ohm-fastboot-flashall-20220301.zip
             name1 = devName1 + '-fastboot-flashall-' + date + '.zip'
             name2 = devName2 + '-fastboot-flashall-' + date + '.zip'
-            self.log.i('get_fastboot_zip_name: name1:' + name1 + ', name2:' + name2 + ', versionID:' + versionID)
-            print('get_fastboot_zip_name: name1:' + name1 + ', name2:' + name2 + ', versionID:' + versionID)
+            self.log.i('getFastbootZipName: name1:' + name1 + ', name2:' + name2 + ', versionID:' + versionID)
+            print('getFastbootZipName: name1:' + name1 + ', name2:' + name2 + ', versionID:' + versionID)
             return name1, name2, versionID
         except:
-            self.log.f('get_fastboot_zip_name: somes except happed. =_=')
+            self.log.f('getFastbootZipName: somes except happed. =_=')
             return '', '', ''
     
     def clearEnv(self, zipFile, directory):

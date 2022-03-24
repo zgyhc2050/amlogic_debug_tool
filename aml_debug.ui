@@ -1653,6 +1653,20 @@ Selected</string>
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;eg: http://firmware.amlogic.com/image/patchbuild/2022-03-17/redi-user-android32-kernel64-11623/&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="AmlDebugBurnOpenBurDir_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>140</y>
+        <width>93</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Open burn
+directory</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QGroupBox" name="AmlDebugTerminalLog_groupBox">

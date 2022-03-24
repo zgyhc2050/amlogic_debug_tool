@@ -475,6 +475,9 @@ class Ui_MainWindow(object):
         self.AmlDebugBurnStatus_label_2 = QtWidgets.QLabel(self.tab)
         self.AmlDebugBurnStatus_label_2.setGeometry(QtCore.QRect(30, 20, 671, 31))
         self.AmlDebugBurnStatus_label_2.setObjectName("AmlDebugBurnStatus_label_2")
+        self.AmlDebugBurnOpenBurDir_pushButton = QtWidgets.QPushButton(self.tab)
+        self.AmlDebugBurnOpenBurDir_pushButton.setGeometry(QtCore.QRect(770, 140, 93, 51))
+        self.AmlDebugBurnOpenBurDir_pushButton.setObjectName("AmlDebugBurnOpenBurDir_pushButton")
         self.AmlDebug_tabWidget.addTab(self.tab, "")
         self.AmlDebugTerminalLog_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.AmlDebugTerminalLog_groupBox.setGeometry(QtCore.QRect(0, 310, 971, 341))
@@ -601,6 +604,8 @@ class Ui_MainWindow(object):
         self.AmlDebugBurnStatus_label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Status:</p></body></html>"))
         self.AmlDebugBurnTips_label.setText(_translate("MainWindow", "<html><head/><body><p>1、fastboot烧录，连接adb线即可烧录，无需其他操作</p><p>2、仅公司内网能使用</p><p>3、PC需要安装 <a href=\"https://dl.google.com/android/repository/platform-tools-latest-windows.zip\"><span style=\" text-decoration: underline; color:#0000ff;\">fastboot</span></a></p></body></html>"))
         self.AmlDebugBurnStatus_label_2.setText(_translate("MainWindow", "<html><head/><body><p>eg: http://firmware.amlogic.com/image/patchbuild/2022-03-17/redi-user-android32-kernel64-11623/<br/></p></body></html>"))
+        self.AmlDebugBurnOpenBurDir_pushButton.setText(_translate("MainWindow", "Open burn\n"
+"directory"))
         self.AmlDebug_tabWidget.setTabText(self.AmlDebug_tabWidget.indexOf(self.tab), _translate("MainWindow", "Burn"))
         self.AmlDebugTerminalLog_groupBox.setTitle(_translate("MainWindow", "Terminal log"))
         self.AmlDebugTerminalLog_textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"

@@ -17,10 +17,10 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
     setCurProcessMaxValueSignal = pyqtSignal(int)
     setCurProcessSignal = pyqtSignal(int)
     def __init__(self, aml_ui):
-        super(AmlDebugBurnUi, self).__init__(aml_ui, AmlCommonUtils.AML_DEBUG_MODULE_BURN)
-        self.__isBurning = False
-        self.__burn = AmlDebugBurn(self)
         self.dbBurnSelect = AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_ALL
+        self.__isBurning = False
+        super(AmlDebugBurnUi, self).__init__(aml_ui, AmlCommonUtils.AML_DEBUG_MODULE_BURN)
+        self.__burn = AmlDebugBurn(self)
 
     def init_display_ui(self):
         self.m_mainUi.AmlDebugBurnTips_label.setOpenExternalLinks(True)
@@ -28,11 +28,13 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
                 AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_LATEST, AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_DELETE_ALL]
         self.m_mainUi.AmlDebugBurnSelect_comboBox.addItems(items)
         self.dbBurnSelect = self.m_iniPaser.getValueByKey(AmlParserIniBurn.AML_PARSER_BURN_FILE_SAVE_OPTION)
+        print('bur sel:' + self.dbBurnSelect)
         self.m_mainUi.AmlDebugBurnSelect_comboBox.setCurrentText(self.dbBurnSelect)
 
     def signals_connect_slots(self):
         self.m_mainUi.AmlDebugBurnStart_pushButton.clicked.connect(self.__click_burnToggle)
         self.m_mainUi.AmlDebugBurnSelect_comboBox.currentTextChanged.connect(self.__textChanged_selectSaveFileMode)
+        self.m_mainUi.AmlDebugBurnOpenBurDir_pushButton.clicked.connect(self.__click_openBurnDir)
 
     def closeEvent(self):
         pass
@@ -41,6 +43,7 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
         if self.__isBurning == False:
             url = self.m_mainUi.AmlDebugBurnUrl_lineEdit.text()
             self.m_mainUi.AmlDebugBurnStart_pushButton.setText('Stop')
+            print('__click_burnToggle sel:' + self.dbBurnSelect)
             self.thread = self.__burn.initBurn(url, self.dbBurnSelect)
             self.thread.burnSetCurButtonStatusSignal.connect(self.signalSetButtonStatus)
             self.thread.burnSetCurProcessFormatSignal.connect(self.signalSetCurProcessFormat)
@@ -57,8 +60,12 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
             self.signalRefreshcurStatus('')
         self.__isBurning = bool(1 - self.__isBurning)
 
+    def __click_openBurnDir(self):
+        self.__burn.openBurnDir()
+
     def __textChanged_selectSaveFileMode(self):
         self.dbBurnSelect = self.m_mainUi.AmlDebugBurnSelect_comboBox.currentText()
+        self.m_iniPaser.setValueByKey(AmlParserIniBurn.AML_PARSER_BURN_FILE_SAVE_OPTION, self.dbBurnSelect)
 
     def signalSetCurProcessFormat(self, value):
         self.m_mainUi.AmlDebugBurn_progressBar.setFormat(value)
