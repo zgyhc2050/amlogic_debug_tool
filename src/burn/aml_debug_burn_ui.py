@@ -28,7 +28,6 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
                 AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_LATEST, AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_DELETE_ALL]
         self.m_mainUi.AmlDebugBurnSelect_comboBox.addItems(items)
         self.dbBurnSelect = self.m_iniPaser.getValueByKey(AmlParserIniBurn.AML_PARSER_BURN_FILE_SAVE_OPTION)
-        print('bur sel:' + self.dbBurnSelect)
         self.m_mainUi.AmlDebugBurnSelect_comboBox.setCurrentText(self.dbBurnSelect)
 
     def signals_connect_slots(self):
@@ -43,7 +42,6 @@ class AmlDebugBurnUi(AmlDebugBaseUi):
         if self.__isBurning == False:
             url = self.m_mainUi.AmlDebugBurnUrl_lineEdit.text()
             self.m_mainUi.AmlDebugBurnStart_pushButton.setText('Stop')
-            print('__click_burnToggle sel:' + self.dbBurnSelect)
             self.thread = self.__burn.initBurn(url, self.dbBurnSelect)
             self.thread.burnSetCurButtonStatusSignal.connect(self.signalSetButtonStatus)
             self.thread.burnSetCurProcessFormatSignal.connect(self.signalSetCurProcessFormat)

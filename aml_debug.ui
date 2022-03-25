@@ -33,7 +33,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -845,7 +845,7 @@ directory</string>
        <rect>
         <x>510</x>
         <y>10</y>
-        <width>101</width>
+        <width>121</width>
         <height>31</height>
        </rect>
       </property>

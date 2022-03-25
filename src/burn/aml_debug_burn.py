@@ -54,6 +54,7 @@ class procThread(QThread):
         self.mode = burn.mode
         self.log = burn.log
         self.systemProcStop = AmlCommonUtils.ForceStop()
+        self.urlPaser = AmlDebugBurnUrlPaser(self.log)
 
     def run(self):
         self.__burnProcess()
@@ -68,17 +69,21 @@ class procThread(QThread):
             localPathDir = self.burn.AML_DEBUG_BURN_DIR_PATH
             if not Path(localPathDir).exists():
                 os.makedirs(localPathDir)
-            self.log.i('mode:' + self.mode)
             if self.mode == AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_SAVE_LATEST:
                 AmlCommonUtils.delAllFileAndDir(localPathDir)
 
             # serverFastbootFileName: ohm-fastboot-flashall-20220301.zip, versionID: 5272
-            serverFastbootFileName1, serverFastbootFileName2, versionID = self.getFastbootZipName(self.url)
+            if self.urlPaser.paserUrl(self.url) != 0:
+                self.log.e('__burnProcess: fail to paser URL')
+                return
+
+            serverFastbootFileName1 = self.urlPaser.getFastbootZipName()
+            serverFastbootFileName2 = self.urlPaser.getFastbootZipNameShort()
             if serverFastbootFileName1 == '' and serverFastbootFileName2 == '':
                 self.log.e('__burnProcess: cannot find fastboot name in URL:' + self.url)
                 return
             # localFastbootFileName: ohm-fastboot-flashall-20220301-5272.zip
-            localFastbootFileName = serverFastbootFileName1[: -4] + '-' + versionID + '.zip'
+            localFastbootFileName = serverFastbootFileName1[: -4] + '-' + self.urlPaser.getIndexId() + '.zip'
 
             tryCnt = 0
             while True:
@@ -107,11 +112,13 @@ class procThread(QThread):
                         self.log.w('__burnProcess: unzipFiles fail, retry...')
                 else:
                     break
-
             self.burnSetRefreshcurStatusSignal.emit('Burning ' + localFastbootFileName + ' ...')
             self.burnSetCurProcessMaxValueSignal.emit(0)
 
-            AmlCommonUtils.exe_sys_cmd(cmd=unzipPathDir + '\\' + 'flash-all.bat', bprint=True, path=unzipPathDir, forceStop=self.systemProcStop)
+            batCmdPath = unzipPathDir + '\\' + 'flash-all.bat'
+            self.__specialHandling(batCmdPath, self.urlPaser);
+
+            AmlCommonUtils.exe_sys_cmd(cmd=batCmdPath, bprint=True, path=unzipPathDir, forceStop=self.systemProcStop)
             self.burnSetRefreshcurStatusSignal.emit('Burn compelete.')
             self.clearEnv(localFileNameAndPath, unzipPathDir)
         except:
@@ -135,7 +142,6 @@ class procThread(QThread):
                 self.log.i('downloadFileByUrl: ' + localPathDir + '\\' + localFastbootFileName + ' alread existed.')
                 return 0
 
-            self.log.i('downloadFileByUrl: request file:' + serverFilePathAndName1)
             res = requests.get(url1, stream=True)
             if res.status_code != 200:
                 self.log.w('downloadFileByUrl: request file:' + serverFilePathAndName1 + ' fail')
@@ -153,7 +159,7 @@ class procThread(QThread):
             self.burnSetCurProcessMaxValueSignal.emit(totalSize)
             self.burnSetCurProcessFormatSignal.emit('%v KB / ' + str(totalSize) + 'KB')
             fileFd = open(filePath, 'wb')
-            self.log.i('downloadFileByUrl: file size: ' + str(totalSize) + ' KB')
+            self.log.i('downloadFileByUrl: ' + serverFilePathAndName1 + ', size: ' + str(totalSize) + ' KB')
             for chunk in res.iter_content(chunk_size=peroidSizeByte):
                 if self.burn.stop:
                     fileFd.close()
@@ -196,55 +202,6 @@ class procThread(QThread):
             self.log.f('unzipFiles: somes except happed. =_=')
             return -1
 
-    def getFastbootZipName(self, url):
-        try:
-            # URL: http://firmware.amlogic.com/shanghai/image/android/Android-S/patchbuild/2022-03-01/ohm-userdebug-android32-kernel64-GTV-5272/
-            url = url.strip(' ')
-            index = url.find('20')
-            if index == -1:
-                self.log.w('getFastbootZipName: not find the str 20, url invalid')
-                return '', '', ''
-            # 2022-
-            if url[index + 4] != '-':
-                self.log.w('getFastbootZipName: not find the date in URL, url invalid')
-                return '', '', ''
-
-            # date: 20220301
-            tempStr = url[index :]
-            if len(tempStr) < len('20xx-xx-xx'):
-                self.log.w('getFastbootZipName: not find the date in URL, url invalid, date:' + tempStr)
-                return '', '', ''
-
-            versionIdStartIndex = url.rfind('-')
-            if versionIdStartIndex == -1:
-                self.log.w('getFastbootZipName: not find the str "-", url invalid')
-                return '', '', ''
-            # 5272
-            versionID = url[versionIdStartIndex + 1 :].strip('/')
-            if not versionID.isdigit():
-                self.log.w('getFastbootZipName: not find the version ID in URL, url invalid, ID:' + versionID)
-                return '', '', ''
-
-            date = url[index : index + len('20xx')] + url[index + len('20xx-') : index + len('20xx-xx')] + url[index + len('20xx-xx-') : index + len('20xx-xx-xx')]
-            # tempStr: ohm-userdebug-android32-kernel64-GTV-5272/
-            tempStr = url[index + 11 :]
-            index = tempStr.find('-')
-
-            # tempStr: oppencas_irdeto/ohm
-            devName1 = tempStr[: index]
-            index = devName1.find('_')
-            # devName2: oppencas/ohm
-            devName2 = tempStr[: index]
-            # ohm-fastboot-flashall-20220301.zip
-            name1 = devName1 + '-fastboot-flashall-' + date + '.zip'
-            name2 = devName2 + '-fastboot-flashall-' + date + '.zip'
-            self.log.i('getFastbootZipName: name1:' + name1 + ', name2:' + name2 + ', versionID:' + versionID)
-            print('getFastbootZipName: name1:' + name1 + ', name2:' + name2 + ', versionID:' + versionID)
-            return name1, name2, versionID
-        except:
-            self.log.f('getFastbootZipName: somes except happed. =_=')
-            return '', '', ''
-    
     def clearEnv(self, zipFile, directory):
         if self.mode == AmlDebugBurn.AML_BURN_SAVE_FILE_ENUM_DELETE_ALL:
             if os.path.exists(zipFile):
@@ -261,3 +218,95 @@ class procThread(QThread):
         self.burnSetCurProcessSignal.emit(0)
         self.burnSetRefreshcurStatusSignal.emit('')
         self.burn = None
+
+    def  __specialHandling(self, batFile, urlPaser):
+        try:
+            if urlPaser.getAndroidVersion() == 'P' and urlPaser.getChipName() == 't982_ar301':
+                self.log.i('__specialHandling: Android P + T982 need modify bat file...')
+                with open(batFile, '+r') as f:
+                    t = f.read()
+                    t = t.replace('fastboot flash system system.img', 'fastboot flash -S 128M system system.img')
+                    t = t.replace('fastboot flash vendor vendor.img', 'fastboot flash -S 128M vendor vendor.img')
+                    f.seek(0, 0)    
+                    f.write(t)
+        except:
+            self.log.f('__specialHandling: somes except happed. =_=')
+
+class AmlDebugBurnUrlPaser:
+    def __init__(self, log):
+        self.log = log
+        self.__androidVer = ''
+        self.__date = ''
+        self.__chipUrlName = ''
+        self.__chipUrlNameShort = ''
+        self.__indexId = ''
+
+    def getAndroidVersion(self):
+        return self.__androidVer
+    def getDate(self):
+        return self.__date
+    def getChipName(self):
+        return self.__chipUrlName
+    def getChipNameShort(self):
+        return self.__chipUrlNameShort
+    def getIndexId(self):
+        return self.__indexId
+    def getFastbootZipName(self):
+        # oppencas_irdeto-fastboot-flashall-20220311.zip
+        return self.__chipUrlName + '-fastboot-flashall-' + self.__date + '.zip'
+    def getFastbootZipNameShort(self):
+        # oppencas-fastboot-flashall-20220311.zip
+        return self.__chipUrlNameShort + '-fastboot-flashall-' + self.__date + '.zip'
+
+    def paserUrl(self, url):
+        try:
+            # URL: http://firmware.amlogic.com/shanghai/image/android/Android-S/patchbuild/2022-03-01/ohm-userdebug-android32-kernel64-GTV-5272/
+            index = url.find('Android-')
+            if index == -1:
+                self.log.w('paserUrl: not find Android- in url')
+                return -1
+            self.__androidVer = url[index + len('Android-')]
+
+            url = url.strip(' ')
+            index = url.find('20')
+            if index == -1:
+                self.log.w('paserUrl: not find the str 20, url invalid')
+                return -1
+            # 2022-
+            if url[index + 4] != '-':
+                self.log.w('paserUrl: not find the date in URL, url invalid')
+                return -1
+
+            # date: 20220301
+            tempStr = url[index :]
+            if len(tempStr) < len('20xx-xx-xx'):
+                self.log.w('paserUrl: not find the date in URL, url invalid, date:' + tempStr)
+                return -1
+
+            versionIdStartIndex = url.rfind('-')
+            if versionIdStartIndex == -1:
+                self.log.w('paserUrl: not find the str "-", url invalid')
+                return -1
+            # 5272
+            self.__indexId = url[versionIdStartIndex + 1 :].strip('/')
+            if not self.__indexId.isdigit():
+                self.log.w('paserUrl: not find the version ID in URL, url invalid, ID:' + self.__indexId)
+                return -1
+
+            self.__date = url[index : index + len('20xx')] + url[index + len('20xx-') : index + len('20xx-xx')] + url[index + len('20xx-xx-') : index + len('20xx-xx-xx')]
+            # tempStr: ohm-userdebug-android32-kernel64-GTV-5272/
+            tempStr = url[index + 11 :]
+            index = tempStr.find('-')
+
+            # __chipUrlName: oppencas_irdeto
+            self.__chipUrlName = tempStr[: index]
+            index = self.__chipUrlName.find('_')
+            # __chipUrlNameShort: oppencas
+            self.__chipUrlNameShort = tempStr[: index]
+            
+            self.log.i('paserUrl: Android-' + self.__androidVer + ', chip:' + self.__chipUrlName + ', chipShort:' + self.__chipUrlNameShort + ', index:' + self.__indexId)
+            print('paserUrl: Android-' + self.__androidVer + ', chip:' + self.__chipUrlName + ', chipShort:' + self.__chipUrlNameShort + ', index:' + self.__indexId)
+            return 0
+        except:
+            self.log.f('paserUrl: somes except happed. =_=')
+            return -1

@@ -243,7 +243,7 @@ class Ui_MainWindow(object):
         self.label.setTextFormat(QtCore.Qt.MarkdownText)
         self.label.setObjectName("label")
         self.AmlDebugAudioCreateZipEnable_checkBox = QtWidgets.QCheckBox(self.AmlDebugAudio_tab)
-        self.AmlDebugAudioCreateZipEnable_checkBox.setGeometry(QtCore.QRect(510, 10, 101, 31))
+        self.AmlDebugAudioCreateZipEnable_checkBox.setGeometry(QtCore.QRect(510, 10, 121, 31))
         self.AmlDebugAudioCreateZipEnable_checkBox.setObjectName("AmlDebugAudioCreateZipEnable_checkBox")
         self.AmlAudioDebugPlayAudioPath_lineEdit = QtWidgets.QLineEdit(self.AmlDebugAudio_tab)
         self.AmlAudioDebugPlayAudioPath_lineEdit.setGeometry(QtCore.QRect(10, 160, 691, 31))
@@ -503,7 +503,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuAbout.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.AmlDebug_tabWidget.setCurrentIndex(0)
+        self.AmlDebug_tabWidget.setCurrentIndex(1)
         self.AmlAudioDebugPlayAudiSelChannel_comboBox.setCurrentIndex(-1)
         self.AmlSystemFile_tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
