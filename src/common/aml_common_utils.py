@@ -1,15 +1,90 @@
-import time, threading, os, math, sys, pathlib
-import subprocess, signal
-import zipfile
+import time, threading, os, math, sys, pathlib, platform
+import subprocess, signal, requests
+import zipfile, urllib.request
 import shutil
 import configparser, getpass, socket
 from pathlib import Path
 from res.script.constant import AmlDebugConstant
+from threading import Thread
+
 
 RET_VAL_SUCCESS         = 0
 RET_VAL_FAIL            = -1
 RET_VAL_EXCEPTION       = -2
 
+
+class defaultLog:
+    def v(self, info):
+        print('V ' + info)
+    def d(self, info):
+        print('D ' + info)
+    def i(self, info):
+        print('I ' + info)
+    def w(self, info):
+        print('W ' + info)
+    def e(self, info):
+        print('E ' + info)
+    def f(self, info):
+        print('F ' + info)
+
+class httpDownload(Thread):
+    def __init__(self, url, path, name, log=print):
+        super().__init__()
+        self.log = log
+        if log == print:
+            self.log = defaultLog()
+        self.url = url
+        self.path = path
+        self.name = name
+        self._return = 0
+        self.stop = True
+
+    def run(self):
+        self._return = self.httpDownloadFile()
+    def start(self):
+        self.stop = False
+        super().start()   
+    def stop(self):
+        self.stop = True
+        super().join()
+    def join(self):
+        super().join()
+        return self._return
+
+    def httpDownloadFile(self):
+        try:
+            if self.url == '':
+                self.log.e('httpDownloadFile: URL is empty.')
+                return -1
+            if not os.path.exists(self.path) or os.path.isfile(self.path):
+                self.log.e('[httpDownloadFile] ' + self.path + ' not exists')
+                return -1, ''
+            res = requests.get(self.url, stream=True)
+            if res.status_code != 200:
+                self.log.e('httpDownloadFile: request file:' + self.url + ' fail')
+                return -1
+
+            totalSize = int(int(res.headers["Content-Length"]) / 1024 + 0.5)
+            filePath = os.path.join(self.path, self.name)
+            peroidSizeByte = 1024 * 1024
+            writteCntByte = 0
+            
+            self.log.i('%v KB / ' + str(totalSize) + 'KB')
+            fileFd = open(filePath, 'wb')
+            self.log.i('httpDownloadFile: ' + "aml_debug_tool.exe" + ', size: ' + str(totalSize) + ' KB')
+            for chunk in res.iter_content(chunk_size=peroidSizeByte):
+                if self.stop:
+                    fileFd.close()
+                    return -1
+                fileFd.write(chunk)
+                writteCntByte = writteCntByte + peroidSizeByte
+                self.log.d('cur: ' + str(100 * (writteCntByte / 1024) / totalSize) + '%, ' + str(writteCntByte/1024) + '/' + str(totalSize))
+            fileFd.close()
+            self.log.i('httpDownloadFile: Download compelete!')
+            return 0
+        except Exception as result:
+            self.log.f('httpDownloadFile fail. result:' + str(result))
+            return -1
 
 
 class AmlCommonUtils():
@@ -37,7 +112,7 @@ class AmlCommonUtils():
         AML_DEBUG_MODULE_CEC      :   'cec',
     }
 
-    AML_DEBUG_TOOL_EXE_SERVER_PATH              = '\\\\10.28.49.68\\amlogic debug tool\\'
+    AML_DEBUG_TOOL_EXE_SERVER_PATH              = 'http://10.28.11.52:8080/amlogic_tools/Aml_Debug_Tool/'
     AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME        = 'online_updater.exe'
     AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME        = 'aml_debug_tool_version.ini'
 
@@ -310,6 +385,7 @@ class AmlCommonUtils():
         section = 'PC_snapshot'
         ini.add_section(section)
         ini.set(section, 'cur_debug_user', getpass.getuser())
+        ini.set(section, 'cur_platform_uname', str(platform.uname()))
         ini.set(section, 'cur_debug_timezone', str(time.tzname))
         ini.set(section, 'cur_debug_time', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         hostname = socket.gethostname()
@@ -328,28 +404,15 @@ class AmlCommonUtils():
             ini.write(file)
 
     def check_for_updates():
-        upgrade_exe_file_path_server = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_NAME_EXE
         upgrade_version_file_path_server = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME
-        upgrade_online_updater_file_path = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME
         try:
-            if not Path(AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH).exists():
-                AmlCommonUtils.log('[check_for_updates] Connect server failed!')
-                return -1, ''
-            if not Path(upgrade_exe_file_path_server).exists():
-                AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_NAME_EXE + ' not exists')
-                return -1, ''
-            if not Path(upgrade_version_file_path_server).exists():
-                AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_EXE_VERSION_FILE_NAME + ' not exists')
-                return -1, ''
-            if not Path(upgrade_online_updater_file_path).exists():
-                AmlCommonUtils.log('[check_for_updates] ' + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME + ' not exists')
-                return -1, ''
-        except:
-            AmlCommonUtils.log('[check_for_updates] An except occurs.')
+            fp = urllib.request.urlopen(upgrade_version_file_path_server, timeout=1)
+            serverIniInfo = fp.read().decode()
+        except Exception as result:
+            AmlCommonUtils.log('[check_for_updates] Failed to connect to server! ' + str(result))
             return -1, ''
-
         ini = configparser.ConfigParser()
-        ini.read(upgrade_version_file_path_server)
+        ini.read_string(serverIniInfo)
         server_version = ini['AMLOGIC']['version']
         server_version_array = server_version.split('.')
         cur_version_array = AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_VERSION.split('.')
@@ -371,7 +434,13 @@ class AmlCommonUtils():
     def update_tool_now():
         upgrade_online_updater_file_path = AmlCommonUtils.AML_DEBUG_TOOL_EXE_SERVER_PATH + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME
         try:
-            os.system('copy "' + upgrade_online_updater_file_path +  '" .\\')
+            # os.system('copy "' + upgrade_online_updater_file_path +  '" .\\')
+            download = httpDownload(upgrade_online_updater_file_path, os.getcwd(), AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME)
+            download.start()
+            ret = download.join()
+            if (ret != 0):
+                AmlCommonUtils.log('[update_tool_now] httpDownload ' + AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME +'fail')
+                return -1
         except:
             AmlCommonUtils.log('[update_tool_now] An except occurs.')
         proc = subprocess.Popen(AmlCommonUtils.AML_DEBUG_TOOL_EXE_OTA_EXE_FILE_NAME + ' ' + AmlDebugConstant.AML_DEBUG_TOOL_COMPILE_EXE_TYPE, \

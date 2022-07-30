@@ -300,9 +300,12 @@ class AmlDebugBurnUrlPaser:
 
             # __chipUrlName: oppencas_irdeto
             self.__chipUrlName = tempStr[: index]
-            index = self.__chipUrlName.find('_')
+            index = self.__chipUrlName.rfind('_')
+
             # __chipUrlNameShort: oppencas
-            self.__chipUrlNameShort = tempStr[: index]
+            self.__chipUrlNameShort = ''
+            if index != -1:
+                self.__chipUrlNameShort = tempStr[: index]
             
             self.log.i('paserUrl: Android-' + self.__androidVer + ', chip:' + self.__chipUrlName + ', chipShort:' + self.__chipUrlNameShort + ', index:' + self.__indexId)
             print('paserUrl: Android-' + self.__androidVer + ', chip:' + self.__chipUrlName + ', chipShort:' + self.__chipUrlNameShort + ', index:' + self.__indexId)

@@ -34,15 +34,34 @@ class AmlAudioDebug:
         self.__curState = -1
         self.__m_isPlaying = False
         self.__dumpCmdOutFilePath = '/data/dump_audio.log'
+# cat /proc/asound/cards
+# cat /proc/asound/pcm
+# cat /proc/asound/card0/pcm*c/sub0/status
+# cat /proc/asound/card0/pcm*c/sub0/hw_params
+# cat /proc/asound/card0/pcm*c/sub0/sw_params
+# cat /proc/asound/card0/pcm*p/sub0/status
+# cat /proc/asound/card0/pcm*p/sub0/hw_params
+# cat /proc/asound/card0/pcm*p/sub0/sw_params
+# cat /sys/class/amhdmitx/amhdmitx0/aud_cap
+# cat /sys/class/amaudio/dts_enable
+# cat /sys/class/amaudio/dolby_enable
+# ls -al /odm/lib/*Hw*
+# ls -al /vendor/lib/*Hw*
+# dumpsys hdmi_control
+# dumpsys media.audio_policy
+# dumpsys audio
+# dumpsys media.audio_flinger
+# tinymix
+
         self.__adbDumpCmdLists = [
             'cat /proc/asound/cards',
             'cat /proc/asound/pcm',
-            'cat /proc/asound/card0/pcm*c/sub0/status',
-            'cat /proc/asound/card0/pcm*c/sub0/hw_params',
-            'cat /proc/asound/card0/pcm*c/sub0/sw_params',
-            'cat /proc/asound/card0/pcm*p/sub0/status',
-            'cat /proc/asound/card0/pcm*p/sub0/hw_params',
-            'cat /proc/asound/card0/pcm*p/sub0/sw_params',
+            'cat /proc/asound/card*/pcm*c/sub0/status',
+            'cat /proc/asound/card*/pcm*c/sub0/hw_params',
+            'cat /proc/asound/card*/pcm*c/sub0/sw_params',
+            'cat /proc/asound/card*/pcm*p/sub0/status',
+            'cat /proc/asound/card*/pcm*p/sub0/hw_params',
+            'cat /proc/asound/card*/pcm*p/sub0/sw_params',
             'cat /sys/class/amhdmitx/amhdmitx0/aud_cap',
             'cat /sys/class/amaudio/dts_enable',
             'cat /sys/class/amaudio/dolby_enable',
@@ -60,13 +79,12 @@ class AmlAudioDebug:
             'touch /data/audio_spk.pcm /data/audio_dtv.pcm /data/alsa_pcm_write.pcm',
             'mkdir /data/audio /data/audio_out /data/vendor/audiohal/ -p',
             'chmod 777 /data/audio /data/audio_out /data/vendor/audiohal/ /data/audio_spk.pcm /data/audio_dtv.pcm /data/alsa_pcm_write.pcm',
-            'rm /data/audio/* /data/vendor/audiohal/* -rf',
+            'rm /data/audio/* /data/vendor/audiohal/* /data/audio_out/* -rf',
             'rm ' + self.__dumpCmdOutFilePath + ' -rf',
             'rm ' + AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_COMMON_INFO + ' -rf',
         ]
 
         self.__adbDumpDataStartLists = [
-            'setprop sys.droidlogic.audio.debug 1',
             'setprop vendor.media.audiohal.indump 1',
             'setprop vendor.media.audiohal.outdump 1',
             'setprop vendor.media.audiohal.alsadump 1',
@@ -82,7 +100,6 @@ class AmlAudioDebug:
         ]
 
         self.__adbDumpDataStopLists = [
-            'setprop sys.droidlogic.audio.debug 0',
             'setprop vendor.media.audiohal.indump 0',
             'setprop vendor.media.audiohal.outdump 0',
             'setprop vendor.media.audiohal.alsadump 0',
@@ -98,11 +115,13 @@ class AmlAudioDebug:
         ]
 
         self.__adbLogcatStartLists = [
+            'setprop sys.droidlogic.audio.debug 1',
             'setprop vendor.media.audio.hal.debug 4096',
             'setprop media.audio.hal.debug 4096',
         ]
 
         self.__adbLogcatStopLists = [
+            'setprop sys.droidlogic.audio.debug 0',
             'setprop vendor.media.audio.hal.debug 0',
             'setprop media.audio.hal.debug 0',
         ]
@@ -235,10 +254,9 @@ class AmlAudioDebug:
             self.log.d('2.2 AUTO mode: fetching the audio data end.')
 
     def __prepare_debug_env(self):
-        if self.__debugCfg.m_homeClick == False:
-            self.__capture_logcat_disable_prop()
-            
-        self.__capture_audio_data_prop_disable()
+        # if self.__debugCfg.m_homeClick == False:
+        #     self.__capture_logcat_disable_prop()
+        # self.__capture_audio_data_prop_disable()
         self.__capture_clear_all_files()
 
     def __pull_capture_debug_info_to_pc(self):
@@ -275,6 +293,7 @@ class AmlAudioDebug:
 
     def __capture_logcat_enable_prop(self):
         self.__exe_adb_shell_cmd(self.__adbLogcatStartLists)
+        AmlCommonUtils.exe_adb_shell_cmd('dumpsys media.audio_flinger', False)
 
     def __capture_logcat_disable_prop(self):
         self.__exe_adb_shell_cmd(self.__adbLogcatStopLists)
