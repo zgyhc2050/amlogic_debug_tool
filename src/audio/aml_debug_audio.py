@@ -97,6 +97,7 @@ class AmlAudioDebug:
             'setprop media.audiohal.alsadump 1',
             'setprop media.audiohal.a2dpdump 1',
             'setprop media.audiohal.ms12dump 0xfff',
+            'setprop media.audiohal.a2dp 1',
         ]
 
         self.__adbDumpDataStopLists = [
@@ -112,6 +113,7 @@ class AmlAudioDebug:
             'setprop media.audiohal.alsadump 0',
             'setprop media.audiohal.a2dpdump 0',
             'setprop media.audiohal.ms12dump 0',
+            'setprop media.audiohal.a2dp 0',
         ]
 
         self.__adbLogcatStartLists = [
@@ -133,6 +135,9 @@ class AmlAudioDebug:
             '/data/audio',
             '/data/audio_out',
             '/data/vendor/audiohal/',
+            '/data/audio_spk.pcm',
+            '/data/audio_dtv.pcm',
+            '/data/alsa_pcm_write.pcm',
             self.__dumpCmdOutFilePath,
             AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT,
         ]
