@@ -77,20 +77,16 @@ class procThread(QThread):
                 self.log.e('__burnProcess: fail to paser URL')
                 return
 
-            serverFastbootFileName1 = self.urlPaser.getFastbootZipName()
-            serverFastbootFileName2 = self.urlPaser.getFastbootZipNameShort()
-            if serverFastbootFileName1 == '' and serverFastbootFileName2 == '':
-                self.log.e('__burnProcess: cannot find fastboot name in URL:' + self.url)
+            serverFastbootFileNames, localFastbootFileName = self.urlPaser.getFastbootZipName()
+            if len(serverFastbootFileNames) == 0:
                 return
-            # localFastbootFileName: ohm-fastboot-flashall-20220301-5272.zip
-            localFastbootFileName = serverFastbootFileName1[: -4] + '-' + self.urlPaser.getIndexId() + '.zip'
 
             tryCnt = 0
             while True:
                 ## download ohm-fastboot-flashall-20220301.zip to localPathDir(d:\aml_debug\burn\)
                 if self.url[-1] != '/':
                     self.url = self.url + '/'
-                ret = self.downloadFileByUrl(self.url, serverFastbootFileName1, serverFastbootFileName2, localPathDir, localFastbootFileName)
+                ret = self.downloadFileByUrl(self.url, serverFastbootFileNames, localPathDir, localFastbootFileName)
                 if self.burn.stop or ret != 0:
                     # print('stop: '  + str(self.burn.stop) + ' ret:' + str(ret))
                     return
@@ -106,7 +102,7 @@ class procThread(QThread):
                         return
                     else:
                         if os.path.exists(localFileNameAndPath):
-                            os.remove(localFileNameAndPath)  
+                            os.remove(localFileNameAndPath)
                         else:
                             self.log.w('__burnProcess: not find the bade file:' + localFileNameAndPath)
                         self.log.w('__burnProcess: unzipFiles fail, retry...')
@@ -124,10 +120,9 @@ class procThread(QThread):
         except:
             self.log.f('__burnProcess: somes except happed. =_=')
     
-    def downloadFileByUrl(self, url, serverFilePathAndName1, serverFilePathAndName2, localPathDir, localFastbootFileName):
+    def downloadFileByUrl(self, url, serverFilePathAndNames, localPathDir, localFastbootFileName):
         try:
-            if serverFilePathAndName1 is None or serverFilePathAndName2 is None or localPathDir is None \
-                or localFastbootFileName is None or url is None:
+            if localPathDir is None or localFastbootFileName is None or url is None or len(serverFilePathAndNames) == 0:
                 self.log.e('downloadFileByUrl: invalid param')
                 return -1
             folder = os.path.exists(localPathDir)
@@ -135,21 +130,21 @@ class procThread(QThread):
                 self.log.e('downloadFileByUrl: not found the directory:' + localPathDir)
                 return -1
 
-            url1 = url + serverFilePathAndName1
-            url2 = url + serverFilePathAndName2
-
             if os.path.isfile(localPathDir + '\\' + localFastbootFileName):
                 self.log.i('downloadFileByUrl: ' + localPathDir + '\\' + localFastbootFileName + ' alread existed.')
                 return 0
 
-            res = requests.get(url1, stream=True)
-            if res.status_code != 200:
-                self.log.w('downloadFileByUrl: request file:' + serverFilePathAndName1 + ' fail')
-                self.log.i('downloadFileByUrl: now retry request file:' + serverFilePathAndName2)
-                res = requests.get(url2, stream=True)
+            fastbootName = ''
+            for name in serverFilePathAndNames:
+                res = requests.get(url + name, stream=True)
                 if res.status_code != 200:
-                    self.log.e('downloadFileByUrl: retry request fail ret:' + str(res.status_code))
-                    return -1
+                    continue
+                fastbootName = name
+                break
+            if res.status_code != 200:
+                self.log.e('downloadFileByUrl: request url fail')
+                return -1
+
             totalSize = int(int(res.headers["Content-Length"]) / 1024 + 0.5)
             filePath = os.path.join(localPathDir, localFastbootFileName)
             peroidSizeByte = 1024 * 1024
@@ -159,7 +154,7 @@ class procThread(QThread):
             self.burnSetCurProcessMaxValueSignal.emit(totalSize)
             self.burnSetCurProcessFormatSignal.emit('%v KB / ' + str(totalSize) + 'KB')
             fileFd = open(filePath, 'wb')
-            self.log.i('downloadFileByUrl: ' + serverFilePathAndName1 + ', size: ' + str(totalSize) + ' KB')
+            self.log.i('downloadFileByUrl: ' + fastbootName + ', size: ' + str(totalSize) + ' KB')
             for chunk in res.iter_content(chunk_size=peroidSizeByte):
                 if self.burn.stop:
                     fileFd.close()
@@ -251,12 +246,25 @@ class AmlDebugBurnUrlPaser:
         return self.__chipUrlNameShort
     def getIndexId(self):
         return self.__indexId
+
     def getFastbootZipName(self):
-        # oppencas_irdeto-fastboot-flashall-20220311.zip
-        return self.__chipUrlName + '-fastboot-flashall-' + self.__date + '.zip'
-    def getFastbootZipNameShort(self):
-        # oppencas-fastboot-flashall-20220311.zip
-        return self.__chipUrlNameShort + '-fastboot-flashall-' + self.__date + '.zip'
+        names = []
+        if self.__chipUrlNameShort == '' and self.__chipUrlName == '':
+            self.log.w('getFastbootZipName: not find fastboot name.')
+            return names, ''
+        str = ''
+        if self.__chipUrlName != '':
+            # oppencas_irdeto-fastboot-flashall-20220311.zip
+            names.append(self.__chipUrlName + '-fastboot-flashall-' + self.__date + '.zip')
+            str = self.__chipUrlName
+        if self.__chipUrlNameShort != '':
+            # oppencas-fastboot-flashall-20220311.zip
+            names.append(self.__chipUrlNameShort + '-fastboot-flashall-' + self.__date + '.zip')
+            str = self.__chipUrlNameShort
+        # oppencas-fastboot-flashall-20221022-10484.zip
+        localName = str + '-fastboot-flashall-' + self.__date + '-' + self.getIndexId() + '.zip'
+        names.append(localName)
+        return names, localName
 
     def paserUrl(self, url):
         try:
