@@ -138,6 +138,7 @@ class procThread(QThread):
             for name in serverFilePathAndNames:
                 res = requests.get(url + name, stream=True)
                 if res.status_code != 200:
+                    self.log.v('downloadFileByUrl: request url:' + name +' fail')
                     continue
                 fastbootName = name
                 break
@@ -256,14 +257,15 @@ class AmlDebugBurnUrlPaser:
         if self.__chipUrlName != '':
             # oppencas_irdeto-fastboot-flashall-20220311.zip
             names.append(self.__chipUrlName + '-fastboot-flashall-' + self.__date + '.zip')
+            names.append(self.__chipUrlName + '-fastboot-flashall-' + self.__date + '-' + self.getIndexId() + '.zip')
             str = self.__chipUrlName
         if self.__chipUrlNameShort != '':
             # oppencas-fastboot-flashall-20220311.zip
             names.append(self.__chipUrlNameShort + '-fastboot-flashall-' + self.__date + '.zip')
+            names.append(self.__chipUrlNameShort + '-fastboot-flashall-' + self.__date + '-' + self.getIndexId() + '.zip')
             str = self.__chipUrlNameShort
         # oppencas-fastboot-flashall-20221022-10484.zip
         localName = str + '-fastboot-flashall-' + self.__date + '-' + self.getIndexId() + '.zip'
-        names.append(localName)
         return names, localName
 
     def paserUrl(self, url):
