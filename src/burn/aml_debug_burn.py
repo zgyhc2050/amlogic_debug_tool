@@ -273,6 +273,9 @@ class AmlDebugBurnUrlPaser:
             # URL: http://firmware.amlogic.com/shanghai/image/android/Android-S/patchbuild/2022-03-01/ohm-userdebug-android32-kernel64-GTV-5272/
             index = url.find('Android-')
             if index == -1:
+                index = url.find('Android_')
+
+            if index == -1:
                 self.log.w('paserUrl: not find Android- in url')
                 return -1
             self.__androidVer = url[index + len('Android-')]
