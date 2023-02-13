@@ -309,13 +309,19 @@ class AmlDebugBurnUrlPaser:
             self.__date = url[index : index + len('20xx')] + url[index + len('20xx-') : index + len('20xx-xx')] + url[index + len('20xx-xx-') : index + len('20xx-xx-xx')]
             # tempStr: ohm-userdebug-android32-kernel64-GTV-5272/
             tempStr = url[index + 11 :]
-            index = tempStr.find('-')
+            # tempStr: ohm-userdebug-android32-kernel64-GTV-5272
+            tempStr = tempStr.rstrip('/')
+            # For: http://firmware.amlogic.com/shanghai/image/android/Android_T/autobuild/Android_T_Hybrid_AOSP_Openlinux_AUTOBUILD_Run/2023-02-07/oppen_hybrid/oppen_hybrid-userdebug-android32-kernel64-DRM-132/
+            # oppen_hybrid-userdebug-android32-kernel64-DRM-132
+            index = tempStr.rfind('/')
+            tempStr = tempStr[index + 1:]
 
             # __chipUrlName: oppencas_irdeto
+            index = tempStr.find('-')
             self.__chipUrlName = tempStr[: index]
-            index = self.__chipUrlName.rfind('_')
 
             # __chipUrlNameShort: oppencas
+            index = self.__chipUrlName.rfind('_')
             self.__chipUrlNameShort = ''
             if index != -1:
                 self.__chipUrlNameShort = tempStr[: index]

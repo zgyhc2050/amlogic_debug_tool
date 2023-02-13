@@ -502,7 +502,7 @@
         <rect>
          <x>30</x>
          <y>230</y>
-         <width>171</width>
+         <width>131</width>
          <height>31</height>
         </rect>
        </property>
@@ -516,10 +516,10 @@
       <widget class="QPushButton" name="AmlDebugHomeAdbDevConnect_pushButton">
        <property name="geometry">
         <rect>
-         <x>230</x>
-         <y>220</y>
-         <width>93</width>
-         <height>41</height>
+         <x>192</x>
+         <y>210</y>
+         <width>121</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -544,12 +544,25 @@
         <rect>
          <x>10</x>
          <y>210</y>
-         <width>201</width>
+         <width>161</width>
          <height>61</height>
         </rect>
        </property>
        <property name="title">
         <string>IP address</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="AmlDebugHomeAdbDevDisConnectAll_pushButton">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>240</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Disconnect all</string>
        </property>
       </widget>
       <zorder>groupBox_3</zorder>
@@ -558,6 +571,7 @@
       <zorder>AmlDebugHomeAdbDevIp_lineEdit</zorder>
       <zorder>AmlDebugHomeAdbDevConnect_pushButton</zorder>
       <zorder>AmlDebugHomeAdbDevRefresh_pushButton</zorder>
+      <zorder>AmlDebugHomeAdbDevDisConnectAll_pushButton</zorder>
      </widget>
      <widget class="QPushButton" name="AmlDebugHomeOpenOutput_pushButton">
       <property name="geometry">

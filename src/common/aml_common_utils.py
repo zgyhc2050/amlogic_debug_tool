@@ -162,6 +162,8 @@ class AmlCommonUtils():
         AmlCommonUtils.log_func = func
     def set_adb_cur_device(dev):
         AmlCommonUtils.adb_cur_dev = dev
+    def get_adb_cur_device():
+        return AmlCommonUtils.adb_cur_dev
 
     def pre_create_directory(createByModule, moduleEnableArray=0):
         if not Path(AmlCommonUtils.get_cur_root_path()).exists():
@@ -279,6 +281,9 @@ class AmlCommonUtils():
         AmlCommonUtils.adb_remount()
         return dev_name
 
+    def adb_disconnect():
+        return AmlCommonUtils.exe_adb_cmd('disconnect', True)
+
     def exe_adb_shell_getprop_cmd(cmd, bprint=False):
         return AmlCommonUtils.exe_adb_cmd('shell getprop "' + cmd + '"', bprint)
 
@@ -321,7 +326,7 @@ class AmlCommonUtils():
             return ''
 
     def get_adb_devices():
-        devs_list = []
+        devs_list = ['',]
         ret = AmlCommonUtils.exe_sys_cmd('adb devices', True)
         i = 0
         devs = ret.split('\n')

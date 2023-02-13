@@ -40,7 +40,7 @@ class AmlCommonUi():
             '\nDate: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE + 
             '\nCommit: ' + AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT + 
             '\n晶晨半导体（深圳）有限公司' + 
-            '\nCopyright © 2021 . Amlogic(CA)Co., Inc. All Rights Reserved.')
+            '\nCopyright © 2023 . Amlogic(CA)Co., Inc. All Rights Reserved.')
         dialog.exec_()
 
 class AmlDebugHelpAboutInfo_Dialog(Ui_AmlDebugHelpAboutInfo_Dialog, QDialog):

@@ -66,6 +66,7 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
         self.m_mainUi.AmlDebugHomeCaptureTime_spinBox.editingFinished.connect(self.__editingFinished_CaptureTime)
         self.m_mainUi.AmlDebugHomeAdbDevRefresh_pushButton.clicked.connect(self.__click_adbRefresh)
         self.m_mainUi.AmlDebugHomeAdbDevConnect_pushButton.clicked.connect(self.__click_adbConnect)
+        self.m_mainUi.AmlDebugHomeAdbDevDisConnectAll_pushButton.clicked.connect(self.__click_adbDisConnectAll)
         self.m_mainUi.AmlDebugHomeAdbDev_comboBox.currentTextChanged[str].connect(self.__textChanged_selectAdbDev)
         self.m_mainUi.AmlDebugHomeOpenOutput_pushButton.clicked.connect(self.__click_open_output)
         self.m_mainUi.AmlDebugHomeAdbDevIp_lineEdit.textChanged.connect(self.__textChanged_adbIpAdress)
@@ -115,12 +116,12 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
 
     def __click_adbRefresh(self):
         dev_list = self.__adb_dev_ui_refresh()
-        if len(dev_list) > 0:
-            cur_dev = self.m_mainUi.AmlDebugHomeAdbDev_comboBox.currentText()
-            # self.log.d('__click_adbRefresh select adb device:' + cur_dev)
-            AmlCommonUtils.set_adb_cur_device(cur_dev)
-        else:
-            AmlCommonUtils.set_adb_cur_device('')
+        # if len(dev_list) > 0:
+        #     cur_dev = self.m_mainUi.AmlDebugHomeAdbDev_comboBox.currentText()
+        #     # self.log.d('__click_adbRefresh select adb device:' + cur_dev)
+        #     AmlCommonUtils.set_adb_cur_device(cur_dev)
+        # else:
+        # AmlCommonUtils.set_adb_cur_device('')
 
     def __click_adbConnect(self):
         ip = self.m_mainUi.AmlDebugHomeAdbDevIp_lineEdit.text()
@@ -129,6 +130,11 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
             return
         self.__adb_dev_ui_refresh()
         self.m_mainUi.AmlDebugHomeAdbDev_comboBox.setCurrentText(dev_name)
+
+    def __click_adbDisConnectAll(self):
+        print('__click_adbDisConnectAll')
+        AmlCommonUtils.adb_disconnect()
+        self.__adb_dev_ui_refresh()
 
     def __textChanged_selectAdbDev(self, value):
         AmlCommonUtils.set_adb_cur_device(value)
@@ -235,9 +241,13 @@ class AmlDebugHomeUi(AmlDebugBaseUi):
 
     def __adb_dev_ui_refresh(self):
         dev_list = AmlCommonUtils.get_adb_devices()
+        curDevice = AmlCommonUtils.get_adb_cur_device()
         self.m_mainUi.AmlDebugHomeAdbDev_comboBox.clear()
         if len(dev_list) > 0:
             self.m_mainUi.AmlDebugHomeAdbDev_comboBox.addItems(dev_list)
+        if curDevice in dev_list:
+            AmlCommonUtils.set_adb_cur_device(curDevice)
+            self.m_mainUi.AmlDebugHomeAdbDev_comboBox.setCurrentText(curDevice)
         listModel = QStringListModel()
         listModel.setStringList(dev_list)
         self.m_mainUi.AmlDebugHomeAdbDev_listView.setModel(listModel)
