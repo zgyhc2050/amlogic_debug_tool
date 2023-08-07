@@ -123,8 +123,22 @@ class AmlCommonUtils():
     AML_DEBUG_LOG_LEVEL_E                       = 'E'
     AML_DEBUG_LOG_LEVEL_F                       = 'F'
 
+    ANDROID_SDK_VERSION_ARRAY = {
+        '28'    :   'P',
+        '29'    :   'Q',
+        '30'    :   'R',
+        '31'    :   'S',
+        '32'    :   'S',
+        '33'    :   'T',
+        '34'    :   'U',
+        '35'    :   'V',
+        '36'    :   'W',
+        '37'    :   'X',
+    }
+
     log_func = print   
     adb_cur_dev = ''
+    audio_debug_capture_mode = 0
 
     def init():
         if Path("d:").exists():
@@ -377,6 +391,13 @@ class AmlCommonUtils():
             except:
                 AmlCommonUtils.log('del_spec_file delete file:' + filePath + ' failed.', AmlCommonUtils.AML_DEBUG_LOG_LEVEL_F)
 
+    def get_platform_android_api_version():
+        sdkVersion = AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.version.sdk').replace('\n', '')
+        for version in AmlCommonUtils.ANDROID_SDK_VERSION_ARRAY.keys():
+            if sdkVersion == version:
+                return 'Android ' + AmlCommonUtils.ANDROID_SDK_VERSION_ARRAY[version] + ' (' + sdkVersion + ')'
+        return "invalid sdk version!!! version:" + sdkVersion
+
     def generate_snapshot(path):
         ini = configparser.ConfigParser()
 
@@ -386,6 +407,7 @@ class AmlCommonUtils():
         ini.set(section, 'compile_user', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_USERE)
         ini.set(section, 'compile_time', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_DATE)
         ini.set(section, 'commit_hash', AmlDebugConstant.AML_DEBUG_TOOL_ABOUT_COMMIT)
+        ini.set(section, 'audio_debug_capture_mode', 'Auto' if (AmlCommonUtils.audio_debug_capture_mode == 0) else 'Manual')
 
         section = 'PC_snapshot'
         ini.add_section(section)
@@ -401,7 +423,7 @@ class AmlCommonUtils():
         ini.add_section(section)
         ini.set(section, 'soc_product', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.product').replace('\n', ''))
         ini.set(section, 'build_date', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.date').replace('\n', ''))
-        ini.set(section, 'android_api', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.version.sdk').replace('\n', ''))
+        ini.set(section, 'android_api', AmlCommonUtils.get_platform_android_api_version())
         ini.set(section, 'system_build_version', AmlCommonUtils.exe_adb_shell_getprop_cmd('ro.build.fingerprint').replace('\n', ''))
         ini.set(section, 'cur_platform_date', AmlCommonUtils.exe_adb_shell_cmd('date').replace('\n', ''))
 

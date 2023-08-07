@@ -134,8 +134,9 @@ class AmlDebugAudioDebugUi(AmlDebugBaseUi):
         self.m_iniPaser.setValueByKey(AmlParserIniAudio.AML_PARSER_AUDIO_PLAY_AUDIO_PATH, self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.text())
 
     def __click_playAudioRateFileOpen(self):
-        curPath = self.audioDebug.getCurDebugPath()
-        openPath = self.check_output_path(curPath)
+        textName = self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.text()
+        filepatch, fileName= os.path.split (textName)
+        openPath = self.check_output_path(filepatch)
         fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self.m_mainUi, "Open File", openPath, "All Files(*);;Text Files(*.txt)")
         if not fileName == '':
             self.m_mainUi.AmlAudioDebugPlayAudioPath_lineEdit.setText(fileName)

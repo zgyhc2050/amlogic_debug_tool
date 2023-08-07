@@ -4,6 +4,7 @@ import time, threading
 from pathlib import Path
 from src.common.aml_common_utils import AmlCommonUtils
 import numpy
+import numpy as np
 class AudioDebugCfg:
     def __init__(self):
         self.m_captureMode = 0
@@ -85,6 +86,7 @@ class AmlAudioDebug:
         ]
 
         self.__adbDumpDataStartLists = [
+            'setprop log.tag.APM_AudioPolicyManager V',
             'setprop vendor.media.audiohal.indump 1',
             'setprop vendor.media.audiohal.outdump 1',
             'setprop vendor.media.audiohal.alsadump 1',
@@ -98,9 +100,11 @@ class AmlAudioDebug:
             'setprop media.audiohal.a2dpdump 1',
             'setprop media.audiohal.ms12dump 0xfff',
             'setprop media.audiohal.a2dp 1',
+            'dumpsys media.audio_flinger',
         ]
 
         self.__adbDumpDataStopLists = [
+            'setprop log.tag.APM_AudioPolicyManager D',
             'setprop vendor.media.audiohal.indump 0',
             'setprop vendor.media.audiohal.outdump 0',
             'setprop vendor.media.audiohal.alsadump 0',
@@ -118,8 +122,10 @@ class AmlAudioDebug:
 
         self.__adbLogcatStartLists = [
             'setprop sys.droidlogic.audio.debug 1',
+            'setprop sys.droidlogic.audio.debug 1',
             'setprop vendor.media.audio.hal.debug 4096',
             'setprop media.audio.hal.debug 4096',
+            'dumpsys media.audio_flinger',
         ]
 
         self.__adbLogcatStopLists = [
@@ -152,6 +158,7 @@ class AmlAudioDebug:
         if self.__curState == self.RUN_STATE_STARTED:
             self.log.w('current already started, do nothing')
             return
+        AmlCommonUtils.audio_debug_capture_mode = self.__debugCfg.m_captureMode
         self.log.d('AmlAudioDebug::start_capture m_homeClick:' + str(self.__debugCfg.m_homeClick))
         self.__curState = self.RUN_STATE_STARTED
         if self.__debugCfg.m_homeClick:
@@ -244,7 +251,8 @@ class AmlAudioDebug:
         self.log.d('1.2 Cat the some info to ' + self.__dumpCmdOutFilePath + ' file')
         dumpCmdListTemp = []
         for adbDumpCmd in self.__adbDumpCmdLists:
-            dumpCmdListTemp.append('echo ' + adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath)
+            dumpCmdListTemp.append("(date +'%Y-%m-%d %H:%M:%S' | tr \-d '\\n' && echo \" --- cmd:\" | tr \-d '\\n') >> " + self.__dumpCmdOutFilePath)
+            dumpCmdListTemp.append('(echo -n "  " && echo ' + adbDumpCmd + ') >> ' + self.__dumpCmdOutFilePath)
             dumpCmdListTemp.append(adbDumpCmd + ' >> ' + self.__dumpCmdOutFilePath)
         self.__exe_adb_shell_cmd(dumpCmdListTemp)
 
@@ -268,8 +276,8 @@ class AmlAudioDebug:
         self.log.d('Pull all file to PC ...')
         curpath = AmlCommonUtils.get_cur_root_path() + '\\' + self.__nowPullPcTime
         for dumpFile in self.__dumpFileLists:
-            if ((self.__debugCfg.m_homeClick == True or self.__debugCfg.m_logcatEnable == False) and  dumpFile == AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT) or \
-                (self.__debugCfg.m_dumpDataEnable == False and self.__dumpCmdOutFilePath == dumpFile):
+            if ((self.__debugCfg.m_homeClick == True or self.__debugCfg.m_logcatEnable == False) 
+                and  dumpFile == AmlCommonUtils.AML_DEBUG_PLATFORM_DIRECOTRY_LOGCAT):
                 continue
             exeCmdStr = 'pull ' + dumpFile + ' ' + self.__nowPullPcPath
             AmlCommonUtils.exe_adb_cmd(exeCmdStr, self.__debugCfg.m_printDebugEnable)
@@ -434,3 +442,6 @@ class AmlAudioDebug:
         wavData = wavData.T
         dst = numpy.array(list(zip(wavData[1], wavData[3]))).flatten()
         return dst, 2
+    
+    def signal_xHz(A, fi, time_s, sample):
+        return A * np.sin(np.linspace(0, fi * time_s * 2 * np.pi , sample* time_s))
